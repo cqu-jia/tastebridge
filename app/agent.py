@@ -71,7 +71,8 @@ address the users as "you" and "your friend", never speak as if a film or charac
 Use only facts from the place data.
 
 Then write 3 short, natural conversation starters a shy student could actually say, grounded in the two
-people's real favourites (an overlap or an interesting contrast). One sentence each. Ask about the
+people's real favourites (an overlap or an interesting contrast). One sentence each. `common` lists
+taste descriptors Qloo says they share (e.g. "Artistically Rich"); use one if it helps. Ask about the
 other person's experience and taste ("What got you into ...?", "Which ... would you show a first-timer?").
 Never mention news, releases or facts about the artists or films, and never imagine characters doing things.
 
@@ -157,16 +158,30 @@ def _parse_json(text: str) -> Optional[dict]:
 def _compact(plan: dict) -> dict:
     """What the LLM needs to see: drop images and coordinates to keep the prompt small."""
     def strip(p):
-        return {k: v for k, v in p.items() if k not in ("image", "popularity", "affinity")}
+        return {k: v for k, v in p.items() if k not in ("image", "popularity", "affinity", "lat", "lon")}
 
-    out = {k: v for k, v in plan.items() if k not in ("comfort", "bridge", "shared", "location", "midpoint")}
+    skip = ("comfort", "bridge", "shared", "location", "midpoint", "my_point", "friend_point", "profile")
+    out = {k: v for k, v in plan.items() if k not in skip}
     for key in ("comfort", "bridge", "shared"):
         if key in plan:
             out[key] = [strip(p) for p in plan[key]]
     return out
 
 
-def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, note: str, trace: list):
+def _narrate(name: str, args: dict, result) -> str:
+    """One plain-English line per tool call, shown live in the UI."""
+    if isinstance(result, dict) and "error" in result:
+        return f"Nemotron tried {name} but it failed; carrying on"
+    if name == "search_tags":
+        found = ", ".join(list(dict.fromkeys(t["name"] for t in result))[:3]) or "nothing"
+        return f"Nemotron looked up \"{args.get('query')}\" in Qloo's tags: {found}"
+    if name == "build_plan":
+        what = args.get("bridge_tag", "").split(":")[-1].replace("_", " ") or "new settings"
+        return f"Nemotron re-ran the plan, narrowing to {what}"
+    return f"Nemotron explored {args.get('target_type', 'more')}s people with your taste love"
+
+
+def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, note: str, trace: list, emit):
     """Let the LLM call tools until it answers. Returns (parsed JSON or None, latest plan or None)."""
     client, model = _llm(), os.environ["NEBIUS_MODEL"]
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
@@ -199,6 +214,7 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
             except Exception as e:  # report tool errors back so the model can recover
                 result = {"error": str(e)}
             trace.append({"tool": name, "args": args})
+            emit({"type": "step", "text": _narrate(name, args, result)})
             messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)})
     return None, latest_plan
 
@@ -246,51 +262,81 @@ def _attach(answer: dict, places: List[dict], kind_default: str) -> List[dict]:
     return cards
 
 
-def plan(favourites: List[dict], location: str, explore: float, home_food: str, note: str = "") -> dict:
-    defaults = {"location": location, "explore": explore, "home_food": home_food or None}
-    trace = [{"tool": "build_plan", "args": defaults}]
-    base = engine.build_plan(favourites, **defaults)
-    if "error" in base:
-        return {"error": base["error"]}
-
-    answer, final_plan = None, base
-    if llm_enabled():
-        user = json.dumps({"note": note, "explore": explore, "plan": _compact(base)}, ensure_ascii=False)
-        try:
-            answer, newer = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, note, trace)
-            # A narrowing tag can leave almost nothing; then the original plan is the better answer
-            usable = newer and "error" not in newer and len(newer["bridge"]) >= base["suggested_mix"]["bridge"]
-            final_plan = newer if usable else base
-        except Exception as e:  # LLM down or misconfigured: still serve the engine's plan
-            trace.append({"tool": "llm_error", "args": {"error": str(e)[:120]}})
-    if not answer:
-        answer = _fallback_plan(final_plan)
-
-    places = final_plan["comfort"] + final_plan["bridge"]
-    cards = _attach(answer, places, "bridge") or _attach(_fallback_plan(final_plan), places, "bridge")
-    comfort_ids = {p["id"] for p in final_plan["comfort"]}
+def _plan_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
+    places = plan["comfort"] + plan["bridge"]
+    cards = _attach(answer, places, "bridge") or _attach(_fallback_plan(plan), places, "bridge")
+    comfort_ids = {p["id"] for p in plan["comfort"]}
     for c in cards:  # the engine knows which list a place came from; don't trust the LLM's label
         c["kind"] = "comfort" if c["id"] in comfort_ids else "bridge"
     return {
         "intro": answer.get("intro", ""),
         "note": answer.get("note", ""),
         "cards": cards,
-        "seeds": final_plan["seeds"],
-        "unresolved": final_plan["unresolved"],
-        "location": final_plan["location"],
-        "trace": trace,
+        "seeds": plan["seeds"],
+        "unresolved": plan["unresolved"],
+        "location": plan["location"],
+        "profile": plan.get("profile"),
+        "trace": list(trace),
         "llm": llm_enabled(),
+        "final": final,
     }
 
 
-def twin(me: List[dict], friend: List[dict], my_location: str, friend_location: str) -> dict:
-    trace = [{"tool": "build_twin_plan", "args": {"my_location": my_location, "friend_location": friend_location}}]
-    base = engine.build_twin_plan(me, friend, my_location, friend_location)
+def plan(favourites: List[dict], location: str, explore: float, home_food: str, note: str = "", emit=None) -> dict:
+    """Engine plan first (sent as a draft), then the LLM curates it. emit() gets progress events."""
+    emit = emit or (lambda _e: None)
+    defaults = {"location": location, "explore": explore, "home_food": home_food or None}
+    trace = [{"tool": "build_plan", "args": defaults}]
+    base = engine.build_plan(favourites, **defaults, with_profile=True, emit=emit)
     if "error" in base:
         return {"error": base["error"]}
+    emit({"type": "draft", "data": _plan_result(_fallback_plan(base), base, trace, final=False)})
+
+    answer, final_plan = None, base
+    if llm_enabled():
+        emit({"type": "step", "text": "Asking Nemotron to choose and explain your picks"})
+        user = json.dumps({"note": note, "explore": explore, "plan": _compact(base)}, ensure_ascii=False)
+        try:
+            answer, newer = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, note, trace, emit)
+            # A narrowing tag can leave almost nothing; then the original plan is the better answer
+            usable = newer and "error" not in newer and len(newer["bridge"]) >= base["suggested_mix"]["bridge"]
+            if newer and not usable:
+                emit({"type": "step", "text": "That filter left too few places, so I kept the original plan"})
+            final_plan = {**newer, "profile": base["profile"]} if usable else base
+        except Exception as e:  # LLM down or misconfigured: still serve the engine's plan
+            trace.append({"tool": "llm_error", "args": {"error": str(e)[:120]}})
+    return _plan_result(answer or _fallback_plan(final_plan), final_plan, trace, final=True)
+
+
+def _twin_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
+    cards = _attach(answer, plan["shared"], "shared") or _attach(_fallback_twin(plan), plan["shared"], "shared")
+    return {
+        "intro": answer.get("intro", ""),
+        "cards": cards,
+        "starters": answer.get("starters", []),
+        "common": plan["common"],
+        "my_seeds": plan["my_seeds"],
+        "friend_seeds": plan["friend_seeds"],
+        "midpoint": plan["midpoint"],
+        "my_point": plan["my_point"],
+        "friend_point": plan["friend_point"],
+        "trace": list(trace),
+        "llm": llm_enabled(),
+        "final": final,
+    }
+
+
+def twin(me: List[dict], friend: List[dict], my_location: str, friend_location: str, emit=None) -> dict:
+    emit = emit or (lambda _e: None)
+    trace = [{"tool": "build_twin_plan", "args": {"my_location": my_location, "friend_location": friend_location}}]
+    base = engine.build_twin_plan(me, friend, my_location, friend_location, emit=emit)
+    if "error" in base:
+        return {"error": base["error"]}
+    emit({"type": "draft", "data": _twin_result(_fallback_twin(base), base, trace, final=False)})
 
     answer = None
     if llm_enabled():
+        emit({"type": "step", "text": "Asking Nemotron to explain the picks and write conversation starters"})
         try:
             resp = _llm().chat.completions.create(
                 model=os.environ["NEBIUS_MODEL"],
@@ -304,17 +350,4 @@ def twin(me: List[dict], friend: List[dict], my_location: str, friend_location: 
             trace.append({"tool": "write_starters", "args": {}})
         except Exception as e:
             trace.append({"tool": "llm_error", "args": {"error": str(e)[:120]}})
-    if not answer:
-        answer = _fallback_twin(base)
-
-    cards = _attach(answer, base["shared"], "shared") or _attach(_fallback_twin(base), base["shared"], "shared")
-    return {
-        "intro": answer.get("intro", ""),
-        "cards": cards,
-        "starters": answer.get("starters", []),
-        "my_seeds": base["my_seeds"],
-        "friend_seeds": base["friend_seeds"],
-        "midpoint": base["midpoint"],
-        "trace": trace,
-        "llm": llm_enabled(),
-    }
+    return _twin_result(answer or _fallback_twin(base), base, trace, final=True)

@@ -15,7 +15,7 @@ Each step follows an idea from our sequential-recommendation work:
 5. Group fusion for Taste Twin: least-misery aggregation, so a meetup spot has to suit both.
 """
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 from . import geo, qloo
 
@@ -156,6 +156,52 @@ def _comfort(seeds, lat, lon, home_food: Optional[str]) -> Tuple[Optional[dict],
     return tag, places
 
 
+PROFILE_DOMAINS = (("artist", "Artists"), ("movie", "Films"), ("tv_show", "TV"))
+# Qloo tag types that read well as "your taste is..."; genre:place etc. gives "Hotel", "Cafe"
+DESCRIPTOR_TYPES = (":style:", ":genre:media", ":genre:music")
+
+
+def _norm(name: str) -> str:
+    # Fold case, punctuation and traditional/simplified variants we've seen in Qloo names
+    return "".join(ch for ch in name.lower().replace("倫", "伦") if ch.isalnum())
+
+
+def taste_profile(seeds: List[dict]) -> dict:
+    """Cross-domain view of the user's taste: what else people with these favourites love."""
+    ids = [s["id"] for s in seeds if not s.get("noisy")] or [s["id"] for s in seeds]
+    own_ids = {s["id"] for s in seeds}
+    own_names = {_norm(n) for s in seeds for n in (s["name"], s["input"])}
+
+    def is_own(e):
+        # Qloo has e.g. both "Jay Chou 周杰伦" and "周杰倫"; don't recommend the user their own favourite
+        n = _norm(e["name"])
+        return e["id"] in own_ids or any(n and (n in o or o in n) for o in own_names)
+
+    def domain(item):
+        key, _ = item
+        return key, [e for e in qloo.get_recommendations(ids, key, take=10) if not is_own(e)][:5]
+
+    with ThreadPoolExecutor(QLOO_PARALLEL) as pool:
+        tags_future = pool.submit(qloo.taste_tags, ids)
+        domains = dict(pool.map(domain, PROFILE_DOMAINS))
+        tags = tags_future.result()
+
+    seen, descriptors = set(), []
+    for t in tags:
+        name = t["name"].strip()
+        if any(kind in t["type"] for kind in DESCRIPTOR_TYPES) and _norm(name) not in seen:
+            seen.add(_norm(name))  # "k pop" and "Kpop" are the same descriptor
+            descriptors.append(name[:1].upper() + name[1:])
+    return {
+        "descriptors": descriptors[:6],
+        "domains": [{"label": label, "items": [e["name"] for e in domains[key]]} for key, label in PROFILE_DOMAINS],
+    }
+
+
+def _noop(_event):
+    pass
+
+
 def _plan_for(seeds, lat, lon, explore, radius_m, tag=None):
     popularity_max = round(0.95 - 0.35 * explore, 2)
     lists = _per_seed_lists(seeds, lat, lon, radius_m, popularity_max, tag)
@@ -170,19 +216,34 @@ def build_plan(
     home_food: Optional[str] = None,
     radius_m: int = 2000,
     bridge_tag: Optional[str] = None,
+    with_profile: bool = False,
+    emit: Callable[[dict], None] = _noop,
 ) -> dict:
     """Comfort + Bridge plan for one person. bridge_tag (a Qloo tag id) narrows the bridge places."""
     point = geo.geocode(location)
     if not point:
         return {"error": f"Could not find location '{location}'. Try a UK postcode."}
+    emit({"type": "step", "text": f"Found {location} on the map"})
     seeds, missing = resolve(favourites)
     if not seeds:
         return {"error": "None of the favourites were found in Qloo.", "unresolved": missing}
+    emit({"type": "step", "text": "Matched your favourites in Qloo: " + ", ".join(s["name"] for s in seeds)})
 
     scored = _plan_for(seeds, *point, explore, radius_m, bridge_tag)
-    tag, comfort = _comfort(seeds, *point, home_food)
+    noisy = [s["name"] for s in seeds if s.get("noisy")]
+    emit({"type": "step", "text": (
+        f"{', '.join(noisy)} doesn't fit your other favourites, so it counts less" if noisy
+        else "Your favourites agree with each other, so they all count fully"
+    )})
+    # The profile uses the denoised seeds, so it runs after _plan_for, alongside the comfort lookup
+    with ThreadPoolExecutor(2) as pool:
+        profile_future = pool.submit(taste_profile, seeds) if with_profile else None
+        tag, comfort = _comfort(seeds, *point, home_food)
+        profile = profile_future.result() if profile_future else None
+
     comfort_ids = {p["id"] for p in comfort}
     bridge = diversify([p for p in scored.values() if p["id"] not in comfort_ids], k=8)
+    emit({"type": "step", "text": f"Ranked {len(scored)} nearby places by your taste, tourist hotspots down-weighted"})
     n_comfort = 2 if explore < 0.34 else 1
     return {
         "location": {"query": location, "lat": point[0], "lon": point[1]},
@@ -191,8 +252,20 @@ def build_plan(
         "comfort_tag": tag,
         "comfort": comfort[:3],
         "bridge": bridge,
+        "profile": profile,
         "suggested_mix": {"comfort": n_comfort if comfort else 0, "bridge": 4 - n_comfort},
     }
+
+
+def _common_descriptors(a_seeds: List[dict], b_seeds: List[dict]) -> List[str]:
+    """Taste descriptors two people share: an honest basis for conversation starters."""
+    def names(seeds):
+        return [t["name"] for t in qloo.taste_tags([s["id"] for s in seeds]) if any(k in t["type"] for k in DESCRIPTOR_TYPES)]
+
+    with ThreadPoolExecutor(2) as pool:
+        a, b = pool.map(names, (a_seeds, b_seeds))
+    b_lower = {n.lower() for n in b}
+    return [n for n in dict.fromkeys(a) if n.lower() in b_lower][:5]
 
 
 def build_twin_plan(
@@ -202,18 +275,25 @@ def build_twin_plan(
     friend_location: str,
     explore: float = 0.5,
     radius_m: int = 1500,
+    emit: Callable[[dict], None] = _noop,
 ) -> dict:
     """A meetup spot both people would like, near the midpoint between them."""
     a_pt, b_pt = geo.geocode(my_location), geo.geocode(friend_location)
     if not a_pt or not b_pt:
         return {"error": "Could not find one of the locations. Try UK postcodes."}
     lat, lon = geo.midpoint(a_pt, b_pt)
+    emit({"type": "step", "text": "Found the midpoint between you two"})
     (a_seeds, a_missing), (b_seeds, b_missing) = resolve(me), resolve(friend)
     if not a_seeds or not b_seeds:
         return {"error": "Need at least one recognised favourite from each person."}
+    emit({"type": "step", "text": "Matched both of your favourites in Qloo"})
 
-    a = _plan_for(a_seeds, lat, lon, explore, radius_m)
-    b = _plan_for(b_seeds, lat, lon, explore, radius_m)
+    with ThreadPoolExecutor(2) as pool:
+        fa = pool.submit(_plan_for, a_seeds, lat, lon, explore, radius_m)
+        fb = pool.submit(_plan_for, b_seeds, lat, lon, explore, radius_m)
+        a, b = fa.result(), fb.result()
+    emit({"type": "step", "text": "Scored each place for both of you; a spot only wins if you'd both like it"})
+    common = _common_descriptors(a_seeds, b_seeds)
     a_top = max((p["score"] for p in a.values()), default=1) or 1
     b_top = max((p["score"] for p in b.values()), default=1) or 1
 
@@ -229,6 +309,9 @@ def build_twin_plan(
     shared.sort(key=lambda p: p["score"], reverse=True)
     return {
         "midpoint": {"lat": lat, "lon": lon},
+        "my_point": {"lat": a_pt[0], "lon": a_pt[1]},
+        "friend_point": {"lat": b_pt[0], "lon": b_pt[1]},
+        "common": common,
         "my_seeds": a_seeds,
         "friend_seeds": b_seeds,
         "unresolved": a_missing + b_missing,

@@ -4,79 +4,179 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TasteBridge</title>
+<meta name="description" content="Make a new city feel like yours: places in London matched to the music, films and food you love from home.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
   :root {
-    --bg: #faf8f5; --panel: #ffffff; --text: #1f1d1a; --muted: #6b665e; --border: #e6e1d8;
-    --accent: #c2410c; --accent-soft: #fff1e8; --comfort: #b45309; --comfort-soft: #fef3c7;
-    --bridge: #0f766e; --bridge-soft: #ccfbf1; --warn-soft: #fef2f2; --warn: #b91c1c;
+    --bg: #f7f3ec; --panel: #fffdf9; --text: #1d1b18; --muted: #6d675d; --faint: #a39d92; --border: #e8e1d4;
+    --accent: #c2410c; --accent-ink: #fff; --accent-soft: #fdeee3;
+    --comfort: #b45309; --comfort-soft: #fdf0d5; --bridge: #0f766e; --bridge-soft: #d5f3ee;
+    --home: #1d1b18; --warn: #b42318; --warn-soft: #fdecea; --ok: #15803d;
+    --shadow: 0 1px 2px rgba(40, 30, 10, .05), 0 8px 24px rgba(40, 30, 10, .06);
+    --radius: 16px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #161513; --panel: #201e1b; --text: #eeeae3; --muted: #a39d93; --border: #34312c;
-      --accent: #fb923c; --accent-soft: #2d221b; --comfort: #fbbf24; --comfort-soft: #3a2c10;
-      --bridge: #5eead4; --bridge-soft: #12302c; --warn-soft: #3a1717; --warn: #fca5a5;
+      --bg: #151412; --panel: #1f1d1a; --text: #efebe4; --muted: #a8a196; --faint: #6f6a61; --border: #34302a;
+      --accent: #fb923c; --accent-ink: #1a1008; --accent-soft: #33231a;
+      --comfort: #fbbf24; --comfort-soft: #3a2c12; --bridge: #5eead4; --bridge-soft: #123330;
+      --home: #efebe4; --warn: #fca5a5; --warn-soft: #3a1918; --ok: #86efac;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
     }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 16px 64px; }
-  h1 { margin: 0; font-size: 26px; letter-spacing: -0.01em; }
-  .lede { margin: 6px 0 20px; color: var(--muted); max-width: 640px; }
-  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
-  .tabs button { border: 1px solid var(--border); background: var(--panel); color: var(--text); padding: 8px 14px;
-    border-radius: 999px; font: inherit; cursor: pointer; }
-  .tabs button[aria-selected="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
-  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
-  input, select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 10px; width: 100%; }
-  .fav { display: grid; grid-template-columns: 1fr 120px 120px 32px; gap: 6px; margin-bottom: 6px; }
-  .fav button { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 18px; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .twin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .ghost { border: 1px dashed var(--border); background: none; color: var(--muted); border-radius: 8px;
-    padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; }
-  .slider { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
-  .slider input { flex: 1; padding: 0; accent-color: var(--accent); }
-  .go { margin-top: 16px; background: var(--accent); color: #fff; border: 0; border-radius: 10px;
-    padding: 11px 20px; font: inherit; font-weight: 600; cursor: pointer; }
-  .go:disabled { opacity: .6; cursor: wait; }
-  .out { margin-top: 20px; }
-  .intro { font-size: 17px; margin: 0 0 6px; }
-  .note { background: var(--warn-soft); color: var(--warn); padding: 8px 12px; border-radius: 8px; font-size: 13px; }
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .card img { width: 100%; height: 130px; object-fit: cover; display: block; background: var(--border); }
-  .card .body { padding: 12px; }
-  .badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    padding: 2px 8px; border-radius: 999px; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px 72px; }
+  a { color: inherit; }
+
+  /* hero */
+  header.hero { padding: 40px 0 26px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; align-items: end; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: .01em; }
+  .brand .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
+  .brand .mark svg { width: 18px; height: 18px; }
+  h1 { font-family: Fraunces, Georgia, serif; font-weight: 650; font-size: clamp(32px, 5vw, 50px); line-height: 1.04;
+    letter-spacing: -.02em; margin: 18px 0 12px; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lede { color: var(--muted); margin: 0; max-width: 520px; font-size: 16px; }
+  .how { display: grid; gap: 10px; }
+  .how div { display: flex; gap: 12px; align-items: flex-start; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 12px; font-size: 13.5px; color: var(--muted); }
+  .how b { color: var(--text); font-weight: 600; display: block; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
+  .dot.comfort { background: var(--comfort); } .dot.bridge { background: var(--bridge); } .dot.twin { background: var(--accent); }
+
+  /* tabs + form */
+  .tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--border); border-radius: 999px; margin-bottom: 14px; }
+  .tabs button { border: 0; background: none; color: var(--muted); padding: 8px 16px; border-radius: 999px; font: inherit; font-weight: 500; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--text); color: var(--bg); }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  label, .label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin: 14px 0 6px; }
+  .panel > label:first-child, .col > label:first-child { margin-top: 0; }
+  input, select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 9px 11px; width: 100%; min-width: 0; }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+  .fav { display: grid; grid-template-columns: 1fr 104px 148px 30px; gap: 6px; margin-bottom: 6px; }
+  .fav .rm { border: 0; background: none; color: var(--faint); cursor: pointer; font-size: 20px; line-height: 1; }
+  .fav .rm:hover { color: var(--warn); }
+  .ghost { border: 1px dashed var(--border); background: none; color: var(--muted); border-radius: 10px; padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  .ghost:hover { border-color: var(--accent); color: var(--text); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .twin-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .slider { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+  .slider input { flex: 1; padding: 0; accent-color: var(--accent); background: none; border: 0; }
+  .slider output { min-width: 150px; text-align: right; color: var(--text); font-weight: 500; }
+  .actions { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+  .go { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 12px; padding: 12px 22px; font: inherit; font-weight: 600; cursor: pointer; }
+  .go:disabled { opacity: .6; cursor: progress; }
+  .hint { font-size: 12.5px; color: var(--faint); }
+
+  /* results */
+  .out { margin-top: 22px; }
+  .err { color: var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 10px; }
+  .results { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .stack { display: grid; gap: 16px; min-width: 0; }
+  .sticky { position: sticky; top: 16px; display: grid; gap: 16px; min-width: 0; }
+  .intro { font-family: Fraunces, Georgia, serif; font-size: 21px; line-height: 1.3; margin: 0; font-weight: 500; }
+  .note { background: var(--warn-soft); color: var(--warn); padding: 9px 12px; border-radius: 10px; font-size: 13.5px; margin: 0; }
+  .meta { font-size: 12.5px; color: var(--muted); }
+
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; font-size: 13.5px; }
+  .steps li { display: flex; gap: 9px; align-items: flex-start; color: var(--muted); animation: in .25s ease both; }
+  .steps li::before { content: ""; width: 16px; height: 16px; flex: none; margin-top: 2px; border-radius: 50%;
+    background: var(--ok); mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.5 11.2 3.3 8l1-1 2.2 2.2 5.2-5.2 1 1z"/></svg>') center/16px no-repeat;
+    -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.5 11.2 3.3 8l1-1 2.2 2.2 5.2-5.2 1 1z"/></svg>') center/16px no-repeat; }
+  .steps li.live { color: var(--text); }
+  .steps li.live::before { mask: none; -webkit-mask: none; background: none; border: 2px solid var(--accent); border-right-color: transparent; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes in { from { opacity: 0; transform: translateY(3px); } }
+  .stepsbox summary { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  .stepsbox[open] summary { margin-bottom: 12px; }
+  .stepsbox .steps { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); column-gap: 24px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: var(--accent-soft); color: var(--text); border-radius: 999px; padding: 4px 11px; font-size: 13px; }
+  .domains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+  .domains h3 { font-size: 12px; margin: 0 0 4px; color: var(--muted); font-weight: 600; }
+  .domains ol { margin: 0; padding-left: 18px; font-size: 13.5px; }
+  .domains li { overflow-wrap: anywhere; }
+
+  .cards { display: grid; gap: 12px; }
+  .card { display: grid; grid-template-columns: 118px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); transition: border-color .15s; }
+  .card:hover, .card.hl { border-color: var(--accent); }
+  .card .img { background: var(--border) center/cover no-repeat; min-height: 118px; position: relative; }
+  .card .num { position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 12px; font-weight: 700; color: #fff; }
+  .num.comfort { background: var(--comfort); } .num.bridge { background: var(--bridge); } .num.shared { background: var(--accent); }
+  .card .body { padding: 12px 14px; min-width: 0; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; }
   .badge.comfort { background: var(--comfort-soft); color: var(--comfort); }
   .badge.bridge, .badge.shared { background: var(--bridge-soft); color: var(--bridge); }
-  .card h3 { margin: 6px 0 2px; font-size: 16px; }
-  .meta { font-size: 12px; color: var(--muted); }
-  .why { margin: 8px 0 0; font-size: 14px; }
-  .starters { margin: 16px 0 0; padding-left: 20px; }
-  details { margin-top: 18px; font-size: 13px; color: var(--muted); }
-  summary { cursor: pointer; }
+  .card h3 { margin: 6px 0 1px; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+  .why { margin: 7px 0 0; font-size: 14px; }
+  .why.pending { color: var(--faint); }
+  .via strong { color: var(--text); font-weight: 600; }
+
+  #map, #twinMap { height: 380px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); z-index: 0; }
+  .leaflet-container { background: var(--border); font: inherit; }
+  .leaflet-tile-pane { filter: saturate(.55) sepia(.12); }
+  @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) saturate(.4); } }
+  .pin { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 700 12px Inter, sans-serif;
+    border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+  .pin.comfort { background: var(--comfort); } .pin.bridge { background: var(--bridge); } .pin.shared { background: var(--accent); }
+  .pin.home { background: var(--home); color: var(--bg); width: auto; padding: 0 8px; border-radius: 999px; }
+  .pin.home.mid { background: var(--panel); color: var(--muted); border: 2px dashed var(--muted); box-shadow: none; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+  .starters { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  details { font-size: 13px; color: var(--muted); }
+  summary { cursor: pointer; color: var(--text); font-weight: 500; }
   .seeds { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
   .seed { border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
   .seed.noisy { border-color: var(--warn); color: var(--warn); text-decoration: line-through; }
-  code { background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; }
-  .err { color: var(--warn); margin-top: 12px; }
-  @media (max-width: 640px) {
-    .fav { grid-template-columns: 1fr 1fr; }
-    .fav input { grid-column: 1 / -1; }
-    .fav button { display: none; }
-    .row, .twin { grid-template-columns: 1fr; }
+  code { background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  footer { margin-top: 40px; font-size: 12.5px; color: var(--faint); text-align: center; }
+
+  @media (max-width: 860px) {
+    header.hero, .results { grid-template-columns: 1fr; }
+    .sticky { position: static; }
+    #map, #twinMap { height: 300px; }
   }
+  @media (max-width: 600px) {
+    .fav { grid-template-columns: 1fr 1fr 30px; }
+    .fav input { grid-column: 1 / -1; }
+    .row, .twin-cols, .domains { grid-template-columns: 1fr; }
+    .card { grid-template-columns: 92px minmax(0, 1fr); }
+    .slider output { min-width: 0; }
+    .slider { flex-wrap: wrap; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>TasteBridge</h1>
-  <p class="lede">New to London? Tell us what you loved back home. We find a taste of home nearby, and local
-    places that people with your taste love, powered by Qloo's taste graph.</p>
+  <header class="hero">
+    <div>
+      <div class="brand">
+        <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M3 17c3-6 6-9 9-9s6 3 9 9"/><path d="M7 17v-3M12 17V12M17 17v-3"/></svg></span>
+        TasteBridge
+      </div>
+      <h1>Make London feel like <em>yours</em>.</h1>
+      <p class="lede">New to the city? Tell us what you loved back home. We use Qloo's taste graph to find a taste of home nearby,
+        and local places loved by people who share your taste.</p>
+    </div>
+    <div class="how" aria-label="What you get">
+      <div><span class="dot comfort"></span><span><b>A taste of home</b>Home-style food near you, for the homesick days.</span></div>
+      <div><span class="dot bridge"></span><span><b>Bridges</b>Local places your music and films lead to, each with the reason why.</span></div>
+      <div><span class="dot twin"></span><span><b>Taste Twin</b>Met someone new? Find a spot you'd both like, halfway between you.</span></div>
+    </div>
+  </header>
 
   <div class="tabs" role="tablist">
     <button role="tab" aria-selected="true" data-tab="solo">My week</button>
@@ -84,13 +184,13 @@
   </div>
 
   <section id="solo" class="panel">
-    <label>Your favourites from home: music, films, books, games, brands…</label>
+    <label>Favourites from home: music, films, TV, books, games…</label>
     <div id="favs"></div>
-    <button class="ghost" data-add="favs">+ add favourite</button>
+    <button class="ghost" type="button" data-add="favs">+ add favourite</button>
     <div class="row">
       <div>
-        <label for="loc">Where you live or study (UK postcode or area)</label>
-        <input id="loc" value="WC2R 2LS">
+        <label for="loc">Where you live or study</label>
+        <input id="loc" value="WC2R 2LS" placeholder="UK postcode or area, e.g. Camden">
       </div>
       <div>
         <label for="food">Food that tastes like home</label>
@@ -98,37 +198,47 @@
       </div>
     </div>
     <label for="explore">How are you feeling this week?</label>
-    <div class="slider"><span>Homesick</span><input id="explore" type="range" min="0" max="1" step="0.05" value="0.6"><span>Adventurous</span></div>
-    <label for="note">Anything else? (optional)</label>
-    <input id="note" placeholder="e.g. somewhere quiet to study, cheap, open late">
-    <button class="go" id="goSolo">Plan my week</button>
+    <div class="slider"><span>Homesick</span><input id="explore" type="range" min="0" max="1" step="0.05" value="0.6"><span>Adventurous</span><output id="exploreOut"></output></div>
+    <label for="note">Anything else? <span class="hint">(optional, any language)</span></label>
+    <input id="note" placeholder="e.g. somewhere quiet to study, cheap, open late, 我有点想家">
+    <div class="actions">
+      <button class="go" id="goSolo">Plan my week</button>
+      <span class="hint">Takes about 15 seconds. Results appear first, then the agent refines them.</span>
+    </div>
   </section>
 
   <section id="twin" class="panel" hidden>
-    <div class="twin">
-      <div>
+    <div class="twin-cols">
+      <div class="col">
         <label>Your favourites</label>
         <div id="favsA"></div>
-        <button class="ghost" data-add="favsA">+ add</button>
+        <button class="ghost" type="button" data-add="favsA">+ add</button>
         <label for="locA">Your postcode or area</label>
         <input id="locA" value="WC2R 2LS">
       </div>
-      <div>
+      <div class="col">
         <label>Your new friend's favourites</label>
         <div id="favsB"></div>
-        <button class="ghost" data-add="favsB">+ add</button>
+        <button class="ghost" type="button" data-add="favsB">+ add</button>
         <label for="locB">Their postcode or area</label>
         <input id="locB" value="Camden">
       </div>
     </div>
-    <button class="go" id="goTwin">Find our spot</button>
+    <div class="actions">
+      <button class="go" id="goTwin">Find our spot</button>
+      <span class="hint">We only pick places you'd <em>both</em> like.</span>
+    </div>
   </section>
 
   <div id="out" class="out" aria-live="polite"></div>
+
+  <footer>Built for the Qloo Agentic Hackathon · Taste data by <a href="https://www.qloo.com">Qloo</a> · Agent: NVIDIA Nemotron on Nebius Token Factory ·
+    <a href="https://github.com/cqu-jia/tastebridge">Source</a></footer>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  const TYPES = ["artist", "movie", "tv_show", "book", "videogame", "brand", "podcast"];
+  const TYPES = [["artist", "Music"], ["movie", "Film"], ["tv_show", "TV"], ["book", "Book"], ["videogame", "Game"], ["brand", "Brand"], ["podcast", "Podcast"]];
   const DEMO = {
     favs: [["Jay Chou", "artist", "now"], ["Spirited Away", "movie", "always"], ["Faye Wong", "artist", "always"], ["Call of Duty", "videogame", "always"]],
     favsA: [["Jay Chou", "artist", "always"], ["Spirited Away", "movie", "always"]],
@@ -136,24 +246,31 @@
   };
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  let map = null;
 
+  // ---------- form ----------
   function addFav(listId, [name, type, when] = ["", "artist", "always"]) {
     const row = document.createElement("div");
     row.className = "fav";
     row.innerHTML = `
       <input placeholder="e.g. Studio Ghibli, BTS, Harry Potter" value="${esc(name)}" aria-label="Favourite">
-      <select aria-label="Type">${TYPES.map(t => `<option ${t === type ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <select aria-label="Type">${TYPES.map(([v, l]) => `<option value="${v}" ${v === type ? "selected" : ""}>${l}</option>`).join("")}</select>
       <select aria-label="When">
-        <option value="now" ${when === "now" ? "selected" : ""}>into it now</option>
-        <option value="always" ${when !== "now" ? "selected" : ""}>always loved</option>
+        <option value="now" ${when === "now" ? "selected" : ""}>Into it now</option>
+        <option value="always" ${when !== "now" ? "selected" : ""}>Always loved</option>
       </select>
-      <button type="button" aria-label="Remove">×</button>`;
-    row.querySelector("button").onclick = () => row.remove();
+      <button type="button" class="rm" aria-label="Remove">×</button>`;
+    row.querySelector(".rm").onclick = () => row.remove();
     $(listId).appendChild(row);
   }
   const readFavs = listId => [...$(listId).children]
     .map(r => { const [n, t, w] = r.querySelectorAll("input, select"); return { name: n.value.trim(), type: t.value, when: w.value }; })
     .filter(f => f.name);
+  const needFavs = (...lists) => {
+    if (lists.every(l => readFavs(l).length)) return true;
+    $("out").innerHTML = `<p class="err">Add at least one favourite${lists.length > 1 ? " for each person" : ""}.</p>`;
+    return false;
+  };
 
   Object.entries(DEMO).forEach(([id, rows]) => rows.forEach(r => addFav(id, r)));
   document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addFav(b.dataset.add));
@@ -161,22 +278,85 @@
     document.querySelectorAll("[role=tab]").forEach(t => t.setAttribute("aria-selected", t === tab));
     $("solo").hidden = tab.dataset.tab !== "solo";
     $("twin").hidden = tab.dataset.tab !== "twin";
-    $("out").innerHTML = "";
+    resetOut();
   });
+  const moods = [[0.2, "Missing home a lot"], [0.45, "A bit homesick"], [0.7, "Curious"], [1.01, "Ready to explore"]];
+  const showMood = () => { const v = +$("explore").value; $("exploreOut").textContent = moods.find(([t]) => v < t)[1]; };
+  $("explore").oninput = showMood; showMood();
 
-  function card(c) {
-    const meta = [c.category, c.distance_m != null ? `${(c.distance_m / 1000).toFixed(1)} km` : "", c.neighborhood].filter(Boolean).join(" · ");
-    const cause = c.because ? `<div class="meta">via <strong>${esc(c.because)}</strong></div>`
-      : c.because_me ? `<div class="meta">via <strong>${esc(c.because_me)}</strong> + <strong>${esc(c.because_friend)}</strong></div>` : "";
-    return `<div class="card">
-      ${c.image ? `<img src="${esc(c.image)}" alt="" loading="lazy">` : ""}
+  // ---------- streaming ----------
+  async function stream(url, body, onEvent) {
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r.ok) {
+      // Free hosting returns an HTML page while the server wakes up or restarts
+      const detail = await r.json().then(d => d.detail).catch(() => null);
+      throw new Error(typeof detail === "string" ? detail
+        : detail ? "Please check the form." : "The server is waking up (free hosting). Please try again in about 30 seconds.");
+    }
+    const reader = r.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf("\n\n")) >= 0) {
+        const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+        for (const line of chunk.split("\n")) if (line.startsWith("data: ")) onEvent(JSON.parse(line.slice(6)));
+      }
+    }
+  }
+
+  function resetOut() {
+    if (map) { map.remove(); map = null; }
+    $("out").innerHTML = "";
+  }
+
+  function stepsPanel() {
+    return `<details class="panel stepsbox" id="stepsBox" open><summary id="stepsTitle">What the agent is doing…</summary><ul class="steps" id="steps"></ul></details>`;
+  }
+  function addStep(text, live = true) {
+    const ul = $("steps"); if (!ul) return;
+    ul.querySelectorAll("li.live").forEach(li => li.classList.remove("live"));
+    const li = document.createElement("li");
+    li.textContent = text;
+    if (live) li.className = "live";
+    ul.appendChild(li);
+  }
+  function finishSteps(collapse) {
+    document.querySelectorAll("#steps li.live").forEach(li => li.classList.remove("live"));
+    if (collapse && $("stepsBox")) {
+      $("stepsTitle").textContent = `How the agent got here (${$("steps").children.length} steps)`;
+      $("stepsBox").open = false;
+    }
+  }
+
+  // ---------- rendering ----------
+  function card(c, i, pending) {
+    const dist = c.distance_m != null ? `${(c.distance_m / 1000).toFixed(1)} km` : "";
+    const meta = [c.category, dist, c.neighborhood].filter(Boolean).join(" · ");
+    const via = c.because ? `<div class="meta via">via <strong>${esc(c.because)}</strong></div>`
+      : c.because_me ? `<div class="meta via">via <strong>${esc(c.because_me)}</strong> + <strong>${esc(c.because_friend)}</strong></div>` : "";
+    const label = c.kind === "comfort" ? "Taste of home" : c.kind === "bridge" ? "Bridge" : "For you both";
+    return `<article class="card" data-i="${i}">
+      <div class="img" style="${c.image ? `background-image:url('${esc(c.image)}')` : ""}"><span class="num ${esc(c.kind)}">${i + 1}</span></div>
       <div class="body">
-        <span class="badge ${esc(c.kind)}">${c.kind === "comfort" ? "Taste of home" : c.kind === "bridge" ? "Bridge" : "For you both"}</span>
+        <span class="badge ${esc(c.kind)}">${label}</span>
         <h3>${esc(c.name)}</h3>
         <div class="meta">${esc(meta)}</div>
-        ${cause}
-        <p class="why">${esc(c.why)}</p>
-      </div></div>`;
+        ${via}
+        <p class="why ${pending ? "pending" : ""}">${esc(c.why)}</p>
+      </div></article>`;
+  }
+
+  function profileHtml(p) {
+    if (!p) return "";
+    const domains = p.domains.filter(d => d.items.length);
+    return `<div class="panel"><h2>Your taste, translated</h2>
+      ${p.descriptors.length ? `<div class="chips">${p.descriptors.map(d => `<span class="chip">${esc(d)}</span>`).join("")}</div>` : ""}
+      ${domains.length ? `<div class="domains">${domains.map(d => `<div><h3>${esc(d.label)}</h3>
+        <ol>${d.items.slice(0, 4).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>`).join("")}</div>` : ""}
+      <p class="meta" style="margin:12px 0 0">From Qloo's taste graph: what else people with your favourites love.</p></div>`;
   }
 
   // Qloo search is fuzzy, so show what each favourite was matched to when the names differ
@@ -192,67 +372,100 @@
   }
 
   function howHtml(data, seedsBlock) {
-    return `<details><summary>How the agent decided</summary>
+    return `<details class="panel"><summary>How TasteBridge ranks places</summary>
       ${seedsBlock}
-      <p>Steps: ${data.trace.map(t => `<code>${esc(t.tool)}</code>`).join(" → ")}
-      ${data.llm ? "" : " · LLM off: template explanations"}</p>
-      <p>Recent favourites and long-time favourites are ranked separately, then fused; recent ones decay by position.
+      <p>Tool calls: ${data.trace.map(t => `<code>${esc(t.tool)}</code>`).join(" → ")}${data.llm ? "" : " · AI explanations off"}</p>
+      <p>"Into it now" and "always loved" favourites are ranked separately, then fused, with recent ones weighted by position.
       A favourite whose recommendations don't overlap with the others is treated as noise (struck through).
-      Tourist hotspots are penalised more the more adventurous you feel. Each pick shows the favourite it came from.</p>
+      Tourist hotspots are penalised more the more adventurous you feel, and every pick records the favourite it came from.
+      For Taste Twin, a place scores as well as the person who'd like it <em>less</em>, so it has to work for both.</p>
     </details>`;
   }
 
-  async function call(url, body, button) {
+  function drawMap(el, homes, cards) {
+    if (!window.L) { $(el).outerHTML = ""; return; }
+    if (map) map.remove();
+    map = L.map(el, { scrollWheelZoom: false, attributionControl: true });
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+    const pts = [];
+    homes.forEach(h => { pts.push([h.lat, h.lon]);
+      L.marker([h.lat, h.lon], { icon: L.divIcon({ className: "", html: `<div class="pin home ${h.cls || ""}">${esc(h.label)}</div>`, iconSize: null }) }).addTo(map); });
+    cards.forEach((c, i) => {
+      if (c.lat == null) return;
+      pts.push([c.lat, c.lon]);
+      L.marker([c.lat, c.lon], { icon: L.divIcon({ className: "", html: `<div class="pin ${esc(c.kind)}">${i + 1}</div>`, iconSize: [26, 26], iconAnchor: [13, 13] }) })
+        .addTo(map).bindTooltip(c.name)
+        .on("mouseover", () => document.querySelector(`.card[data-i="${i}"]`)?.classList.add("hl"))
+        .on("mouseout", () => document.querySelector(`.card[data-i="${i}"]`)?.classList.remove("hl"));
+    });
+    if (pts.length) map.fitBounds(pts, { padding: [36, 36], maxZoom: 15 });
+  }
+
+  function renderSolo(data, pending) {
+    const missing = data.unresolved?.length ? `<p class="meta">Couldn't find: ${esc(data.unresolved.join(", "))}</p>` : "";
+    $("result").innerHTML = `
+      <div class="stack">
+        <p class="intro">${esc(pending ? "Here's a first draft from your taste. The agent is refining it…" : data.intro)}</p>
+        ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}${matchedHtml(data.seeds)}
+        <div class="cards">${data.cards.map((c, i) => card(c, i, pending)).join("")}</div>
+        ${pending ? "" : howHtml(data, seedsHtml(data.seeds))}
+      </div>
+      <div class="sticky">
+        <div id="map" role="img" aria-label="Map of the recommended places"></div>
+        <div class="legend"><span><span class="dot comfort"></span>Taste of home</span><span><span class="dot bridge"></span>Bridge</span><span><span class="pin home" style="height:16px;font-size:10px">You</span></span></div>
+        ${profileHtml(data.profile)}
+      </div>`;
+    drawMap("map", [{ ...data.location, label: "You" }], data.cards);
+  }
+
+  function renderTwin(data, pending) {
+    $("result").innerHTML = `
+      <div class="stack">
+        <p class="intro">${esc(pending ? "Here are spots you'd both like. The agent is writing why…" : data.intro)}</p>
+        ${matchedHtml([...data.my_seeds, ...data.friend_seeds])}
+        ${data.common?.length ? `<div><div class="label" style="margin-top:0">What your tastes have in common</div><div class="chips">${data.common.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div></div>` : ""}
+        <div class="cards">${data.cards.map((c, i) => card(c, i, pending)).join("")}</div>
+        ${!pending && data.starters?.length ? `<div class="panel"><h2>Conversation starters</h2><ul class="starters">${data.starters.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
+        ${pending ? "" : howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}`)}
+      </div>
+      <div class="sticky">
+        <div id="twinMap" role="img" aria-label="Map of meetup spots between you and your friend"></div>
+        <div class="legend"><span><span class="dot twin"></span>Spot for you both</span><span>Midpoint = halfway between you</span></div>
+      </div>`;
+    drawMap("twinMap", [{ ...data.my_point, label: "You" }, { ...data.friend_point, label: "Friend" }, { ...data.midpoint, label: "Midpoint", cls: "mid" }], data.cards);
+  }
+
+  async function run(button, url, body, render) {
     button.disabled = true;
-    $("out").innerHTML = `<p class="meta">Reading your taste and asking the agent… (about 15 seconds)</p>`;
+    resetOut();
+    $("out").innerHTML = `${stepsPanel()}<div id="result" class="results" style="margin-top:16px"></div>`;
+    addStep("Reading your taste");
     try {
-      const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      // Free hosting returns an HTML page while the server wakes up or restarts
-      const data = await r.json().catch(() => {
-        throw new Error("The server is waking up (free hosting). Please try again in about 30 seconds.");
+      await stream(url, body, e => {
+        if (e.type === "step") addStep(e.text);
+        else if (e.type === "draft") render(e.data, true);
+        else if (e.type === "final") { finishSteps(); addStep("Done", false); finishSteps(true); render(e.data, false); }
+        else if (e.type === "error") throw new Error(e.message);
       });
-      if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Please check the form.");
-      return data;
-    } catch (e) {
-      $("out").innerHTML = `<p class="err">${esc(e.message)}</p>`;
+    } catch (err) {
+      finishSteps();
+      $("result").innerHTML = `<p class="err">${esc(err.message)}</p>`;
     } finally {
       button.disabled = false;
     }
   }
 
-  const needFavs = (...lists) => {
-    if (lists.every(l => readFavs(l).length)) return true;
-    $("out").innerHTML = `<p class="err">Add at least one favourite${lists.length > 1 ? " for each person" : ""}.</p>`;
-    return false;
-  };
+  $("goSolo").onclick = () => needFavs("favs") && run($("goSolo"), "/api/plan/stream", {
+    favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
+    explore: parseFloat($("explore").value), note: $("note").value,
+  }, renderSolo);
 
-  $("goSolo").onclick = async () => {
-    if (!needFavs("favs")) return;
-    const data = await call("/api/plan", {
-      favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
-      explore: parseFloat($("explore").value), note: $("note").value,
-    }, $("goSolo"));
-    if (!data) return;
-    const missing = data.unresolved?.length ? `<p class="meta">Couldn't find: ${esc(data.unresolved.join(", "))}</p>` : "";
-    $("out").innerHTML = `<p class="intro">${esc(data.intro)}</p>
-      ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}${matchedHtml(data.seeds)}
-      <div class="cards">${data.cards.map(card).join("")}</div>
-      ${howHtml(data, seedsHtml(data.seeds))}`;
-  };
-
-  $("goTwin").onclick = async () => {
-    if (!needFavs("favsA", "favsB")) return;
-    const data = await call("/api/twin", {
-      me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
-    }, $("goTwin"));
-    if (!data) return;
-    $("out").innerHTML = `<p class="intro">${esc(data.intro)}</p>
-      ${matchedHtml([...data.my_seeds, ...data.friend_seeds])}
-      <div class="cards">${data.cards.map(card).join("")}</div>
-      ${data.starters?.length ? `<h3>Conversation starters</h3><ul class="starters">${data.starters.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}
-      ${howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}
-        <p>Places near your midpoint, scored by the person who'd like it <em>less</em>, so it works for both.</p>`)}`;
-  };
+  $("goTwin").onclick = () => needFavs("favsA", "favsB") && run($("goTwin"), "/api/twin/stream", {
+    me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
+  }, renderTwin);
 </script>
 </body>
 </html>

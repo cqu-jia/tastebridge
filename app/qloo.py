@@ -87,6 +87,9 @@ def slim(entity: dict) -> dict:
         out["affinity"] = round(query["affinity"], 3)
     if "distance" in query:
         out["distance_m"] = int(query["distance"])
+    loc = entity.get("location") or {}
+    if "lat" in loc and "lon" in loc:
+        out["lat"], out["lon"] = loc["lat"], loc["lon"]
     for key in ("address", "release_year", "neighborhood", "price_level"):
         if props.get(key):
             out[key] = str(props[key])
@@ -120,6 +123,21 @@ def search_tags(query: str, take: int = 5) -> List[dict]:
     return [
         {"name": t.get("name"), "id": t.get("id")}
         for t in (data.get("results") or {}).get("tags", [])
+    ]
+
+
+def taste_tags(entity_ids: List[str], take: int = 40) -> List[dict]:
+    """Tags that describe the shared taste behind entity_ids (e.g. 'Artistically Rich', 'Surrealism')."""
+    data = _get("/v2/insights", {
+        "filter.type": "urn:tag",
+        "signal.interests.entities": ",".join(entity_ids),
+        "take": take,
+    })
+    results = data.get("results") or {}
+    return [
+        {"name": t.get("name"), "type": t.get("subtype") or t.get("type") or ""}
+        for t in results.get("tags") or results.get("entities") or []
+        if t.get("name")
     ]
 
 
