@@ -20,6 +20,24 @@ from dotenv import dotenv_values
 API = "https://api.render.com/v1"
 REPO = "https://github.com/cqu-jia/tastebridge"
 NAME = "tastebridge"
+COMMANDS = {
+    "buildCommand": "pip install -r requirements.txt",
+    "startCommand": "uvicorn app.main:app --host 0.0.0.0 --port $PORT",
+}
+
+
+def ask_token():
+    """Prompt until we get something shaped like a Render key, without ever echoing it."""
+    for _ in range(3):
+        token = getpass.getpass("Render API key (input hidden, paste then press Enter): ").strip()
+        if not token:
+            print("  Nothing was pasted. Click inside this terminal, press Cmd+V, then Enter.")
+        elif not token.startswith("rnd_"):
+            print(f"  That doesn't look like a Render key (they start with 'rnd_'; got {len(token)} chars "
+                  f"starting '{token[:3]}...'). Copy the key from Render > Account Settings > API Keys.")
+        else:
+            return token
+    sys.exit("Giving up after 3 tries.")
 
 
 def call(method, path, token, body=None):
@@ -34,7 +52,8 @@ def call(method, path, token, body=None):
             text = r.read().decode()
             return json.loads(text) if text else {}
     except urllib.error.HTTPError as e:
-        sys.exit(f"Render API {method} {path} failed ({e.code}): {e.read().decode()[:400]}")
+        hint = " The key was rejected: it may be revoked or mistyped; create a new one in Render." if e.code == 401 else ""
+        sys.exit(f"Render API {method} {path} failed ({e.code}): {e.read().decode()[:400]}{hint}")
 
 
 def main():
@@ -51,7 +70,7 @@ def main():
         {"key": "PYTHON_VERSION", "value": "3.11.9"},
     ]
 
-    token = getpass.getpass("Render API key (input hidden): ").strip()
+    token = ask_token()
     owners = call("GET", "/owners?limit=20", token)
     if not owners:
         sys.exit("No Render workspace found for this API key.")
@@ -61,7 +80,11 @@ def main():
     existing = [s["service"] for s in call("GET", f"/services?name={NAME}&limit=20", token)]
     if existing:
         service = existing[0]
-        print("Service exists, updating environment variables and redeploying...")
+        print("Service exists, updating commands and environment variables, then redeploying...")
+        # A service made by hand in the dashboard may have the wrong build/start command
+        call("PATCH", f"/services/{service['id']}", token, {
+            "serviceDetails": {"healthCheckPath": "/health", "envSpecificDetails": COMMANDS},
+        })
         call("PUT", f"/services/{service['id']}/env-vars", token, env_vars)
         call("POST", f"/services/{service['id']}/deploys", token, {"clearCache": "do_not_clear"})
     else:
@@ -79,10 +102,7 @@ def main():
                 "plan": "free",
                 "region": "frankfurt",
                 "healthCheckPath": "/health",
-                "envSpecificDetails": {
-                    "buildCommand": "pip install -r requirements.txt",
-                    "startCommand": "uvicorn app.main:app --host 0.0.0.0 --port $PORT",
-                },
+                "envSpecificDetails": COMMANDS,
             },
         })["service"]
 
