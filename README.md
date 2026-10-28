@@ -48,6 +48,8 @@ favourites ─► Qloo /search ─► per-favourite Qloo /v2/insights (near you,
 
 ## Run locally
 
+Team members: see [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup, Git workflow and deployment guide (in Chinese).
+
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
