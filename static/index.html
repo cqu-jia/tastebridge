@@ -179,6 +179,13 @@
       </div></div>`;
   }
 
+  // Qloo search is fuzzy, so show what each favourite was matched to when the names differ
+  function matchedHtml(seeds) {
+    const norm = s => s.toLowerCase().replace(/[^a-z0-9一-鿿]/g, "");
+    const odd = seeds.filter(s => s.input && !norm(s.name).includes(norm(s.input)) && !norm(s.input).includes(norm(s.name)));
+    return odd.length ? `<p class="meta">Matched ${odd.map(s => `"${esc(s.input)}" → <strong>${esc(s.name)}</strong>`).join(", ")}. Not right? Try a more specific name.</p>` : "";
+  }
+
   function seedsHtml(seeds) {
     return `<div class="seeds">${seeds.map(s => `<span class="seed ${s.noisy ? "noisy" : ""}"
       title="consistency ${s.consistency ?? "-"}, weight ${s.weight ?? 1}">${esc(s.name)} · ${s.when === "now" ? "now" : "always"}</span>`).join("")}</div>`;
@@ -210,7 +217,14 @@
     }
   }
 
+  const needFavs = (...lists) => {
+    if (lists.every(l => readFavs(l).length)) return true;
+    $("out").innerHTML = `<p class="err">Add at least one favourite${lists.length > 1 ? " for each person" : ""}.</p>`;
+    return false;
+  };
+
   $("goSolo").onclick = async () => {
+    if (!needFavs("favs")) return;
     const data = await call("/api/plan", {
       favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
       explore: parseFloat($("explore").value), note: $("note").value,
@@ -218,17 +232,19 @@
     if (!data) return;
     const missing = data.unresolved?.length ? `<p class="meta">Couldn't find: ${esc(data.unresolved.join(", "))}</p>` : "";
     $("out").innerHTML = `<p class="intro">${esc(data.intro)}</p>
-      ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}
+      ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}${matchedHtml(data.seeds)}
       <div class="cards">${data.cards.map(card).join("")}</div>
       ${howHtml(data, seedsHtml(data.seeds))}`;
   };
 
   $("goTwin").onclick = async () => {
+    if (!needFavs("favsA", "favsB")) return;
     const data = await call("/api/twin", {
       me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
     }, $("goTwin"));
     if (!data) return;
     $("out").innerHTML = `<p class="intro">${esc(data.intro)}</p>
+      ${matchedHtml([...data.my_seeds, ...data.friend_seeds])}
       <div class="cards">${data.cards.map(card).join("")}</div>
       ${data.starters?.length ? `<h3>Conversation starters</h3><ul class="starters">${data.starters.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}
       ${howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}

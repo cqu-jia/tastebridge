@@ -26,6 +26,7 @@ NOISE_WEIGHT = 0.3
 NOISE_OVERLAP = 0.05
 NOISE_RELATIVE = 0.6  # flag a seed whose overlap is under 60% of its peers' median
 CAUSE_REPEAT_PENALTY = 0.35  # per earlier pick explained by the same favourite
+QLOO_PARALLEL = 4  # per request; the hackathon key rate-limits bursts
 
 
 def resolve(items: List[dict]) -> Tuple[List[dict], List[str]]:
@@ -36,7 +37,7 @@ def resolve(items: List[dict]) -> Tuple[List[dict], List[str]]:
         return item, hits[0] if hits else None
 
     seeds, missing = [], []
-    with ThreadPoolExecutor(8) as pool:
+    with ThreadPoolExecutor(QLOO_PARALLEL) as pool:
         for item, hit in pool.map(one, items):
             if hit:
                 seeds.append({
@@ -55,7 +56,7 @@ def _per_seed_lists(seeds, lat, lon, radius_m, popularity_max, tag=None) -> Dict
     def one(seed):
         return seed["id"], qloo.nearby_places([seed["id"]], lat, lon, radius_m, popularity_max, tag)
 
-    with ThreadPoolExecutor(8) as pool:
+    with ThreadPoolExecutor(QLOO_PARALLEL) as pool:
         return dict(pool.map(one, seeds))
 
 

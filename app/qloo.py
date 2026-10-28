@@ -1,6 +1,8 @@
 """Thin client for the Qloo Taste AI hackathon API."""
+import json
 import os
-from typing import List, Optional
+import time
+from typing import Dict, List, Optional
 
 import httpx
 
@@ -25,7 +27,8 @@ EXCLUDED_PLACE_TAGS = "urn:tag:category:place:hotel"
 NON_LEISURE = (
     "lodging", "apartment", "hotel", "hostel", "residential", "school", "education center",
     "college", "university", "agency", "office", "consultan", "clinic", "hospital", "dentist",
-    "bank", "pharmacy", "estate agent", "coworking",
+    "bank", "pharmacy", "estate agent", "coworking", "publisher", "charity", "banquet",
+    "wedding venue", "conference", "corporate", "non-profit",
 )
 
 
@@ -46,11 +49,27 @@ def _client() -> httpx.Client:
     )
 
 
+_cache: Dict[str, dict] = {}
+_CACHE_MAX = 2000
+
+
 def _get(path: str, params: dict) -> dict:
+    """GET with a small in-memory cache (demo inputs repeat a lot) and backoff on 429."""
+    key = path + "?" + json.dumps(params, sort_keys=True)
+    if key in _cache:
+        return _cache[key]
     with _client() as c:
-        r = c.get(path, params=params)
+        for attempt in range(4):
+            r = c.get(path, params=params)
+            if r.status_code != 429:
+                break
+            time.sleep(float(r.headers.get("Retry-After") or 0.5 * 2 ** attempt))
         r.raise_for_status()
-    return r.json()
+    data = r.json()
+    if len(_cache) >= _CACHE_MAX:
+        _cache.clear()
+    _cache[key] = data
+    return data
 
 
 def slim(entity: dict) -> dict:
