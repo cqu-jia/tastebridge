@@ -85,16 +85,19 @@ curl http://localhost:8000/health
 
 ```
 app/
-  main.py      网站后端入口：两个接口 /api/plan（单人）和 /api/twin（两人）
+  main.py      网站后端入口：/api/plan（单人）、/api/twin（两人），以及页面实际在用的 /stream 版本（边算边推送进度）；限流也在这里
   engine.py    推荐算法：把用户的喜好变成地点排序（核心）
   agent.py     AI agent：Nemotron 调用工具、写推荐理由；所有提示词都在这里
   qloo.py      调 Qloo API 的封装，还有"哪些地点不算休闲场所"的过滤名单
   geo.py       邮编 / 地名 → 经纬度（用免费的 postcodes.io）
 static/
-  index.html   整个前端页面（HTML + CSS + JS 都在这一个文件里）
+  index.html   整个前端页面（HTML + CSS + JS 都在这一个文件里；地图用 Leaflet + OpenStreetMap）
 scripts/
   list_models.py    列出 Nebius 上可用的模型
   deploy_render.py  第一次部署用的脚本，平时不用管
+  evaluate.py       20 个虚拟用户的对比评测，结果写到 eval/（README 里的图就是它生成的）
+eval/
+  chart.svg / summary.md / results.json   评测的图、表和原始数据
 render.yaml   Render 部署配置
 ```
 
@@ -103,6 +106,10 @@ render.yaml   Render 部署配置
 | 页面文字、按钮、颜色、布局、示例数据 | `static/index.html`（示例数据在 `DEMO` 那一段） |
 | AI 写的推荐理由的语气、规则、禁用词 | `app/agent.py` 里的 `SYSTEM_PROMPT`、`TWIN_PROMPT`、`AI_CLICHES` |
 | 不想要的地点类型（比如酒店、学校） | `app/qloo.py` 里的 `NON_LEISURE` |
+| 要往下压的连锁店（Costa、Pret 等） | `app/engine.py` 里的 `CHAINS` 和 `CHAIN_FACTOR` |
+| "你的口味"卡片里显示哪些领域 | `app/engine.py` 里的 `PROFILE_DOMAINS` |
+| 页面上 agent 每一步显示的文字 | `app/engine.py` 里的 `emit(...)`，以及 `app/agent.py` 里的 `_narrate` |
+| 限流（每人每分钟、每天的次数） | `app/main.py` 顶部的 `PER_IP_PER_MINUTE` 等常量 |
 | 推荐算法参数（搜索半径、噪声阈值、近期喜好权重等） | `app/engine.py` 顶部的常量，每个都有注释 |
 | 换 AI 模型 | `.env` 里的 `NEBIUS_MODEL`（线上的要在 Render 后台改，见第 4 节） |
 
@@ -175,6 +182,8 @@ git push
 - Nebius 账户里有 $30 赠送额度，一次推荐大约花几美分，够用。
 - 本地测试也会消耗同一份额度，正常测没问题，别写循环狂刷。
 - Qloo 的 hackathon key 有频率限制，代码里已经做了自动重试和缓存；短时间内大量请求还是可能被限。
+- 线上 demo 有限流：同一个人每分钟最多 6 次、每天 60 次，全站每天 600 次。测试时被提示"太快了"就是这个。
+- 跑一次 `scripts/evaluate.py` 大约要 100 多次 Nemotron 和几百次 Qloo 调用，别反复跑。
 
 ---
 

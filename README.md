@@ -24,10 +24,12 @@ on optimal-novelty theory (Berlyne): too familiar is dull, too foreign is stress
 
 ## Why it's better because of Qloo
 
-A plain LLM recommends the famous places. Qloo connects taste *across domains* (Jay Chou → a bubble-tea
-shop near Russell Square), and *locally* (radius, popularity and tag filters). We tested this: an unfiltered
-place query for "Jay Chou + Spirited Away" in London returns the Disney Store and The Lion King. TasteBridge's
-pipeline returns independent spots within 2 km.
+A plain LLM recommends the famous places, and often places it can't back up: in our test below, 45 of the 80
+places Nemotron named on its own could not be found in Qloo. Qloo connects taste *across domains* (Jay Chou →
+a bubble-tea shop near Russell Square) and *locally* (radius, popularity and tag filters), but raw results are
+still dominated by landmarks: an unfiltered query for "Jay Chou + Spirited Away" returns the Disney Store and
+The Lion King. TasteBridge's pipeline on top of Qloo cuts tourist hotspots from 56–59% of picks to 7%, keeps
+picks within ~1 km, and makes every pick a real, verifiable leisure place.
 
 ## How the ranking works (`app/engine.py`)
 
