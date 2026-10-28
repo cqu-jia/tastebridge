@@ -67,7 +67,9 @@ address the users as "you" and "your friend", never speak as if a film or charac
 Use only facts from the place data.
 
 Then write 3 short, natural conversation starters a shy student could actually say, grounded in the two
-people's real favourites (an overlap or an interesting contrast). One sentence each.
+people's real favourites (an overlap or an interesting contrast). One sentence each. Ask about the
+other person's experience and taste ("What got you into ...?", "Which ... would you show a first-timer?").
+Never mention news, releases or facts about the artists or films, and never imagine characters doing things.
 
 Do not use these words: {", ".join(AI_CLICHES)}.
 
