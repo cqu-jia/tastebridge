@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TasteBridge</title>
+<style>
+  :root {
+    --bg: #faf8f5; --panel: #ffffff; --text: #1f1d1a; --muted: #6b665e; --border: #e6e1d8;
+    --accent: #c2410c; --accent-soft: #fff1e8; --comfort: #b45309; --comfort-soft: #fef3c7;
+    --bridge: #0f766e; --bridge-soft: #ccfbf1; --warn-soft: #fef2f2; --warn: #b91c1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161513; --panel: #201e1b; --text: #eeeae3; --muted: #a39d93; --border: #34312c;
+      --accent: #fb923c; --accent-soft: #2d221b; --comfort: #fbbf24; --comfort-soft: #3a2c10;
+      --bridge: #5eead4; --bridge-soft: #12302c; --warn-soft: #3a1717; --warn: #fca5a5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 16px 64px; }
+  h1 { margin: 0; font-size: 26px; letter-spacing: -0.01em; }
+  .lede { margin: 6px 0 20px; color: var(--muted); max-width: 640px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tabs button { border: 1px solid var(--border); background: var(--panel); color: var(--text); padding: 8px 14px;
+    border-radius: 999px; font: inherit; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
+  input, select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; width: 100%; }
+  .fav { display: grid; grid-template-columns: 1fr 120px 120px 32px; gap: 6px; margin-bottom: 6px; }
+  .fav button { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 18px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .twin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ghost { border: 1px dashed var(--border); background: none; color: var(--muted); border-radius: 8px;
+    padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+  .slider { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .slider input { flex: 1; padding: 0; accent-color: var(--accent); }
+  .go { margin-top: 16px; background: var(--accent); color: #fff; border: 0; border-radius: 10px;
+    padding: 11px 20px; font: inherit; font-weight: 600; cursor: pointer; }
+  .go:disabled { opacity: .6; cursor: wait; }
+  .out { margin-top: 20px; }
+  .intro { font-size: 17px; margin: 0 0 6px; }
+  .note { background: var(--warn-soft); color: var(--warn); padding: 8px 12px; border-radius: 8px; font-size: 13px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 14px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .card img { width: 100%; height: 130px; object-fit: cover; display: block; background: var(--border); }
+  .card .body { padding: 12px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    padding: 2px 8px; border-radius: 999px; }
+  .badge.comfort { background: var(--comfort-soft); color: var(--comfort); }
+  .badge.bridge, .badge.shared { background: var(--bridge-soft); color: var(--bridge); }
+  .card h3 { margin: 6px 0 2px; font-size: 16px; }
+  .meta { font-size: 12px; color: var(--muted); }
+  .why { margin: 8px 0 0; font-size: 14px; }
+  .starters { margin: 16px 0 0; padding-left: 20px; }
+  details { margin-top: 18px; font-size: 13px; color: var(--muted); }
+  summary { cursor: pointer; }
+  .seeds { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .seed { border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
+  .seed.noisy { border-color: var(--warn); color: var(--warn); text-decoration: line-through; }
+  code { background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; }
+  .err { color: var(--warn); margin-top: 12px; }
+  @media (max-width: 640px) {
+    .fav { grid-template-columns: 1fr 1fr; }
+    .fav input { grid-column: 1 / -1; }
+    .fav button { display: none; }
+    .row, .twin { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TasteBridge</h1>
+  <p class="lede">New to London? Tell us what you loved back home. We find a taste of home nearby, and local
+    places that people with your taste love, powered by Qloo's taste graph.</p>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="solo">My week</button>
+    <button role="tab" aria-selected="false" data-tab="twin">Taste Twin meetup</button>
+  </div>
+
+  <section id="solo" class="panel">
+    <label>Your favourites from home: music, films, books, games, brands…</label>
+    <div id="favs"></div>
+    <button class="ghost" data-add="favs">+ add favourite</button>
+    <div class="row">
+      <div>
+        <label for="loc">Where you live or study (UK postcode or area)</label>
+        <input id="loc" value="WC2R 2LS">
+      </div>
+      <div>
+        <label for="food">Food that tastes like home</label>
+        <input id="food" value="chinese restaurant" placeholder="e.g. korean, nigerian, hot pot">
+      </div>
+    </div>
+    <label for="explore">How are you feeling this week?</label>
+    <div class="slider"><span>Homesick</span><input id="explore" type="range" min="0" max="1" step="0.05" value="0.6"><span>Adventurous</span></div>
+    <label for="note">Anything else? (optional)</label>
+    <input id="note" placeholder="e.g. somewhere quiet to study, cheap, open late">
+    <button class="go" id="goSolo">Plan my week</button>
+  </section>
+
+  <section id="twin" class="panel" hidden>
+    <div class="twin">
+      <div>
+        <label>Your favourites</label>
+        <div id="favsA"></div>
+        <button class="ghost" data-add="favsA">+ add</button>
+        <label for="locA">Your postcode or area</label>
+        <input id="locA" value="WC2R 2LS">
+      </div>
+      <div>
+        <label>Your new friend's favourites</label>
+        <div id="favsB"></div>
+        <button class="ghost" data-add="favsB">+ add</button>
+        <label for="locB">Their postcode or area</label>
+        <input id="locB" value="Camden">
+      </div>
+    </div>
+    <button class="go" id="goTwin">Find our spot</button>
+  </section>
+
+  <div id="out" class="out" aria-live="polite"></div>
+</div>
+
+<script>
+  const TYPES = ["artist", "movie", "tv_show", "book", "videogame", "brand", "podcast"];
+  const DEMO = {
+    favs: [["Jay Chou", "artist", "now"], ["Spirited Away", "movie", "always"], ["Faye Wong", "artist", "always"], ["Call of Duty", "videogame", "always"]],
+    favsA: [["Jay Chou", "artist", "always"], ["Spirited Away", "movie", "always"]],
+    favsB: [["Arctic Monkeys", "artist", "always"], ["Paddington", "movie", "always"]],
+  };
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+  function addFav(listId, [name, type, when] = ["", "artist", "always"]) {
+    const row = document.createElement("div");
+    row.className = "fav";
+    row.innerHTML = `
+      <input placeholder="e.g. Studio Ghibli, BTS, Harry Potter" value="${esc(name)}" aria-label="Favourite">
+      <select aria-label="Type">${TYPES.map(t => `<option ${t === type ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <select aria-label="When">
+        <option value="now" ${when === "now" ? "selected" : ""}>into it now</option>
+        <option value="always" ${when !== "now" ? "selected" : ""}>always loved</option>
+      </select>
+      <button type="button" aria-label="Remove">×</button>`;
+    row.querySelector("button").onclick = () => row.remove();
+    $(listId).appendChild(row);
+  }
+  const readFavs = listId => [...$(listId).children]
+    .map(r => { const [n, t, w] = r.querySelectorAll("input, select"); return { name: n.value.trim(), type: t.value, when: w.value }; })
+    .filter(f => f.name);
+
+  Object.entries(DEMO).forEach(([id, rows]) => rows.forEach(r => addFav(id, r)));
+  document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addFav(b.dataset.add));
+  document.querySelectorAll("[role=tab]").forEach(tab => tab.onclick = () => {
+    document.querySelectorAll("[role=tab]").forEach(t => t.setAttribute("aria-selected", t === tab));
+    $("solo").hidden = tab.dataset.tab !== "solo";
+    $("twin").hidden = tab.dataset.tab !== "twin";
+    $("out").innerHTML = "";
+  });
+
+  function card(c) {
+    const meta = [c.category, c.distance_m != null ? `${(c.distance_m / 1000).toFixed(1)} km` : "", c.neighborhood].filter(Boolean).join(" · ");
+    const cause = c.because ? `<div class="meta">via <strong>${esc(c.because)}</strong></div>`
+      : c.because_me ? `<div class="meta">via <strong>${esc(c.because_me)}</strong> + <strong>${esc(c.because_friend)}</strong></div>` : "";
+    return `<div class="card">
+      ${c.image ? `<img src="${esc(c.image)}" alt="" loading="lazy">` : ""}
+      <div class="body">
+        <span class="badge ${esc(c.kind)}">${c.kind === "comfort" ? "Taste of home" : c.kind === "bridge" ? "Bridge" : "For you both"}</span>
+        <h3>${esc(c.name)}</h3>
+        <div class="meta">${esc(meta)}</div>
+        ${cause}
+        <p class="why">${esc(c.why)}</p>
+      </div></div>`;
+  }
+
+  function seedsHtml(seeds) {
+    return `<div class="seeds">${seeds.map(s => `<span class="seed ${s.noisy ? "noisy" : ""}"
+      title="consistency ${s.consistency ?? "-"}, weight ${s.weight ?? 1}">${esc(s.name)} · ${s.when === "now" ? "now" : "always"}</span>`).join("")}</div>`;
+  }
+
+  function howHtml(data, seedsBlock) {
+    return `<details><summary>How the agent decided</summary>
+      ${seedsBlock}
+      <p>Steps: ${data.trace.map(t => `<code>${esc(t.tool)}</code>`).join(" → ")}
+      ${data.llm ? "" : " · LLM off: template explanations"}</p>
+      <p>Recent favourites and long-time favourites are ranked separately, then fused; recent ones decay by position.
+      A favourite whose recommendations don't overlap with the others is treated as noise (struck through).
+      Tourist hotspots are penalised more the more adventurous you feel. Each pick shows the favourite it came from.</p>
+    </details>`;
+  }
+
+  async function call(url, body, button) {
+    button.disabled = true;
+    $("out").innerHTML = `<p class="meta">Reading your taste and asking the agent… (about 15 seconds)</p>`;
+    try {
+      const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await r.json();
+      if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Please check the form.");
+      return data;
+    } catch (e) {
+      $("out").innerHTML = `<p class="err">${esc(e.message)}</p>`;
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  $("goSolo").onclick = async () => {
+    const data = await call("/api/plan", {
+      favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
+      explore: parseFloat($("explore").value), note: $("note").value,
+    }, $("goSolo"));
+    if (!data) return;
+    const missing = data.unresolved?.length ? `<p class="meta">Couldn't find: ${esc(data.unresolved.join(", "))}</p>` : "";
+    $("out").innerHTML = `<p class="intro">${esc(data.intro)}</p>
+      ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}
+      <div class="cards">${data.cards.map(card).join("")}</div>
+      ${howHtml(data, seedsHtml(data.seeds))}`;
+  };
+
+  $("goTwin").onclick = async () => {
+    const data = await call("/api/twin", {
+      me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
+    }, $("goTwin"));
+    if (!data) return;
+    $("out").innerHTML = `<p class="intro">${esc(data.intro)}</p>
+      <div class="cards">${data.cards.map(card).join("")}</div>
+      ${data.starters?.length ? `<h3>Conversation starters</h3><ul class="starters">${data.starters.map(s => `<li>${esc(s)}</li>`).join("")}</ul>` : ""}
+      ${howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}
+        <p>Places near your midpoint, scored by the person who'd like it <em>less</em>, so it works for both.</p>`)}`;
+  };
+</script>
+</body>
+</html>
