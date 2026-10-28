@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="viz" viewBox="0 0 1000 298" width="1000" height="298" role="img" aria-label="TasteBridge compared with LLM-only and raw Qloo baselines on three metrics">
+<style>
+  .viz { --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#8a887f; --grid:#e6e4de; --base:#b9b6ad; --accent:#2a78d6; }
+  @media (prefers-color-scheme: dark) { .viz { --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#8e8c84; --grid:#33322f; --base:#5e5c56; --accent:#3987e5; } }
+  .viz text { font-family: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  .bg { fill: var(--surface); } .t1 { fill: var(--ink); font-size: 15px; font-weight: 600; }
+  .t2 { fill: var(--ink2); font-size: 12.5px; } .t3 { fill: var(--muted); font-size: 11.5px; }
+  .lab { fill: var(--ink2); font-size: 12.5px; } .lab.us { fill: var(--ink); font-weight: 600; }
+  .val { fill: var(--ink2); font-size: 12px; } .val.us { fill: var(--ink); font-weight: 600; }
+  .bar { fill: var(--base); } .bar.us { fill: var(--accent); } .axis { stroke: var(--grid); stroke-width: 1; }
+</style>
+<rect class="bg" width="1000" height="298" rx="12"/>
+<text class="t1" x="24" y="34">TasteBridge vs. simpler approaches, 20 newcomer personas, 4 picks each</text>
+<text class="t3" x="24" y="54">Gray: baselines. Blue: TasteBridge. Hover a bar for its exact value.</text>
+<text class="t1" x="24.0" y="90" style="font-size:14px">Tourist hotspots</text>
+<text class="t3" x="24.0" y="108">% of picks · lower is better</text>
+<line class="axis" x1="136.0" x2="136.0" y1="130" y2="274"/>
+<text class="lab" x="126.0" y="152.0" text-anchor="end">LLM only</text>
+<path class="bar" d="M136.0,136 h127.3 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-127.3 z"><title>LLM only: 80%</title></path>
+<text class="val" x="275.3" y="152.0">80%</text>
+<text class="lab" x="126.0" y="188.0" text-anchor="end">Qloo, city-wide</text>
+<path class="bar" d="M136.0,172 h92.4 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-92.4 z"><title>Qloo, city-wide: 59%</title></path>
+<text class="val" x="240.4" y="188.0">59%</text>
+<text class="lab" x="126.0" y="224.0" text-anchor="end">Qloo, nearby</text>
+<path class="bar" d="M136.0,208 h88.3 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-88.3 z"><title>Qloo, nearby: 56%</title></path>
+<text class="val" x="236.3" y="224.0">56%</text>
+<text class="lab us" x="126.0" y="260.0" text-anchor="end">TasteBridge</text>
+<path class="bar us" d="M136.0,244 h6.9 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-6.9 z"><title>TasteBridge: 7%</title></path>
+<text class="val us" x="154.9" y="260.0">7%</text>
+<text class="t1" x="347.3333333333333" y="90" style="font-size:14px">Distance from you</text>
+<text class="t3" x="347.3333333333333" y="108">mean km · lower is better</text>
+<line class="axis" x1="459.3333333333333" x2="459.3333333333333" y1="130" y2="274"/>
+<text class="lab" x="449.3333333333333" y="152.0" text-anchor="end">LLM only</text>
+<path class="bar" d="M459.3333333333333,136 h88.8 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-88.8 z"><title>LLM only: 3.9 km</title></path>
+<text class="val" x="560.2" y="152.0">3.9 km</text>
+<text class="lab" x="449.3333333333333" y="188.0" text-anchor="end">Qloo, city-wide</text>
+<path class="bar" d="M459.3333333333333,172 h127.3 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-127.3 z"><title>Qloo, city-wide: 5.5 km</title></path>
+<text class="val" x="598.7" y="188.0">5.5 km</text>
+<text class="lab" x="449.3333333333333" y="224.0" text-anchor="end">Qloo, nearby</text>
+<path class="bar" d="M459.3333333333333,208 h23.2 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-23.2 z"><title>Qloo, nearby: 1.1 km</title></path>
+<text class="val" x="494.5" y="224.0">1.1 km</text>
+<text class="lab us" x="449.3333333333333" y="260.0" text-anchor="end">TasteBridge</text>
+<path class="bar us" d="M459.3333333333333,244 h25.5 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-25.5 z"><title>TasteBridge: 1.2 km</title></path>
+<text class="val us" x="496.9" y="260.0">1.2 km</text>
+<text class="t1" x="670.6666666666666" y="90" style="font-size:14px">Real leisure places</text>
+<text class="t3" x="670.6666666666666" y="108">% verifiable in Qloo · higher is better</text>
+<line class="axis" x1="782.6666666666666" x2="782.6666666666666" y1="130" y2="274"/>
+<text class="lab" x="772.6666666666666" y="152.0" text-anchor="end">LLM only</text>
+<path class="bar" d="M782.6666666666666,136 h42.0 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-42.0 z"><title>LLM only: 35%</title></path>
+<text class="val" x="836.6" y="152.0">35%</text>
+<text class="lab" x="772.6666666666666" y="188.0" text-anchor="end">Qloo, city-wide</text>
+<path class="bar" d="M782.6666666666666,172 h106.0 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-106.0 z"><title>Qloo, city-wide: 84%</title></path>
+<text class="val" x="900.7" y="188.0">84%</text>
+<text class="lab" x="772.6666666666666" y="224.0" text-anchor="end">Qloo, nearby</text>
+<path class="bar" d="M782.6666666666666,208 h104.3 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-104.3 z"><title>Qloo, nearby: 82%</title></path>
+<text class="val" x="899.0" y="224.0">82%</text>
+<text class="lab us" x="772.6666666666666" y="260.0" text-anchor="end">TasteBridge</text>
+<path class="bar us" d="M782.6666666666666,244 h127.3 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-127.3 z"><title>TasteBridge: 100%</title></path>
+<text class="val us" x="922.0" y="260.0">100%</text>
+</svg>

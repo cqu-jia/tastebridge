@@ -14,6 +14,7 @@ Each step follows an idea from our sequential-recommendation work:
    explanation cites a real cause instead of a generic "you might like this".
 5. Group fusion for Taste Twin: least-misery aggregation, so a meetup spot has to suit both.
 """
+import re
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -28,6 +29,21 @@ NOISE_RELATIVE = 0.6  # flag a seed whose overlap is under 60% of its peers' med
 NOISE_MIN_PEER = 0.15  # ...but only if the peers themselves agree this much
 CAUSE_REPEAT_PENALTY = 0.35  # per earlier pick explained by the same favourite
 QLOO_PARALLEL = 4  # per request; the hackathon key rate-limits bursts
+CHAIN_FACTOR = 0.5  # a newcomer can find a Costa without help; push chains down, don't ban them
+CHAINS = (
+    "joe & the juice", "costa", "starbucks", "pret", "pizzaexpress", "pizza express", "nando", "wagamama",
+    "mcdonald", "kfc", "burger king", "greggs", "caffe nero", "caffè nero", "leon", "itsu", "wasabi",
+    "five guys", "hotel chocolat", "gail", "byron", "subway", "tortilla", "black sheep coffee", "eat.",
+    "franco manca", "côte", "cote brasserie", "honest burgers", "bills", "zizzi", "ask italian", "prezzo",
+    "hard rock cafe", "planet hollywood", "rainforest cafe", "m&m's world", "lego store", "disney store",
+)
+
+
+_CHAIN_RE = re.compile(r"(?<![a-z])(" + "|".join(re.escape(c) for c in CHAINS) + r")(?![a-z])")
+
+
+def is_chain(place: dict) -> bool:
+    return bool(_CHAIN_RE.search((place.get("name") or "").lower()))
 
 
 def resolve(items: List[dict]) -> Tuple[List[dict], List[str]]:
@@ -124,7 +140,7 @@ def taste_scores(seeds, lists, explore: float) -> Dict[str, dict]:
         cause = max(c, key=c.get)
         out[pid] = {
             **place,
-            "score": round(raw * (1 - penalty * place.get("popularity", 0)), 4),
+            "score": round(raw * (1 - penalty * place.get("popularity", 0)) * (CHAIN_FACTOR if is_chain(place) else 1), 4),
             "because": by_name[cause],
             "because_share": round(c[cause] / raw, 2),
             "supported_by": [by_name[s] for s in sorted(c, key=c.get, reverse=True)],
