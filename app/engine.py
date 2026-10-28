@@ -25,6 +25,7 @@ RECENT_BRANCH_WEIGHT = 0.6  # ordered branch vs orderless branch, when both exis
 NOISE_WEIGHT = 0.3
 NOISE_OVERLAP = 0.05
 NOISE_RELATIVE = 0.6  # flag a seed whose overlap is under 60% of its peers' median
+NOISE_MIN_PEER = 0.15  # ...but only if the peers themselves agree this much
 CAUSE_REPEAT_PENALTY = 0.35  # per earlier pick explained by the same favourite
 QLOO_PARALLEL = 4  # per request; the hackathon key rate-limits bursts
 
@@ -71,12 +72,15 @@ def _denoise(seeds: List[dict], lists: Dict[str, List[dict]]) -> None:
         own = ids[s["id"]]
         others = set().union(*(v for k, v in ids.items() if k != s["id"]))
         s["consistency"] = round(len(own & others) / max(len(own), 1), 2)
-    # Places in one neighbourhood overlap anyway, so judge each seed against its peers
+    # Noise is the odd one out, never the majority: flag at most the single least consistent
+    # seed, and only when the others agree with each other clearly more than it does
     for s in seeds:
-        peers = sorted(t["consistency"] for t in seeds if t is not s)
-        median = peers[len(peers) // 2]
-        s["noisy"] = s["consistency"] < max(NOISE_OVERLAP, NOISE_RELATIVE * median)
-        s["weight"] = NOISE_WEIGHT if s["noisy"] else 1.0
+        s["noisy"], s["weight"] = False, 1.0
+    worst = min(seeds, key=lambda s: s["consistency"])
+    peers = sorted(t["consistency"] for t in seeds if t is not worst)
+    median = peers[len(peers) // 2]
+    if median >= NOISE_MIN_PEER and worst["consistency"] < max(NOISE_OVERLAP, NOISE_RELATIVE * median):
+        worst["noisy"], worst["weight"] = True, NOISE_WEIGHT
 
 
 def _branch_scores(seeds, lists) -> Dict[str, Dict[str, float]]:

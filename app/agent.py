@@ -36,7 +36,9 @@ You receive a plan computed by the TasteBridge engine from Qloo's taste graph. E
 inconsistent with the user's other favourites.
 
 What to do:
-1. If a seed is noisy, mention it briefly and say it was given less weight.
+1. If a seed is noisy, say in plain words that it didn't seem to match the user's other favourites,
+   so it counted less. If none is noisy, leave note empty. Users never see the words "seed",
+   "noisy", "tag", "plan" or "weight": call them favourites and talk like a friend.
 2. If the user's note asks for something the plan doesn't cover (e.g. "quiet", "late night",
    "cheap", a different area): call search_tags to find a matching tag id, then call build_plan with
    bridge_tag set to it. Keep the user's location unless their note names another area. If that
@@ -50,6 +52,8 @@ What to do:
    fans: ...") and never claim anything about the artist or film themselves.
 
 Do not use these words: {", ".join(AI_CLICHES)}.
+Write intro, why and note in the language of the user's note (and the same script: Simplified vs
+Traditional Chinese); if the note is empty, use English.
 
 Reply with JSON only:
 {{"intro": "1-2 sentences in the user's language",
@@ -162,7 +166,7 @@ def _compact(plan: dict) -> dict:
     return out
 
 
-def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, trace: list):
+def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, note: str, trace: list):
     """Let the LLM call tools until it answers. Returns (parsed JSON or None, latest plan or None)."""
     client, model = _llm(), os.environ["NEBIUS_MODEL"]
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
@@ -183,8 +187,8 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
                 args = json.loads(call.function.arguments or "{}")
                 if name == "build_plan":
                     settings = {**defaults, **{k: v for k, v in args.items() if v not in (None, "")}}
-                    # Models like to "widen" the search to all of London; keep the user's area
-                    if settings["location"].strip().lower() in ("london", "london, uk", "uk", "england"):
+                    # Models like to "widen" or "fix" the area; only move if the user named a new one
+                    if settings["location"].strip().lower() not in note.lower():
                         settings["location"] = defaults["location"]
                     latest_plan = engine.build_plan(favourites, **settings)
                     result = _compact(latest_plan)
@@ -253,8 +257,10 @@ def plan(favourites: List[dict], location: str, explore: float, home_food: str, 
     if llm_enabled():
         user = json.dumps({"note": note, "explore": explore, "plan": _compact(base)}, ensure_ascii=False)
         try:
-            answer, newer = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, trace)
-            final_plan = newer if newer and "error" not in newer else base
+            answer, newer = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, note, trace)
+            # A narrowing tag can leave almost nothing; then the original plan is the better answer
+            usable = newer and "error" not in newer and len(newer["bridge"]) >= base["suggested_mix"]["bridge"]
+            final_plan = newer if usable else base
         except Exception as e:  # LLM down or misconfigured: still serve the engine's plan
             trace.append({"tool": "llm_error", "args": {"error": str(e)[:120]}})
     if not answer:

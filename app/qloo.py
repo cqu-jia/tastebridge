@@ -28,7 +28,8 @@ NON_LEISURE = (
     "lodging", "apartment", "hotel", "hostel", "residential", "school", "education center",
     "college", "university", "agency", "office", "consultan", "clinic", "hospital", "dentist",
     "bank", "pharmacy", "estate agent", "coworking", "publisher", "charity", "banquet",
-    "wedding venue", "conference", "corporate", "non-profit",
+    "wedding venue", "conference", "corporate", "non-profit", "bus company", "coach", "transport",
+    "travel agency", "car rental", "taxi",
 )
 
 
