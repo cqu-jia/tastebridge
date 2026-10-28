@@ -207,7 +207,10 @@
     $("out").innerHTML = `<p class="meta">Reading your taste and asking the agent… (about 15 seconds)</p>`;
     try {
       const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const data = await r.json();
+      // Free hosting returns an HTML page while the server wakes up or restarts
+      const data = await r.json().catch(() => {
+        throw new Error("The server is waking up (free hosting). Please try again in about 30 seconds.");
+      });
       if (!r.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Please check the form.");
       return data;
     } catch (e) {
