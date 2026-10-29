@@ -81,7 +81,10 @@
   .stack { display: grid; gap: 16px; min-width: 0; }
   .sticky { position: sticky; top: 16px; display: grid; gap: 16px; min-width: 0; }
   .intro { font-family: Fraunces, Georgia, serif; font-size: 21px; line-height: 1.3; margin: 0; font-weight: 500; }
-  .note { background: var(--warn-soft); color: var(--warn); padding: 9px 12px; border-radius: 10px; font-size: 13.5px; margin: 0; }
+  /* the agent explaining a choice (e.g. a favourite counted less), not an error */
+  .note { background: var(--accent-soft); color: var(--text); padding: 9px 12px; border-radius: 10px; font-size: 13.5px; margin: 0; }
+  .note::before { content: "ℹ︎ "; color: var(--accent); font-weight: 600; }
+  .empty { background: var(--panel); border: 1px dashed var(--border); border-radius: 14px; padding: 16px; color: var(--muted); margin: 0; }
   .meta { font-size: 12.5px; color: var(--muted); }
 
   .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; font-size: 13.5px; }
@@ -232,7 +235,7 @@
 
   <div id="out" class="out" aria-live="polite"></div>
 
-  <footer>Built for the Qloo Agentic Hackathon · Taste data by <a href="https://www.qloo.com">Qloo</a> · Agent: NVIDIA Nemotron on Nebius Token Factory ·
+  <footer>Built for the Qloo Agentic Hackathon and the Nebius × NVIDIA Global AI Hackathon · Taste data by <a href="https://www.qloo.com">Qloo</a> · Agent: NVIDIA Nemotron on Nebius Token Factory ·
     <a href="https://github.com/cqu-jia/tastebridge">Source</a></footer>
 </div>
 
@@ -349,6 +352,9 @@
       </div></article>`;
   }
 
+  function cardsHtml(cards, pending, empty) {
+    return cards.length ? `<div class="cards">${cards.map((c, i) => card(c, i, pending)).join("")}</div>` : `<p class="empty">${empty}</p>`;
+  }
   function profileHtml(p) {
     if (!p) return "";
     const domains = p.domains.filter(d => d.items.length);
@@ -410,7 +416,7 @@
       <div class="stack">
         <p class="intro">${esc(pending ? "Here's a first draft from your taste. The agent is refining it…" : data.intro)}</p>
         ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}${matchedHtml(data.seeds)}
-        <div class="cards">${data.cards.map((c, i) => card(c, i, pending)).join("")}</div>
+        ${cardsHtml(data.cards, pending, "We couldn't find places near you that match these favourites. Try a nearby area, another favourite, or move the slider.")}
         ${pending ? "" : howHtml(data, seedsHtml(data.seeds))}
       </div>
       <div class="sticky">
@@ -427,7 +433,7 @@
         <p class="intro">${esc(pending ? "Here are spots you'd both like. The agent is writing why…" : data.intro)}</p>
         ${matchedHtml([...data.my_seeds, ...data.friend_seeds])}
         ${data.common?.length ? `<div><div class="label" style="margin-top:0">What your tastes have in common</div><div class="chips">${data.common.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div></div>` : ""}
-        <div class="cards">${data.cards.map((c, i) => card(c, i, pending)).join("")}</div>
+        ${cardsHtml(data.cards, pending, "No spot near your halfway point suits you both yet. Try adding another favourite for each of you, or areas closer together.")}
         ${!pending && data.starters?.length ? `<div class="panel"><h2>Conversation starters</h2><ul class="starters">${data.starters.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
         ${pending ? "" : howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}`)}
       </div>

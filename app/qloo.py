@@ -29,8 +29,11 @@ NON_LEISURE = (
     "college", "university", "agency", "office", "consultan", "clinic", "hospital", "dentist",
     "bank", "pharmacy", "estate agent", "coworking", "publisher", "charity", "banquet",
     "wedding venue", "conference", "corporate", "non-profit", "bus company", "coach", "transport",
-    "travel agency", "car rental", "taxi",
+    "travel agency", "car rental", "taxi", "tour operator", "tour agency",
 )
+# Guided tours and crawls are bookable products, not somewhere to meet; they often hide under
+# "Night club" or "Bar", so match the name too. Not plain "tour": it would catch "tourist attraction".
+NOT_A_PLACE = ("pub crawl", "bar crawl", "walking tour", "food tour", "ghost tour", "bus tour", "boat tour", "bike tour")
 
 
 def is_leisure(entity: dict) -> bool:
@@ -39,7 +42,8 @@ def is_leisure(entity: dict) -> bool:
         for t in entity.get("tags") or []
         if ":category:" in t.get("type", "") or ":genre:" in t.get("type", "")
     )
-    return not any(word in kinds for word in NON_LEISURE)
+    name = (entity.get("name") or "").lower()
+    return not any(word in kinds for word in NON_LEISURE) and not any(p in name for p in NOT_A_PLACE)
 
 
 def _client() -> httpx.Client:

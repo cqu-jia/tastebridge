@@ -65,15 +65,19 @@ places near their midpoint ranked with least-misery fusion (both must like it). 
 `because_me` and `because_friend`: the favourite of each person that led to it.
 
 Pick the best 3 places, prefer independent places over chains. For each, write one short sentence on
-why it works for both, e.g. "Popular with Jay Chou fans and Paddington fans alike; a cosy bakery 1 km
-from each of you." The favourites are things the two people like (artists, films...), not people:
-address the users as "you" and "your friend", never speak as if a film or character will visit.
-Use only facts from the place data.
+why it works for both, e.g. "Popular with Jay Chou fans and Paddington fans alike; a cosy bakery near
+your halfway point." `distance_m` is from the halfway point, not from either person. The favourites are
+things the two people like (artists, films...), not people: address the users as "you" and "your
+friend", never speak as if a film or character will visit. Use only facts from the place data.
 
 Then write 3 short, natural conversation starters a shy student could actually say, grounded in the two
 people's real favourites (an overlap or an interesting contrast). One sentence each. `common` lists
-taste descriptors Qloo says they share (e.g. "Artistically Rich"); use one if it helps. Ask about the
-other person's experience and taste ("What got you into ...?", "Which ... would you show a first-timer?").
+taste descriptors Qloo says they share (e.g. "Artistically Rich"); use one if it helps.
+The user says these lines TO the friend, so keep whose favourite is whose straight:
+- `friend_favourites` are the friend's. Ask about those ("What got you into Paddington?",
+  "Which Arctic Monkeys album would you show a first-timer?").
+- `your_favourites` are the user's own. Only mention them as the user's ("I've had Jay Chou on repeat
+  lately, have you heard him?"), never as something the friend likes.
 Never mention news, releases or facts about the artists or films, and never imagine characters doing things.
 
 Do not use these words: {", ".join(AI_CLICHES)}.
@@ -249,6 +253,34 @@ def _fallback_twin(plan: dict) -> dict:
     return {"intro": "Somewhere in the middle that suits you both.", "picks": picks, "starters": starters}
 
 
+def _aliases(seed: dict) -> List[str]:
+    """Names a starter might use for a favourite: what the user typed, Qloo's name, and its Latin/CJK halves."""
+    names = {seed.get("input") or "", seed.get("name") or ""}
+    for n in list(names):
+        names.update(part.strip() for part in re.split(r"(?<=[A-Za-z])\s+(?=[^\x00-\x7f])", n))
+    return [n for n in names if len(n) >= 2]
+
+
+# "you" + liking verb shortly before a favourite = the starter says the friend likes it
+_YOU_LIKE = r"(?:got you into|you(?:'re| are)? (?:really |also )?(?:into|enjoy|love|like)|your (?:love|taste) (?:of|for))"
+
+
+def _fix_starters(starters: List[str], plan: dict) -> List[str]:
+    """Replace starters that tell the friend they like one of the user's own favourites."""
+    friend = {a.lower() for s in plan["friend_seeds"] for a in _aliases(s)}
+    mine = [a for s in plan["my_seeds"] for a in _aliases(s) if a.lower() not in friend]
+    wrong = [re.compile(_YOU_LIKE + r"[^.?!,;]{0,40}?" + re.escape(a), re.I) for a in mine]
+    spare = [s for s in _fallback_twin(plan)["starters"] if s not in starters]
+    fixed = []
+    for line in starters:
+        if any(p.search(line) for p in wrong):
+            if spare:
+                fixed.append(spare.pop(0))
+        else:
+            fixed.append(line)
+    return fixed
+
+
 # ---------- entry points ----------
 
 def _attach(answer: dict, places: List[dict], kind_default: str) -> List[dict]:
@@ -313,7 +345,7 @@ def _twin_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
     return {
         "intro": answer.get("intro", ""),
         "cards": cards,
-        "starters": answer.get("starters", []),
+        "starters": _fix_starters(answer.get("starters", []), plan),
         "common": plan["common"],
         "my_seeds": plan["my_seeds"],
         "friend_seeds": plan["friend_seeds"],
@@ -342,7 +374,11 @@ def twin(me: List[dict], friend: List[dict], my_location: str, friend_location: 
                 model=os.environ["NEBIUS_MODEL"],
                 messages=[
                     {"role": "system", "content": TWIN_PROMPT},
-                    {"role": "user", "content": json.dumps(_compact(base), ensure_ascii=False)},
+                    {"role": "user", "content": json.dumps({
+                        "your_favourites": [s["name"] for s in base["my_seeds"]],
+                        "friend_favourites": [s["name"] for s in base["friend_seeds"]],
+                        **_compact(base),
+                    }, ensure_ascii=False)},
                 ],
                 temperature=0.5,
             )
