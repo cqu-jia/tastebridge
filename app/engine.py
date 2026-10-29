@@ -16,6 +16,7 @@ Each step follows an idea from our sequential-recommendation work:
 """
 import re
 from concurrent.futures import ThreadPoolExecutor
+from difflib import SequenceMatcher
 from typing import Callable, Dict, List, Optional, Tuple
 
 from . import geo, qloo
@@ -46,12 +47,22 @@ def is_chain(place: dict) -> bool:
     return bool(_CHAIN_RE.search((place.get("name") or "").lower()))
 
 
+def _closest(query: str, hits: List[dict]) -> Optional[dict]:
+    """Qloo's top hit, unless another is a clearly closer name ("Halo" -> "Halo", not "Halo Wars")."""
+    if not hits:
+        return None
+    norm = lambda s: re.sub(r"[\W_]+", "", (s or "").lower())
+    score = lambda h: SequenceMatcher(None, norm(query), norm(h["name"])).ratio()
+    best = max(hits, key=score)
+    return best if score(best) >= score(hits[0]) + 0.15 else hits[0]
+
+
 def resolve(items: List[dict]) -> Tuple[List[dict], List[str]]:
     """Map {"name", "type"?, "when"} favourites to Qloo entities. Returns (seeds, unresolved names)."""
 
     def one(item):
-        hits = qloo.search_entity(item["name"], item.get("type"), take=1)
-        return item, hits[0] if hits else None
+        hits = qloo.search_entity(item["name"], item.get("type"), take=3)
+        return item, _closest(item["name"], hits)
 
     seeds, missing = [], []
     with ThreadPoolExecutor(QLOO_PARALLEL) as pool:

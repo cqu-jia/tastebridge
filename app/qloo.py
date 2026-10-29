@@ -33,7 +33,12 @@ NON_LEISURE = (
 )
 # Guided tours and crawls are bookable products, not somewhere to meet; they often hide under
 # "Night club" or "Bar", so match the name too. Not plain "tour": it would catch "tourist attraction".
-NOT_A_PLACE = ("pub crawl", "bar crawl", "walking tour", "food tour", "ghost tour", "bus tour", "boat tour", "bike tour")
+# Members-only rooms (e.g. "Tate Modern Members Room") are listed as bars but a student can't get in.
+NOT_A_PLACE = (
+    "pub crawl", "bar crawl", "walking tour", "food tour", "ghost tour", "bus tour", "boat tour", "bike tour",
+    "members room", "members' room", "members bar", "members' bar", "members lounge", "members club",
+    "members' club", "member's club",
+)
 
 
 def is_leisure(entity: dict) -> bool:

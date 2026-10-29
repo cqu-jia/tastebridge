@@ -41,13 +41,16 @@ What to do:
    "noisy", "tag", "plan" or "weight": call them favourites and talk like a friend.
 2. If the user's note asks for something the plan doesn't cover (e.g. "quiet", "late night",
    "cheap", a different area): call search_tags to find a matching tag id, then call build_plan with
-   bridge_tag set to it. Keep the user's location unless their note names another area. If that
-   returns too few places, keep the original plan.
+   bridge_tag set to it. Keep the user's location unless their note names another area. If
+   build_plan answers `too_few`, the original plan stands and its places were NOT filtered for that
+   request: never describe a pick as quiet, cheap etc. because of it, and say in note that you
+   couldn't find enough such places nearby.
 3. Pick the final places: follow suggested_mix, prefer independent places over chains, and prefer
    picks explained by different favourites.
 4. For each BRIDGE pick, write one sentence that cites the favourite in its `because` field and one
    concrete detail from the place data (category, vibe, description). COMFORT picks are not caused by
-   a favourite: describe them as a taste of home and give one concrete detail. Never invent facts.
+   a favourite: describe them as a taste of home and give one concrete detail. Never invent facts:
+   a place only fits the note's wish (quiet, good for study...) if its own data says so.
    The favourites are things the user likes, so phrase the link as taste ("Popular with Faye Wong
    fans: ...") and never claim anything about the artist or film themselves.
 
@@ -172,6 +175,11 @@ def _compact(plan: dict) -> dict:
     return out
 
 
+def _tag_label(args: dict) -> str:
+    """'urn:tag:genre:place:quiet_study' -> 'quiet study'."""
+    return (args.get("bridge_tag") or "").split(":")[-1].replace("_", " ")
+
+
 def _narrate(name: str, args: dict, result) -> str:
     """One plain-English line per tool call, shown live in the UI."""
     if isinstance(result, dict) and "error" in result:
@@ -180,16 +188,20 @@ def _narrate(name: str, args: dict, result) -> str:
         found = ", ".join(list(dict.fromkeys(t["name"] for t in result))[:3]) or "nothing"
         return f"Nemotron looked up \"{args.get('query')}\" in Qloo's tags: {found}"
     if name == "build_plan":
-        what = args.get("bridge_tag", "").split(":")[-1].replace("_", " ") or "new settings"
+        what = _tag_label(args) or "new settings"
+        if isinstance(result, dict) and result.get("too_few"):
+            return f"Nemotron tried narrowing to {what}, but too few places nearby match, so it kept the original picks"
         return f"Nemotron re-ran the plan, narrowing to {what}"
     return f"Nemotron explored {args.get('target_type', 'more')}s people with your taste love"
 
 
-def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, note: str, trace: list, emit):
-    """Let the LLM call tools until it answers. Returns (parsed JSON or None, latest plan or None)."""
+def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, note: str, trace: list, emit,
+                    min_bridge: int = 0):
+    """Let the LLM call tools until it answers. Returns (parsed JSON or None, latest usable plan or None,
+    names of filters that left too few places)."""
     client, model = _llm(), os.environ["NEBIUS_MODEL"]
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-    latest_plan = None
+    latest_plan, too_few = None, []
 
     for _ in range(MAX_STEPS):
         resp = client.chat.completions.create(
@@ -197,7 +209,7 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
         )
         msg = resp.choices[0].message
         if not msg.tool_calls:
-            return _parse_json(msg.content), latest_plan
+            return _parse_json(msg.content), latest_plan, too_few
 
         messages.append(msg.model_dump(exclude_none=True))
         for call in msg.tool_calls:
@@ -209,8 +221,17 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
                     # Models like to "widen" or "fix" the area; only move if the user named a new one
                     if settings["location"].strip().lower() not in note.lower():
                         settings["location"] = defaults["location"]
-                    latest_plan = engine.build_plan(favourites, **settings)
-                    result = _compact(latest_plan)
+                    newer = engine.build_plan(favourites, **settings)
+                    if "error" not in newer and len(newer["bridge"]) < min_bridge:
+                        # Tell the model now, before it writes: otherwise it explains the old picks
+                        # as if they matched the filter ("quiet, good for study")
+                        what = _tag_label(args) or "those settings"
+                        too_few.append(what)
+                        result = {"too_few": True, "found": len(newer["bridge"]), "message":
+                                  f"Only {len(newer['bridge'])} places match {what}; the original plan stands, unfiltered."}
+                    else:
+                        latest_plan = newer
+                        result = _compact(newer)
                 elif name == "search_tags":
                     result = qloo.search_tags(args["query"])
                 else:
@@ -220,7 +241,7 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
             trace.append({"tool": name, "args": args})
             emit({"type": "step", "text": _narrate(name, args, result)})
             messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)})
-    return None, latest_plan
+    return None, latest_plan, too_few
 
 
 # ---------- template fallback (no LLM) ----------
@@ -324,20 +345,23 @@ def plan(favourites: List[dict], location: str, explore: float, home_food: str, 
         return {"error": base["error"]}
     emit({"type": "draft", "data": _plan_result(_fallback_plan(base), base, trace, final=False)})
 
-    answer, final_plan = None, base
+    answer, final_plan, too_few = None, base, []
     if llm_enabled():
         emit({"type": "step", "text": "Asking Nemotron to choose and explain your picks"})
         user = json.dumps({"note": note, "explore": explore, "plan": _compact(base)}, ensure_ascii=False)
         try:
-            answer, newer = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, note, trace, emit)
             # A narrowing tag can leave almost nothing; then the original plan is the better answer
-            usable = newer and "error" not in newer and len(newer["bridge"]) >= base["suggested_mix"]["bridge"]
-            if newer and not usable:
-                emit({"type": "step", "text": "That filter left too few places, so I kept the original plan"})
+            answer, newer, too_few = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, note, trace, emit,
+                                                     min_bridge=base["suggested_mix"]["bridge"])
+            usable = newer and "error" not in newer
             final_plan = {**newer, "profile": base["profile"]} if usable else base
         except Exception as e:  # LLM down or misconfigured: still serve the engine's plan
             trace.append({"tool": "llm_error", "args": {"error": str(e)[:120]}})
-    return _plan_result(answer or _fallback_plan(final_plan), final_plan, trace, final=True)
+    answer = answer or _fallback_plan(final_plan)
+    if too_few and final_plan is base and not answer.get("note"):
+        # The page must not imply the picks match a wish we couldn't filter for
+        answer = {**answer, "note": f"Not enough places nearby match \"{too_few[-1]}\", so these picks aren't filtered for it."}
+    return _plan_result(answer, final_plan, trace, final=True)
 
 
 def _twin_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
