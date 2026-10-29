@@ -7,7 +7,7 @@
 - 截止时间（伦敦时间）：**Nebius 10/30 17:00**，**Qloo 10/31 03:45**
 
 > ⚠️ **最重要的一条：推送到 `main` 分支会自动部署到线上 demo。** 评委看到的就是 `main` 上的代码。
-> 所以改动先在本地测好，或者走分支 + Pull Request，不要把没测过的代码直接推到 `main`。
+> 所有改动先在自己的分支上完成，本地测好后开 Pull Request（PR），由另一位队员确认再合并。不要直接推到 `main`。
 > **截止之后不要再推任何改动**：很多比赛规定截止后不能修改作品，评委看的是截止时的版本。
 
 ---
@@ -91,7 +91,7 @@ app/
   qloo.py      调 Qloo API 的封装，还有"哪些地点不算休闲场所"的过滤名单
   geo.py       邮编 / 地名 → 经纬度（用免费的 postcodes.io）
 static/
-  index.html   整个前端页面（HTML + CSS + JS 都在这一个文件里；地图用 Leaflet + OpenStreetMap）
+  index.html   整个前端页面（HTML + CSS + JS 都在这一个文件里；6 题交互和 Leaflet 地图也在这里）
 scripts/
   list_models.py    列出 Nebius 上可用的模型
   deploy_render.py  第一次部署用的脚本，平时不用管
@@ -111,29 +111,43 @@ render.yaml   Render 部署配置
 | 页面上 agent 每一步显示的文字 | `app/engine.py` 里的 `emit(...)`，以及 `app/agent.py` 里的 `_narrate` |
 | 限流（每人每分钟、每天的次数） | `app/main.py` 顶部的 `PER_IP_PER_MINUTE` 等常量 |
 | 推荐算法参数（搜索半径、噪声阈值、近期喜好权重等） | `app/engine.py` 顶部的常量，每个都有注释 |
-| 换 AI 模型 | `.env` 里的 `NEBIUS_MODEL`（线上的要在 Render 后台改，见第 4 节） |
+| 换 AI 模型 | `.env` 里的 `NEBIUS_MODEL`（线上的要在 Render 后台改，见第 5 节） |
 
 推荐算法的思路（两路融合、去噪、去流行度偏差、归因、两人最小痛苦融合）写在 `app/engine.py` 文件开头的注释里，`README.md` 里也有一张表。
 
 ---
 
-## 3. 改代码的 Git 流程
+## 3. GitHub 是怎么协作的
 
-### 推荐做法：开分支 + Pull Request（不会误伤线上）
+- **仓库（repository）**：大家共享的项目文件和修改历史；本项目在 [cqu-jia/tastebridge](https://github.com/cqu-jia/tastebridge)。
+- **`main` 分支**：目前准备给评委看的版本。合并到 `main` 会触发 Render 自动部署。
+- **自己的分支（branch）**：每项改动单独开一条，互不影响线上。一个分支尽量只做一件事。
+- **提交（commit）**：给一组改动存档，说明改了什么。`commit` 只保存在自己电脑上；`push` 才把它传到 GitHub。
+- **Pull Request（PR）**：请队友检查并把你的分支合并到 `main` 的申请。PR 里写清改动、测试方法和截图；有评论就继续在原分支修改并 `push`，PR 会自动更新。
+- **冲突（conflict）**：两个人改了同一处，Git 无法替大家决定保留哪版。最近首页就发生过这种情况。处理前要看懂两边改动，不能直接选“全部保留我的”。
+
+### 开工前先说一声
+
+在群里用一句话说明“我准备改什么、会动哪些文件”。特别是 `static/index.html` 集中了整个前端，若两个人同时改它，先分好页面区域或等对方的 PR 合并。把未完成的想法写在 PR 描述或群里，让接手的人知道。
+
+## 4. 改代码的流程
+
+### 每次改动：开分支 + PR
 
 ```bash
 # 1. 先把最新代码拉下来
-git checkout main
-git pull
+git switch main
+git pull --ff-only origin main
 
 # 2. 开一个新分支，名字写清楚改什么
-git checkout -b steph/onboarding-copy
+git switch -c steph/onboarding-copy
 
 # 3. 改代码，本地跑起来测一遍（见 1.6）
 
 # 4. 提交
-git add -A
-git status            # 看一眼要提交的文件，确认里面没有 .env
+git status            # 先看有哪些文件变了
+git add static/index.html
+git diff --cached     # 检查准备提交的内容，没有 .env、key 或无关文件
 git commit -m "Reword onboarding questions"
 
 # 5. 推到 GitHub
@@ -142,31 +156,26 @@ git push -u origin steph/onboarding-copy
 
 推完后终端会打印一个链接，或者打开仓库页面，会看到黄色提示条 **Compare & pull request**：
 1. 点它，写一两句改了什么，点 **Create pull request**；
-2. 在群里说一声，让另一个人看一眼；
-3. 没问题就在 PR 页面点 **Merge pull request** → **Confirm merge**；
+2. 在 PR 描述里写“改了什么、如何测试、是否影响线上”，界面改动附截图；在群里请另一位队员看一眼；
+3. 审查者确认后再点 **Merge pull request** → **Confirm merge**；
 4. 合并到 `main` 后，Render 会**自动部署**，2–5 分钟后线上生效。
 
-### 很小的改动（改错字之类）
-可以直接在 `main` 上改，但**推之前一定本地跑一下**：
+合并后，本地开始下一项工作之前，先同步最新版：
 ```bash
-git checkout main
-git pull
-# 改 → 本地测
-git add -A
-git commit -m "Fix typo on landing page"
-git push
+git switch main
+git pull --ff-only origin main
 ```
 
 ### 常见问题
-- **`git push` 被拒绝，提示 rejected / fetch first**：别人先推了。运行 `git pull`，再 `git push`。
-- **`git pull` 后提示冲突（CONFLICT）**：打开提示里的文件，找 `<<<<<<<` 和 `>>>>>>>` 之间的两段，留下正确的那段，删掉标记符号，然后 `git add 文件名`、`git commit`。拿不准就在群里喊人。
+- **PR 提示和 `main` 有冲突**：先在群里告诉改过同一文件的队友。确认两边要保留的内容后，在自己的分支合并最新版 `main`，逐处解决 `<<<<<<<`、`=======`、`>>>>>>>` 标记，再本地测试、提交并推送。拿不准就让队友一起看，不要强行覆盖。
+- **`git push` 被拒绝，提示 rejected / fetch first**：先用 `git status` 和 `git fetch origin` 看当前分支及远端改动；不要用 `--force`。请改过同一分支的队友一起处理。
 - **推送时要求登录**：运行 `gh auth login`，按提示用浏览器登录 GitHub。
 - **不小心把 `.env` 加进了暂存区**：运行 `git restore --staged .env`，然后检查 `.gitignore` 里有没有 `.env` 这一行。
-- **两个人别同时改同一个文件的同一块**，开工前在群里说一声"我在改 index.html"。
+- **推送前再检查一次**：`git status` 看提交文件；浏览器走完你的功能，也试一遍已有的单人和双人入口。
 
 ---
 
-## 4. 线上部署（Render）
+## 5. 线上部署（Render）
 
 - 平台：Render 免费版，服务名 `tastebridge`，机房在法兰克福。
 - **自动部署**：`main` 分支有新提交，Render 就会自动重新构建并上线，大约 2–5 分钟。
@@ -177,7 +186,7 @@ git push
 
 ---
 
-## 5. 额度和费用
+## 6. 额度和费用
 
 - Nebius 账户里有 $30 赠送额度，一次推荐大约花几美分，够用。
 - 本地测试也会消耗同一份额度，正常测没问题，别写循环狂刷。
@@ -187,7 +196,7 @@ git push
 
 ---
 
-## 6. 提交前检查清单
+## 7. 提交前检查清单
 
 - [ ] 线上 demo 能打开，"My week" 和 "Taste Twin" 都能出结果
 - [ ] 手机上打开也正常
