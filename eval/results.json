@@ -1,32 +1,32 @@
 {
  "summary": {
   "LLM only": {
-   "hotspot": 80.0,
-   "distance": 3.865714285714286,
-   "chains": 2.857142857142857,
-   "valid": 35.0,
+   "hotspot": 62.06896551724138,
+   "distance": 2.4727586206896555,
+   "chains": 0.0,
+   "valid": 33.75,
    "n": 80
   },
   "Qloo, city-wide": {
    "hotspot": 58.75,
-   "distance": 5.469625000000001,
+   "distance": 5.498000000000001,
    "chains": 0.0,
-   "valid": 83.75,
+   "valid": 81.25,
    "n": 80
   },
   "Qloo, nearby": {
-   "hotspot": 56.25,
-   "distance": 1.131375,
+   "hotspot": 57.5,
+   "distance": 1.13475,
    "chains": 0.0,
-   "valid": 82.5,
+   "valid": 81.25,
    "n": 80
   },
   "TasteBridge": {
-   "hotspot": 6.666666666666667,
-   "distance": 1.2296000000000005,
-   "chains": 1.3333333333333333,
+   "hotspot": 5.0,
+   "distance": 1.2402500000000003,
+   "chains": 0.0,
    "valid": 100.0,
-   "n": 75
+   "n": 80
   }
  },
  "rows": [
@@ -41,24 +41,42 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Tea Palace",
+      "name": "Penguin Eggs",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Shanghai Blues",
+      "name": "Wu Kong",
       "id": null,
       "unverified": true
      },
      {
-      "name": "KOYOTO",
+      "name": "Matcha Bar",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Baoshuan",
-      "id": null,
-      "unverified": true
+      "name": "BaoziInn - London Bridge",
+      "id": "4A7D0C20-C200-4BF5-A0D6-423CB25175BA",
+      "type": "urn:entity:place",
+      "popularity": 0.396,
+      "lat": 51.504834699999996,
+      "lon": -0.0930154,
+      "address": "34-36 Southwark St London SE1 1TU United Kingdom",
+      "neighborhood": "The Borough",
+      "price_level": "2",
+      "description": "Three-storey Cantonese spot specializing in roast meats, dim sum, and noodles.",
+      "category": "Dim sum restaurant",
+      "vibe": [
+       "Vibrant",
+       "Welcoming",
+       "Energetic",
+       "Lively"
+      ],
+      "image": "https://images.qloo.com/i/4A7D0C20-C200-4BF5-A0D6-423CB25175BA-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "BaoziInn",
+      "km": 3.43
      }
     ],
     "Qloo, city-wide": [
@@ -389,77 +407,76 @@
    "picks": {
     "LLM only": [
      {
-      "name": "ROKA Canary Wharf",
-      "id": "42BF1477-C824-4997-A0CF-80BC7B98101A",
-      "type": "urn:entity:place",
-      "popularity": 0.997,
-      "lat": 51.504920399999996,
-      "lon": -0.018773599999999998,
-      "address": "4 Park Pavillion, 40 Canada Square Canary Wharf Estate, London E14 5FW United Kingdom",
-      "neighborhood": "London Borough of Tower Hamlets",
-      "price_level": "3",
-      "description": "Premium sushi and grilled Japanese offerings in a refined, warmly furnished dining destination.",
-      "category": "Cocktail bar",
-      "vibe": [
-       "Stylish",
-       "Elegant",
-       "Gastronomic",
-       "Refined"
-      ],
-      "image": "https://images.qloo.com/i/42BF1477-C824-4997-A0CF-80BC7B98101A-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Roka Canary Wharf",
-      "km": 0.05
-     },
-     {
-      "name": "wagamama canary wharf",
-      "id": "1334E4DA-99C6-42A8-80D4-5A7A5F35F749",
-      "type": "urn:entity:place",
-      "popularity": 0.783,
-      "lat": 51.503141299999996,
-      "lon": -0.0185209,
-      "address": "45, 39 Bank St Jubilee London E14 5NY United Kingdom",
-      "neighborhood": "London Borough of Tower Hamlets",
-      "price_level": "2",
-      "description": "Situated on the mezzanine level of Jubilee Place, this pan-Asian restaurant offers a vibrant dining experience in a prominent business district.",
-      "category": "Restaurant",
-      "vibe": [
-       "Family friendly",
-       "Lively",
-       "Welcoming",
-       "Bustling"
-      ],
-      "image": "https://images.qloo.com/i/1334E4DA-99C6-42A8-80D4-5A7A5F35F749-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Wagamama Canary Wharf",
-      "km": 0.21
-     },
-     {
-      "name": "Barbican Centre",
-      "id": "CC51B695-943C-4451-9724-3BF40858BF01",
-      "type": "urn:entity:place",
-      "popularity": 0.974,
-      "lat": 51.5202077,
-      "lon": -0.09378639999999999,
-      "address": "Silk St Barbican, London EC2Y 8DS United Kingdom",
-      "neighborhood": "Barbican",
-      "description": "Major London cultural complex housing concert halls, theatres, cinemas, galleries, and public spaces; home to the London Symphony Orchestra and famed brutalist architecture.",
-      "category": "Performing arts theater",
-      "vibe": [
-       "Introspective",
-       "Unique",
-       "Inspiring",
-       "Brutalist"
-      ],
-      "image": "https://images.qloo.com/i/CC51B695-943C-4451-9724-3BF40858BF01-420x-auto.jpg",
-      "leisure": false,
-      "llm_name": "Barbican Centre",
-      "km": 5.41
-     },
-     {
-      "name": "The O2 Arena",
+      "name": "Wu Kong",
       "id": null,
       "unverified": true
+     },
+     {
+      "name": "Everyman Canary Wharf",
+      "id": "BA6408D5-38EE-4E0F-BC5F-0CFEBA9AB72A",
+      "type": "urn:entity:place",
+      "popularity": 0.896,
+      "lat": 51.5062028,
+      "lon": -0.017765799999999998,
+      "address": "Level -2, Upper Bank St Crossrail Pl London E14 5AR United Kingdom",
+      "neighborhood": "London Borough of Tower Hamlets",
+      "description": "Luxury boutique cinema in Crossrail Place with sofa seating, bar serving cocktails and gourmet food, plus waiter service to cinema seats.",
+      "category": "Restaurant",
+      "vibe": [
+       "Social",
+       "Classic",
+       "Retro",
+       "Stylish"
+      ],
+      "image": "https://images.qloo.com/i/BA6408D5-38EE-4E0F-BC5F-0CFEBA9AB72A-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Everyman Cinema Canary Wharf",
+      "km": 0.18
+     },
+     {
+      "name": "Poplar Union",
+      "id": "EB1AA86D-2ABD-4DB6-B673-00F47CCEAB4A",
+      "type": "urn:entity:place",
+      "popularity": 0.889,
+      "lat": 51.515810599999995,
+      "lon": -0.0227168,
+      "address": "2 Cotall St London E14 6TL United Kingdom",
+      "neighborhood": "London Borough of Tower Hamlets",
+      "description": "Community arts centre and events venue in Poplar offering performances, dance programmes, community markets and cultural activities.",
+      "category": "Art center",
+      "vibe": [
+       "Safe",
+       "Bright",
+       "Quiet",
+       "Stylish"
+      ],
+      "image": "https://images.qloo.com/i/EB1AA86D-2ABD-4DB6-B673-00F47CCEAB4A-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Poplar Union",
+      "km": 1.23
+     },
+     {
+      "name": "The Gun, Docklands",
+      "id": "2FE3B184-EDA0-4915-B9F0-A9A51905B008",
+      "type": "urn:entity:place",
+      "popularity": 0.985,
+      "lat": 51.501843199999996,
+      "lon": -0.0077017,
+      "address": "27 Coldharbour Docklands London E14 9NS United Kingdom",
+      "neighborhood": "London Borough of Tower Hamlets",
+      "price_level": "2",
+      "description": "Elegant riverside pub offering modern British cuisine and refined pub classics, with a riverside terrace and views of the River Thames in a Grade II listed building.",
+      "category": "British restaurant",
+      "vibe": [
+       "Welcoming",
+       "Charming",
+       "Casual",
+       "Comfortable"
+      ],
+      "image": "https://images.qloo.com/i/2FE3B184-EDA0-4915-B9F0-A9A51905B008-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "The Gun",
+      "km": 0.89
      }
     ],
     "Qloo, city-wide": [
@@ -646,28 +663,28 @@
     ],
     "TasteBridge": [
      {
-      "name": "Haidilao Hot Pot at The O2",
-      "id": "BB0B005C-348C-4E4E-8283-84A97235B9BD",
+      "name": "Mailinda BBQ Skewers and Charcoal Hotpot",
+      "id": "AD27FD28-0028-436D-B53E-30ABC7AB0238",
       "type": "urn:entity:place",
-      "popularity": 0.609,
-      "affinity": 0.641,
-      "distance_m": 1503,
-      "lat": 51.5033162,
-      "lon": 0.0020732,
-      "address": "Unit 7.0.9 The O2 London SE10 0DX United Kingdom",
-      "neighborhood": "Blackwall",
-      "price_level": "3",
-      "description": "Popular Chinese hot pot with customizable soup bases, theatrical high-touch service and communal dining inside The O2 entertainment complex.",
-      "category": "Chinese restaurant",
+      "popularity": 0.296,
+      "affinity": 0.669,
+      "distance_m": 912,
+      "lat": 51.4970175,
+      "lon": -0.0229573,
+      "address": "62 Mellish St London E14 8NS United Kingdom",
+      "neighborhood": "London Borough of Tower Hamlets",
+      "price_level": "2",
+      "description": "Warm, homey spot serving classic Sichuan dishes and charcoal street-style hotpot and BBQ in a casual setting.",
+      "category": "Chinese takeaway",
       "vibe": [
-       "Stylish",
-       "Lively",
-       "Modern",
-       "Energetic"
+       "Large group",
+       "Unpretentious",
+       "Social",
+       "Homey"
       ],
-      "image": "https://images.qloo.com/i/BB0B005C-348C-4E4E-8283-84A97235B9BD-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/AD27FD28-0028-436D-B53E-30ABC7AB0238-420x-auto.jpg",
       "leisure": true,
-      "km": 1.5
+      "km": 0.91
      },
      {
       "name": "Columbia Restaurant",
@@ -777,58 +794,39 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Kimchi Princess",
+      "name": "Hanam Korean Restaurant",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Gogo Pocha",
-      "id": "55ADC6D7-6495-4B72-A30E-CCD100B8CF95",
+      "name": "Rich Mix",
+      "id": "FED807FE-3E0E-415A-8BDC-BAF5BF262351",
       "type": "urn:entity:place",
-      "popularity": 0.823,
-      "lat": 51.501027099999995,
-      "lon": -0.1121817,
-      "address": "30 Lower Marsh London SE1 7RG United Kingdom",
-      "neighborhood": "Lambeth",
-      "price_level": "2",
-      "description": "Casual, inexpensive Korean pocha-style spot near Waterloo serving late-night small plates, cocktails and classic dishes like bulgogi, bibimbap and kimchi pancakes.",
-      "category": "Restaurant",
+      "popularity": 0.904,
+      "lat": 51.5243955,
+      "lon": -0.07319679999999999,
+      "address": "35-47 Bethnal Grn Rd London E1 6LA United Kingdom",
+      "neighborhood": "London Borough of Tower Hamlets",
+      "description": "Community arts hub in East London offering cinema, live music, theatre, gallery exhibitions, food and regular film screenings and events.",
+      "category": "Cafe",
       "vibe": [
        "Lively",
-       "Pocha style",
-       "No frills",
-       "Casual"
-      ],
-      "image": "https://images.qloo.com/i/55ADC6D7-6495-4B72-A30E-CCD100B8CF95-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Pocha",
-      "km": 3.06
-     },
-     {
-      "name": "Jinjuu Soho",
-      "id": "20E3CC0F-66D9-4BE1-8CC2-20687E9A7349",
-      "type": "urn:entity:place",
-      "popularity": 0.987,
-      "lat": 51.512723099999995,
-      "lon": -0.1392522,
-      "address": "15 Kingly St Carnaby, London W1F 9BP United Kingdom",
-      "neighborhood": "Soho",
-      "price_level": "3",
-      "description": "Korean street food and soju cocktails served in a hip Soho bar with a basement dining room.",
-      "category": "Korean restaurant",
-      "vibe": [
-       "Lively",
+       "Intimate",
        "Casual",
-       "Cozy",
-       "Welcoming"
+       "Cultural"
       ],
-      "image": "https://images.qloo.com/i/20E3CC0F-66D9-4BE1-8CC2-20687E9A7349-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Jinjuu",
-      "km": 4.26
+      "image": "https://images.qloo.com/i/FED807FE-3E0E-415A-8BDC-BAF5BF262351-420x-auto.jpg",
+      "leisure": false,
+      "llm_name": "Rich Mix",
+      "km": 0.71
      },
      {
-      "name": "Cafe K",
+      "name": "Tiger Sugar Whitechapel",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Mokku Korean BBQ",
       "id": null,
       "unverified": true
      }
@@ -1123,7 +1121,7 @@
        "Casual"
       ],
       "image": "https://images.qloo.com/i/309EF90E-B53B-41E3-88F7-47A03C417E8B-420x-auto.jpg",
-      "score": 0.4151,
+      "score": 0.4196,
       "because": "Squid Game",
       "because_share": 0.39,
       "supported_by": [
@@ -1148,78 +1146,36 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Seoul Bakery (sb)",
-      "id": "D564ADE2-7FF7-4805-9C08-B16BD49D277A",
-      "type": "urn:entity:place",
-      "popularity": 0.815,
-      "lat": 51.5172659,
-      "lon": -0.1295537,
-      "address": "14 Great Russell St London WC1B 3NH United Kingdom",
-      "neighborhood": "Saint Giles",
-      "price_level": "2",
-      "description": "Casual Korean eatery and cultural hub offering traditional dishes, drinks, K-pop music, and memorabilia in central London.",
-      "category": "Korean restaurant",
-      "vibe": [
-       "Lively",
-       "Social",
-       "Casual",
-       "Welcoming"
-      ],
-      "image": "https://images.qloo.com/i/D564ADE2-7FF7-4805-9C08-B16BD49D277A-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Seoul Bakery",
-      "km": 1.85
-     },
-     {
-      "name": "Jinjuu Soho",
-      "id": "20E3CC0F-66D9-4BE1-8CC2-20687E9A7349",
-      "type": "urn:entity:place",
-      "popularity": 0.987,
-      "lat": 51.512723099999995,
-      "lon": -0.1392522,
-      "address": "15 Kingly St Carnaby, London W1F 9BP United Kingdom",
-      "neighborhood": "Soho",
-      "price_level": "3",
-      "description": "Korean street food and soju cocktails served in a hip Soho bar with a basement dining room.",
-      "category": "Korean restaurant",
-      "vibe": [
-       "Lively",
-       "Casual",
-       "Cozy",
-       "Welcoming"
-      ],
-      "image": "https://images.qloo.com/i/20E3CC0F-66D9-4BE1-8CC2-20687E9A7349-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Jinjuu",
-      "km": 1.84
-     },
-     {
-      "name": "Our Place",
+      "name": "Janguhjin",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Banana Tree Soho",
-      "id": "B2612BDF-9FDD-41A6-820E-9725A1333C22",
+      "name": "Seoul Bakery Borough Market",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "BFI Southbank",
+      "id": "3BE5B58F-997A-48BA-8175-5271964CB4D9",
       "type": "urn:entity:place",
-      "popularity": 0.978,
-      "lat": 51.5130993,
-      "lon": -0.1338646,
-      "address": "103 Wardour St London W1F 0UG United Kingdom",
-      "neighborhood": "Soho",
+      "popularity": 0.913,
+      "lat": 51.506609399999995,
+      "lon": -0.11579829999999999,
+      "address": "Belvedere Rd London SE1 8XT United Kingdom",
+      "neighborhood": "Lambeth",
       "price_level": "2",
-      "description": "Industrial‑chic pan‑Asian restaurant in Soho serving bold Southeast Asian dishes, strong vegan/vegetarian selection, bottomless brunches and cocktails near Leicester Square and theatres.",
-      "category": "Asian restaurant",
-      "vibe": [
-       "Lively",
-       "Energetic",
-       "Casual",
-       "Industrial chic"
-      ],
-      "image": "https://images.qloo.com/i/B2612BDF-9FDD-41A6-820E-9725A1333C22-420x-auto.jpg",
+      "description": "Riverside South Bank film complex offering four screens, screenings, lectures, exhibitions, a café-bar, library, archive mediatheque, and river views.",
+      "category": "Movie theater",
+      "image": "https://images.qloo.com/i/3BE5B58F-997A-48BA-8175-5271964CB4D9-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "Banana Tree",
-      "km": 1.61
+      "llm_name": "BFI Southbank",
+      "km": 0.56
+     },
+     {
+      "name": "Oma's Sohnmat",
+      "id": null,
+      "unverified": true
      }
     ],
     "Qloo, city-wide": [
@@ -1545,42 +1501,41 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Sakura Sushi and Bao Buns",
-      "id": "5B832071-C225-44D1-8852-3ED5E5A0EFD2",
+      "name": "Aburi",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Kanada-Ya King's Cross",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Bar Nippon",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Curzon Bloomsbury",
+      "id": "302F3397-514E-4725-BC10-9913B2158C5E",
       "type": "urn:entity:place",
-      "popularity": 0.631,
-      "lat": 51.588361299999995,
-      "lon": 0.028303799999999997,
-      "address": "160 Hermon Hill London E18 1QH United Kingdom",
-      "neighborhood": "Redbridge",
-      "price_level": "1",
-      "description": "Modern Japanese takeaway specializing in sushi rolls, steamed bao buns and rice bowls with a casual, laid-back atmosphere.",
-      "category": "Japanese restaurant",
+      "popularity": 0.73,
+      "lat": 51.5241103,
+      "lon": -0.1231058,
+      "address": "The Brunswick Centre London WC1N 1AW United Kingdom",
+      "neighborhood": "Saint Pancras",
+      "description": "Small arthouse cinema with underground screens showcasing independent films, plus an on-site bar, arcade games, and cafe seating in the Brunswick Centre.",
+      "category": "Movie theater",
       "vibe": [
-       "Casual",
-       "Lively",
-       "Welcoming",
-       "Clean"
+       "Sophisticated",
+       "Stylish",
+       "Boutique",
+       "Comfortable"
       ],
-      "image": "https://images.qloo.com/i/5B832071-C225-44D1-8852-3ED5E5A0EFD2-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/302F3397-514E-4725-BC10-9913B2158C5E-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "Sakura Sushi",
-      "km": 12.55
-     },
-     {
-      "name": "Izakaya Yuu",
-      "id": null,
-      "unverified": true
-     },
-     {
-      "name": "Matcha Moments Café",
-      "id": null,
-      "unverified": true
-     },
-     {
-      "name": "The Prince Charles Cinema",
-      "id": null,
-      "unverified": true
+      "llm_name": "Curzon Bloomsbury",
+      "km": 0.71
      }
     ],
     "Qloo, city-wide": [
@@ -1589,7 +1544,7 @@
       "id": "038BB504-4A75-45F0-A3F6-A6212CD120A9",
       "type": "urn:entity:place",
       "popularity": 0.851,
-      "affinity": 0.88,
+      "affinity": 0.867,
       "distance_m": 0,
       "lat": 51.4832213,
       "lon": -0.1774229,
@@ -1613,7 +1568,7 @@
       "id": "2520FFA2-81B3-474E-A86A-CF619B015D13",
       "type": "urn:entity:place",
       "popularity": 0.997,
-      "affinity": 0.863,
+      "affinity": 0.859,
       "distance_m": 0,
       "lat": 51.5211024,
       "lon": -0.07249259999999999,
@@ -1633,34 +1588,11 @@
       "km": 3.9
      },
      {
-      "name": "Huntsman & Sons",
-      "id": "B7B45A38-B802-4C19-A931-51BFE286FFE1",
-      "type": "urn:entity:place",
-      "popularity": 0.935,
-      "affinity": 0.862,
-      "distance_m": 0,
-      "lat": 51.510901999999994,
-      "lon": -0.14016299999999998,
-      "address": "11 Savile Row London W1S 3PS United Kingdom",
-      "neighborhood": "Westminster",
-      "description": "Historic Savile Row bespoke tailor offering handcrafted bespoke, made-to-measure and ready-to-wear menswear, accessories and renowned for inspiring The Kingsman film.",
-      "category": "Custom tailor",
-      "vibe": [
-       "Refined",
-       "Historic",
-       "Elegant",
-       "Luxurious"
-      ],
-      "image": "https://images.qloo.com/i/B7B45A38-B802-4C19-A931-51BFE286FFE1-420x-auto.jpg",
-      "leisure": true,
-      "km": 2.31
-     },
-     {
       "name": "Camera Museum",
       "id": "F6AF178C-DE06-4BE4-B9D4-A02338068B2D",
       "type": "urn:entity:place",
       "popularity": 0.831,
-      "affinity": 0.862,
+      "affinity": 0.85,
       "distance_m": 0,
       "lat": 51.5176643,
       "lon": -0.1253524,
@@ -1677,6 +1609,30 @@
       "image": "https://images.qloo.com/i/F6AF178C-DE06-4BE4-B9D4-A02338068B2D-420x-auto.jpg",
       "leisure": true,
       "km": 1.37
+     },
+     {
+      "name": "The Shacklewell Arms",
+      "id": "1C8515B7-ED92-4A22-9830-30141CF35578",
+      "type": "urn:entity:place",
+      "popularity": 0.994,
+      "affinity": 0.848,
+      "distance_m": 0,
+      "lat": 51.5524017,
+      "lon": -0.07137099999999999,
+      "address": "71 Shacklewell Ln London E8 2EB United Kingdom",
+      "neighborhood": "Hackney",
+      "price_level": "2",
+      "description": "Wooden-floored live-music pub with performance stage, fairy-lit outdoor terrace and late-night club atmosphere, serving drinks and food.",
+      "category": "Live music venue",
+      "vibe": [
+       "Grungy",
+       "Lively",
+       "Casual",
+       "Comfortable"
+      ],
+      "image": "https://images.qloo.com/i/1C8515B7-ED92-4A22-9830-30141CF35578-420x-auto.jpg",
+      "leisure": true,
+      "km": 4.58
      }
     ],
     "Qloo, nearby": [
@@ -1685,7 +1641,7 @@
       "id": "F6AF178C-DE06-4BE4-B9D4-A02338068B2D",
       "type": "urn:entity:place",
       "popularity": 0.831,
-      "affinity": 0.862,
+      "affinity": 0.85,
       "distance_m": 1374,
       "lat": 51.5176643,
       "lon": -0.1253524,
@@ -1704,11 +1660,35 @@
       "km": 1.37
      },
      {
+      "name": "Bar Italia",
+      "id": "97B4A411-F106-441D-8C1B-D1F5D6DF46A2",
+      "type": "urn:entity:place",
+      "popularity": 0.971,
+      "affinity": 0.845,
+      "distance_m": 1866,
+      "lat": 51.5134134,
+      "lon": -0.1312402,
+      "address": "22 Frith St London W1D 4RF United Kingdom",
+      "neighborhood": "Soho",
+      "price_level": "1",
+      "description": "Lively Soho café-bar popular with Italian football fans, musicians and post-club crowds, offering coffee, small plates, cocktails and late-night service.",
+      "category": "Coffee shop",
+      "vibe": [
+       "Casual",
+       "Lively",
+       "Nostalgic",
+       "Classic"
+      ],
+      "image": "https://images.qloo.com/i/97B4A411-F106-441D-8C1B-D1F5D6DF46A2-420x-auto.jpg",
+      "leisure": true,
+      "km": 1.87
+     },
+     {
       "name": "Lazy Oaf",
       "id": "3E07D3CB-7FB3-4CEA-BA1D-BDBFF04B1127",
       "type": "urn:entity:place",
       "popularity": 0.949,
-      "affinity": 0.86,
+      "affinity": 0.844,
       "distance_m": 1994,
       "lat": 51.5134488,
       "lon": -0.1381356,
@@ -1727,58 +1707,59 @@
       "km": 1.99
      },
      {
-      "name": "covent Garden ,",
-      "id": "5F9C514E-AC88-4E31-8C3C-335BE0CF26A4",
+      "name": "The Photographers' Gallery",
+      "id": "DD39E7B7-206E-4EDC-8FA5-913A2FF8C06D",
       "type": "urn:entity:place",
-      "popularity": 0.874,
-      "affinity": 0.859,
-      "distance_m": 1669,
-      "lat": 51.5150023,
-      "lon": -0.1255067,
-      "address": "59 Endell St London WC2H 9TP United Kingdom",
-      "description": "Historic London market and entertainment district with boutiques, street performers, restaurants, theaters, and a covered market in a restored 17th-century piazza.",
-      "category": "Tourist attraction",
+      "popularity": 0.998,
+      "affinity": 0.844,
+      "distance_m": 1871,
+      "lat": 51.514927099999994,
+      "lon": -0.1390605,
+      "address": "16-18 Ramillies St London W1F 7LW United Kingdom",
+      "neighborhood": "Soho",
+      "description": "Three-floor central London gallery showcasing international, multi-genre photography with exhibitions, talks, courses, café and specialist print shop.",
+      "category": "Museum",
       "vibe": [
-       "Charming",
-       "Fun",
-       "Lively",
-       "Historic"
+       "Welcoming",
+       "Cozy",
+       "Inspirational",
+       "Modern"
       ],
-      "image": "https://images.qloo.com/i/5F9C514E-AC88-4E31-8C3C-335BE0CF26A4-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/DD39E7B7-206E-4EDC-8FA5-913A2FF8C06D-420x-auto.jpg",
       "leisure": true,
-      "km": 1.67
-     },
-     {
-      "name": "Hunterian Museum",
-      "id": "497AF03F-4E18-4B9B-B887-1DDDF7F0C30E",
-      "type": "urn:entity:place",
-      "popularity": 0.966,
-      "affinity": 0.855,
-      "distance_m": 1796,
-      "lat": 51.5153551,
-      "lon": -0.1159625,
-      "address": "The Royal College of Surgeons of England 38 43 Lincoln's Inn Fields London WC2A 3PE United Kingdom",
-      "neighborhood": "Westminster",
-      "description": "Macabre collection showcasing the history of surgery with preserved specimens, surgical instruments and anatomical displays housed within a historic surgical college.",
-      "category": "History museum",
-      "vibe": [
-       "Unique",
-       "Educational",
-       "Macabre",
-       "Historic"
-      ],
-      "image": "https://images.qloo.com/i/497AF03F-4E18-4B9B-B887-1DDDF7F0C30E-420x-auto.jpg",
-      "leisure": true,
-      "km": 1.8
+      "km": 1.87
      }
     ],
     "TasteBridge": [
+     {
+      "name": "Aburi Japanese Restaurant (居食屋）",
+      "id": "420C161A-D94E-41CA-89A8-E468B2D3614F",
+      "type": "urn:entity:place",
+      "popularity": 0.021,
+      "affinity": 0.836,
+      "distance_m": 1918,
+      "lat": 51.526380599999996,
+      "lon": -0.0998693,
+      "address": "190 Goswell Rd. London EC1V 7DT United Kingdom",
+      "neighborhood": "Islington",
+      "description": "Casual izakaya-style Japanese restaurant on Goswell Road offering flame-seared small plates, healthy options, and a wide selection of beer, wine, and spirits.",
+      "category": "Japanese restaurant",
+      "vibe": [
+       "Comfortable",
+       "Izakaya style",
+       "Lively",
+       "No nonsense"
+      ],
+      "image": "https://images.qloo.com/i/420C161A-D94E-41CA-89A8-E468B2D3614F-420x-auto.jpg",
+      "leisure": true,
+      "km": 1.92
+     },
      {
       "name": "Student Central",
       "id": "F275D26B-658B-49AA-9A07-7F4ACFBF00CC",
       "type": "urn:entity:place",
       "popularity": 0.769,
-      "affinity": 0.931,
+      "affinity": 0.912,
       "distance_m": 868,
       "lat": 51.522612599999995,
       "lon": -0.1311254,
@@ -1795,50 +1776,50 @@
       "image": "https://images.qloo.com/i/F275D26B-658B-49AA-9A07-7F4ACFBF00CC-420x-auto.jpg",
       "score": 0.577,
       "because": "Hikaru Utada & Skrillex",
-      "because_share": 0.54,
+      "because_share": 0.58,
       "supported_by": [
        "Hikaru Utada & Skrillex",
-       "Haruki Murakami's The Wind-up Bird Chronicle: A Reader's Guide (Continuum Contemporaries)"
+       "Haruki Murakami and the Music of Words"
       ],
       "leisure": true,
       "km": 0.87
      },
      {
-      "name": "Hopper Coffee",
-      "id": "76BE2702-3A53-48A0-92AA-1A7A3D65B3C9",
+      "name": "Indian YMCA Restaurant",
+      "id": "DFC8D542-59D0-4744-AF4A-753DF1158D21",
       "type": "urn:entity:place",
-      "popularity": 0.172,
-      "affinity": 0.931,
-      "distance_m": 1161,
-      "lat": 51.5228779,
-      "lon": -0.1146956,
-      "address": "81b Gray's Inn Rd London WC1X 8TP United Kingdom",
-      "neighborhood": "Gray's Inn",
-      "price_level": "1",
-      "description": "Casual coffeehouse on Grays Inn Road offering coffee, cocktails, beer, wine, quick bites, happy hour and private dining.",
-      "category": "Coffee store",
+      "popularity": 0.564,
+      "affinity": 0.924,
+      "distance_m": 1153,
+      "lat": 51.5227705,
+      "lon": -0.138962,
+      "address": "6EY YMCA Indian Student Hostel, 41 Fitzroy Square London W1T 6AQ United Kingdom",
+      "neighborhood": "Fitzrovia",
+      "price_level": "2",
+      "description": "Casual Indian eatery at Fitzroy Square offering rice-and-curry and roasted chicken dishes, with vegetarian, vegan and coffee options.",
+      "category": "Indian restaurant",
       "vibe": [
-       "Convenient",
+       "Large group",
        "Welcoming",
-       "Versatile",
-       "Casual"
+       "Casual",
+       "Clean"
       ],
-      "image": "https://images.qloo.com/i/76BE2702-3A53-48A0-92AA-1A7A3D65B3C9-420x-auto.jpg",
-      "score": 0.45,
-      "because": "Haruki Murakami's The Wind-up Bird Chronicle: A Reader's Guide (Continuum Contemporaries)",
+      "image": "https://images.qloo.com/i/DFC8D542-59D0-4744-AF4A-753DF1158D21-420x-auto.jpg",
+      "score": 0.4339,
+      "because": "Haruki Murakami and the Music of Words",
       "because_share": 1.0,
       "supported_by": [
-       "Haruki Murakami's The Wind-up Bird Chronicle: A Reader's Guide (Continuum Contemporaries)"
+       "Haruki Murakami and the Music of Words"
       ],
       "leisure": true,
-      "km": 1.16
+      "km": 1.15
      },
      {
       "name": "Magma",
       "id": "F5555A41-2C0F-47E3-8B73-A5B56AFC54F5",
       "type": "urn:entity:place",
       "popularity": 0.758,
-      "affinity": 0.936,
+      "affinity": 0.933,
       "distance_m": 1709,
       "lat": 51.514642099999996,
       "lon": -0.1254503,
@@ -1853,11 +1834,11 @@
        "Creative"
       ],
       "image": "https://images.qloo.com/i/F5555A41-2C0F-47E3-8B73-A5B56AFC54F5-420x-auto.jpg",
-      "score": 0.3425,
-      "because": "Haruki Murakami's The Wind-up Bird Chronicle: A Reader's Guide (Continuum Contemporaries)",
+      "score": 0.4001,
+      "because": "Haruki Murakami and the Music of Words",
       "because_share": 1.0,
       "supported_by": [
-       "Haruki Murakami's The Wind-up Bird Chronicle: A Reader's Guide (Continuum Contemporaries)"
+       "Haruki Murakami and the Music of Words"
       ],
       "leisure": true,
       "km": 1.71
@@ -1876,9 +1857,27 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Madras Mahal",
-      "id": null,
-      "unverified": true
+      "name": "Saravanaa Bhavan East Ham",
+      "id": "2AAFC813-9DD4-4CEC-9191-6185720BFA99",
+      "type": "urn:entity:place",
+      "popularity": 0.97,
+      "lat": 51.5424219,
+      "lon": 0.0504552,
+      "address": "300 High St N London E12 6SA United Kingdom",
+      "neighborhood": "Plashet",
+      "price_level": "2",
+      "description": "Long-running international chain serving South Indian vegetarian specialties—dosas, thalis and snacks—at affordable prices in a casual neighborhood setting.",
+      "category": "Vegan restaurant",
+      "vibe": [
+       "High tempo",
+       "Convenient",
+       "Bustling",
+       "Lively"
+      ],
+      "image": "https://images.qloo.com/i/2AAFC813-9DD4-4CEC-9191-6185720BFA99-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Saravana Bhavan Brixton",
+      "km": 14.46
      },
      {
       "name": "Pop Brixton",
@@ -1903,31 +1902,32 @@
       "km": 0.17
      },
      {
-      "name": "The Brixton Jamm",
-      "id": null,
-      "unverified": true
+      "name": "O2 Academy Brixton",
+      "id": "9F365D6C-F680-46B7-A0A6-19905C58ED94",
+      "type": "urn:entity:place",
+      "popularity": 0.994,
+      "lat": 51.4651626,
+      "lon": -0.11493439999999999,
+      "address": "211 Stockwell Rd London SW9 9SL United Kingdom",
+      "neighborhood": "Lambeth",
+      "price_level": "4",
+      "description": "5000-capacity former cinema with a sloping floor and art-deco interior, renowned for live music and major touring acts.",
+      "category": "Concert hall",
+      "vibe": [
+       "Energetic",
+       "Casual",
+       "Grand",
+       "Social"
+      ],
+      "image": "https://images.qloo.com/i/9F365D6C-F680-46B7-A0A6-19905C58ED94-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "O2 Academy Brixton",
+      "km": 0.27
      },
      {
-      "name": "Ritzy Cinema and Cafe",
-      "id": "A5317213-80F0-472E-86A5-277CDBD0CD5F",
-      "type": "urn:entity:place",
-      "popularity": 0.942,
-      "lat": 51.4612025,
-      "lon": -0.115018,
-      "address": "Brixton Oval Coldharbour Ln London SW2 1JG United Kingdom",
-      "neighborhood": "Lambeth",
-      "description": "Restored 1911 multi-screen cinema with an on-site café and bar, showing diverse film programmes and hosting live events.",
-      "category": "Event venue",
-      "vibe": [
-       "Social",
-       "Historic",
-       "Lively",
-       "Eclectic"
-      ],
-      "image": "https://images.qloo.com/i/A5317213-80F0-472E-86A5-277CDBD0CD5F-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Ritzy Cinema",
-      "km": 0.17
+      "name": "The Ritzy Cinema",
+      "id": null,
+      "unverified": true
      }
     ],
     "Qloo, city-wide": [
@@ -2252,40 +2252,22 @@
    "picks": {
     "LLM only": [
      {
-      "name": "The Curry Club London",
-      "id": "8ABBEEA0-A78E-46B2-B81A-CD47A2BA2C46",
-      "type": "urn:entity:place",
-      "popularity": 0.272,
-      "lat": 51.5894966,
-      "lon": 0.0813806,
-      "address": "41 High St Ilford IG6 2AD United Kingdom",
-      "neighborhood": "Redbridge",
-      "price_level": "3",
-      "description": "Luxury Punjabi Indian restaurant and caterer in Ilford offering vegan options, private events, live cooking, and banquet services.",
-      "category": "Vegan restaurant",
-      "vibe": [
-       "Social",
-       "Modern",
-       "Stylish",
-       "Elegant"
-      ],
-      "image": "https://images.qloo.com/i/8ABBEEA0-A78E-46B2-B81A-CD47A2BA2C46-420x-auto.jpg",
-      "leisure": false,
-      "llm_name": "The Curry Club",
-      "km": 33.44
-     },
-     {
-      "name": "Odeon Southall",
+      "name": "The Punjab Restaurant",
       "id": null,
       "unverified": true
      },
      {
-      "name": "The George, Uxbridge",
+      "name": "Saffron Road",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Southall Broadway Market",
+      "name": "Desi Darbar",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Apna Virsa",
       "id": null,
       "unverified": true
      }
@@ -2509,98 +2491,98 @@
       "km": 1.14
      },
      {
-      "name": "Jalebi Junction",
-      "id": "7F499FD8-2756-4DFB-9692-CE3A798D960D",
+      "name": "Kathmandu Zone, Nepalese Restaurant, Southall",
+      "id": "4170F078-3D04-4E8F-8080-60CF1F4B8555",
       "type": "urn:entity:place",
-      "popularity": 0.706,
-      "affinity": 0.73,
-      "distance_m": 368,
-      "lat": 51.5113889,
-      "lon": -0.3802778,
-      "address": "93 The Broadway Southall UB1 1LN United Kingdom",
+      "popularity": 0.19,
+      "affinity": 0.723,
+      "distance_m": 812,
+      "lat": 51.5108697,
+      "lon": -0.3738939,
+      "address": "Unit 1, Kathmandu Zone Restaurant 44 High St Southall UB1 3DB United Kingdom",
       "neighborhood": "Southall Green",
       "price_level": "2",
-      "description": "Contemporary Indian restaurant and takeaway in Southall offering halal and vegetarian-friendly small plates, late-night service, vegan and organic options.",
-      "category": "Indian sizzler restaurant",
+      "description": "Authentic Nepalese restaurant in Southall known for excellent momos, vibrant atmosphere, and traditional family recipes, offering dine-in, takeout, and delivery.",
+      "category": "Nepalese restaurant",
       "vibe": [
-       "Social",
-       "No frills",
-       "Casual",
-       "Lively"
+       "Lively",
+       "Energetic",
+       "Comfortable",
+       "Cozy"
       ],
-      "image": "https://images.qloo.com/i/7F499FD8-2756-4DFB-9692-CE3A798D960D-420x-auto.jpg",
-      "score": 0.6117,
-      "because": "Dangal",
-      "because_share": 0.36,
-      "supported_by": [
-       "Dangal",
-       "Arijit Singh",
-       "Sacred Games"
-      ],
-      "leisure": true,
-      "km": 0.37
-     },
-     {
-      "name": "Cake Box Southall",
-      "id": "1280D52C-F3D1-4A27-AC6B-6F220F28B1A7",
-      "type": "urn:entity:place",
-      "popularity": 0.501,
-      "affinity": 0.728,
-      "distance_m": 1224,
-      "lat": 51.500465899999995,
-      "lon": -0.38280719999999996,
-      "address": "53 King St Southall UB2 4DQ United Kingdom",
-      "neighborhood": "Southall Green",
-      "price_level": "2",
-      "description": "Moderately priced bakery and cake shop offering wedding cakes, cupcakes, desserts and coffee with delivery, takeout and drive-through on King Street.",
-      "category": "Bakery",
-      "vibe": [
-       "Casual",
-       "Convenient",
-       "Straightforward",
-       "Bright"
-      ],
-      "image": "https://images.qloo.com/i/1280D52C-F3D1-4A27-AC6B-6F220F28B1A7-420x-auto.jpg",
-      "score": 0.4424,
+      "image": "https://images.qloo.com/i/4170F078-3D04-4E8F-8080-60CF1F4B8555-420x-auto.jpg",
+      "score": 0.5699,
       "because": "Sacred Games",
-      "because_share": 0.47,
+      "because_share": 0.37,
       "supported_by": [
        "Sacred Games",
-       "Arijit Singh",
-       "Dangal"
+       "Dangal",
+       "Arijit Singh"
       ],
       "leisure": true,
-      "km": 1.22
+      "km": 0.81
      },
      {
-      "name": "The Big Boy Pizza",
-      "id": "9A11D943-AA35-4FAF-829B-5B6AD81C3E3B",
+      "name": "Tanu's Kitchen",
+      "id": "21852302-64F7-4D11-BDA6-1F595BFE94E3",
       "type": "urn:entity:place",
-      "popularity": 0.347,
-      "affinity": 0.746,
-      "distance_m": 1671,
-      "lat": 51.5180556,
-      "lon": -0.4072222,
-      "address": "380 Uxbridge Rd Hayes UB4 0SE United Kingdom",
-      "neighborhood": "Hillingdon",
-      "price_level": "2",
-      "description": "Counter-service pizza shop offering halal pizzas for takeaway, dine-in, and delivery, with late-night service on Uxbridge Road in Hayes.",
-      "category": "Pizza restaurant",
+      "popularity": 0.168,
+      "affinity": 0.719,
+      "distance_m": 639,
+      "lat": 51.5074,
+      "lon": -0.3788701,
+      "address": "8 Beaconsfield Rd Southall UB1 1DW United Kingdom",
+      "neighborhood": "Southall Green",
+      "description": "Contemporary Southall Indian eatery offering vegetarian, vegan and healthy options plus small plates, chaat and innovative items like noodle burger and grilled paneer sandwiches.",
+      "category": "Indian restaurant",
       "vibe": [
-       "Convenient",
-       "No frills",
-       "Casual"
+       "Homely",
+       "Large group",
+       "Casual",
+       "Comfortable"
       ],
-      "image": "https://images.qloo.com/i/9A11D943-AA35-4FAF-829B-5B6AD81C3E3B-420x-auto.jpg",
-      "score": 0.2631,
+      "image": "https://images.qloo.com/i/21852302-64F7-4D11-BDA6-1F595BFE94E3-420x-auto.jpg",
+      "score": 0.5504,
       "because": "Arijit Singh",
-      "because_share": 0.51,
+      "because_share": 0.39,
       "supported_by": [
        "Arijit Singh",
+       "Sacred Games",
        "Dangal"
       ],
       "leisure": true,
-      "km": 1.67
+      "km": 0.64
+     },
+     {
+      "name": "Taste of Lahore Southall",
+      "id": "ADACF728-BA74-4A13-BB8F-858F6A6D7F1D",
+      "type": "urn:entity:place",
+      "popularity": 0.19,
+      "affinity": 0.755,
+      "distance_m": 199,
+      "lat": 51.511858399999994,
+      "lon": -0.38283999999999996,
+      "address": "151 The Broadway Southall UB1 1LP United Kingdom",
+      "neighborhood": "Southall Green",
+      "price_level": "2",
+      "description": "Authentic South Asian kebab-focused halal eatery in Southall offering fresh naan, sheekh kebabs and small plates for dine-in, takeaway or delivery.",
+      "category": "Afghan restaurant",
+      "vibe": [
+       "Unpretentious",
+       "Casual",
+       "Family friendly",
+       "Lively"
+      ],
+      "image": "https://images.qloo.com/i/ADACF728-BA74-4A13-BB8F-858F6A6D7F1D-420x-auto.jpg",
+      "score": 0.382,
+      "because": "Dangal",
+      "because_share": 0.67,
+      "supported_by": [
+       "Dangal",
+       "Arijit Singh"
+      ],
+      "leisure": true,
+      "km": 0.2
      }
     ]
    }
@@ -2616,27 +2598,27 @@
    "picks": {
     "LLM only": [
      {
-      "name": "805 Restaurants - Old Kent Road",
-      "id": "47983B92-2574-4CED-9456-AD826BC901FA",
+      "name": "Bussey Rooftop Bar",
+      "id": "652F2C46-F950-4F6F-BE0B-DFB183B41B4C",
       "type": "urn:entity:place",
-      "popularity": 0.955,
-      "lat": 51.479867899999995,
-      "lon": -0.0568481,
-      "address": "805 Old Kent Rd London SE15 1NX United Kingdom",
-      "neighborhood": "South Bermondsey",
+      "popularity": 0.981,
+      "lat": 51.469989399999996,
+      "lon": -0.06694259999999999,
+      "address": "Roof B Bussey Building, 133 Rye Ln London SE15 4ST United Kingdom",
+      "neighborhood": "Peckham",
       "price_level": "2",
-      "description": "Large, light and airy restaurant serving modern Nigerian and West African dishes in a contemporary, shareable fine-dining setting.",
-      "category": "African restaurant",
+      "description": "Cozy rooftop bar with 360-degree London skyline views serving cocktails, beers, and stone-baked pizzas, burgers, and snacks.",
+      "category": "Cocktail bar",
       "vibe": [
+       "Casual",
        "Social",
-       "Contemporary",
-       "Large group",
-       "Home like"
+       "Lively",
+       "Energetic"
       ],
-      "image": "https://images.qloo.com/i/47983B92-2574-4CED-9456-AD826BC901FA-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/652F2C46-F950-4F6F-BE0B-DFB183B41B4C-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "805 Restaurant",
-      "km": 1.5
+      "llm_name": "Bussey Building",
+      "km": 0.25
      },
      {
       "name": "Peckham Levels",
@@ -2661,32 +2643,31 @@
       "km": 0.27
      },
      {
-      "name": "Jammin'",
+      "name": "The Pelican",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Bussey Rooftop Bar",
-      "id": "652F2C46-F950-4F6F-BE0B-DFB183B41B4C",
+      "name": "Rye Lane Market",
+      "id": "539FC53D-4276-4FB3-B014-D2497F4520DD",
       "type": "urn:entity:place",
-      "popularity": 0.981,
-      "lat": 51.469989399999996,
-      "lon": -0.06694259999999999,
-      "address": "Roof B Bussey Building, 133 Rye Ln London SE15 4ST United Kingdom",
+      "popularity": 0.671,
+      "lat": 51.4712045,
+      "lon": -0.0699779,
+      "address": "48 Rye Ln London SE15 5BY United Kingdom",
       "neighborhood": "Peckham",
-      "price_level": "2",
-      "description": "Cozy rooftop bar with 360-degree London skyline views serving cocktails, beers, and stone-baked pizzas, burgers, and snacks.",
-      "category": "Cocktail bar",
+      "description": "Vibrant Peckham food hall and marketplace featuring diverse global street-food stalls, artisan shops, and everyday services.",
+      "category": "Market",
       "vibe": [
-       "Casual",
-       "Social",
-       "Lively",
-       "Energetic"
+       "Vibrant",
+       "No frills",
+       "Eclectic",
+       "Lively"
       ],
-      "image": "https://images.qloo.com/i/652F2C46-F950-4F6F-BE0B-DFB183B41B4C-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/539FC53D-4276-4FB3-B014-D2497F4520DD-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "Bussey Building",
-      "km": 0.25
+      "llm_name": "Rye Lane Market",
+      "km": 0.21
      }
     ],
     "Qloo, city-wide": [
@@ -2884,41 +2865,11 @@
     ],
     "TasteBridge": [
      {
-      "name": "Calabar Kitchen 1",
-      "id": "D9FA396D-3025-4945-8904-AD905A4E7635",
-      "type": "urn:entity:place",
-      "popularity": 0.121,
-      "affinity": 0.847,
-      "distance_m": 1742,
-      "lat": 51.4749118,
-      "lon": -0.0469372,
-      "address": "172 New Cross Rd London SE14 5AA United Kingdom",
-      "neighborhood": "New Cross Gate",
-      "description": "Casual African restaurant in New Cross offering small plates, cocktails, beer, healthy options, and late-night dine-in, takeout, and delivery service.",
-      "category": "African restaurant",
-      "vibe": [
-       "Welcoming",
-       "Comfortable",
-       "Lively",
-       "Homey"
-      ],
-      "image": "https://images.qloo.com/i/D9FA396D-3025-4945-8904-AD905A4E7635-420x-auto.jpg",
-      "score": 0.7838,
-      "because": "Burna Boy",
-      "because_share": 0.5,
-      "supported_by": [
-       "Burna Boy",
-       "Wizkid"
-      ],
-      "leisure": true,
-      "km": 1.74
-     },
-     {
       "name": "ESQ Resto Lounge",
       "id": "A7E54992-98A5-4469-BEF1-F1F2F7AE3424",
       "type": "urn:entity:place",
       "popularity": 0.466,
-      "affinity": 0.82,
+      "affinity": 0.872,
       "distance_m": 1511,
       "lat": 51.479826499999994,
       "lon": -0.0565443,
@@ -2934,16 +2885,39 @@
        "Lively"
       ],
       "image": "https://images.qloo.com/i/A7E54992-98A5-4469-BEF1-F1F2F7AE3424-420x-auto.jpg",
-      "score": 0.7437,
-      "because": "Burna Boy",
-      "because_share": 0.46,
-      "supported_by": [
-       "Burna Boy",
-       "Wizkid",
-       "Chimamanda Ngozi Adichie Collection"
-      ],
       "leisure": true,
       "km": 1.51
+     },
+     {
+      "name": "Afrikiko Bar Restaurant & Club",
+      "id": "C45B7064-30AA-4FEB-88A2-DE2FAF0F618A",
+      "type": "urn:entity:place",
+      "popularity": 0.239,
+      "affinity": 0.839,
+      "distance_m": 1530,
+      "lat": 51.479090899999996,
+      "lon": -0.054851,
+      "address": "871 Old Kent Rd London SE15 1NX United Kingdom",
+      "neighborhood": "New Cross Gate",
+      "price_level": "3",
+      "description": "Vibrant West African restaurant, bar and club serving Ghanaian small plates, cocktails, beer, wine and late-night food in South London.",
+      "category": "West african restaurant",
+      "vibe": [
+       "Club like",
+       "Lively",
+       "High energy",
+       "Vibrant"
+      ],
+      "image": "https://images.qloo.com/i/C45B7064-30AA-4FEB-88A2-DE2FAF0F618A-420x-auto.jpg",
+      "score": 0.547,
+      "because": "Burna Boy",
+      "because_share": 0.5,
+      "supported_by": [
+       "Burna Boy",
+       "Wizkid"
+      ],
+      "leisure": true,
+      "km": 1.53
      },
      {
       "name": "Agrobeso African Cuisine",
@@ -2975,6 +2949,37 @@
       ],
       "leisure": true,
       "km": 0.59
+     },
+     {
+      "name": "Lolak Afrique Peckham",
+      "id": "E87A8C54-DD1E-49EF-AC4F-F8AB42E55F99",
+      "type": "urn:entity:place",
+      "popularity": 0.611,
+      "affinity": 0.84,
+      "distance_m": 177,
+      "lat": 51.4680653,
+      "lon": -0.068966,
+      "address": "38 Choumert Rd London SE15 4SE United Kingdom",
+      "neighborhood": "Peckham",
+      "price_level": "2",
+      "description": "Authentic West African restaurant in Peckham serving traditional Nigerian dishes like amala, ewedu, gbegiri, jollof, halal options and a lively Naija atmosphere.",
+      "category": "West african restaurant",
+      "vibe": [
+       "Buka vibe",
+       "Cultural",
+       "Lively",
+       "Casual"
+      ],
+      "image": "https://images.qloo.com/i/E87A8C54-DD1E-49EF-AC4F-F8AB42E55F99-420x-auto.jpg",
+      "score": 0.446,
+      "because": "Burna Boy",
+      "because_share": 0.5,
+      "supported_by": [
+       "Burna Boy",
+       "Wizkid"
+      ],
+      "leisure": true,
+      "km": 0.18
      }
     ]
    }
@@ -2990,41 +2995,24 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Palm Tree Restaurant",
-      "id": null,
-      "unverified": true
-     },
-     {
       "name": "Suya Spot",
       "id": null,
       "unverified": true
      },
      {
-      "name": "The Jazz Cafe",
+      "name": "The Lord Clyde",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Rich Mix",
-      "id": "FED807FE-3E0E-415A-8BDC-BAF5BF262351",
-      "type": "urn:entity:place",
-      "popularity": 0.904,
-      "lat": 51.5243955,
-      "lon": -0.07319679999999999,
-      "address": "35-47 Bethnal Grn Rd London E1 6LA United Kingdom",
-      "neighborhood": "London Borough of Tower Hamlets",
-      "description": "Community arts hub in East London offering cinema, live music, theatre, gallery exhibitions, food and regular film screenings and events.",
-      "category": "Cafe",
-      "vibe": [
-       "Lively",
-       "Intimate",
-       "Casual",
-       "Cultural"
-      ],
-      "image": "https://images.qloo.com/i/FED807FE-3E0E-415A-8BDC-BAF5BF262351-420x-auto.jpg",
-      "leisure": false,
-      "llm_name": "Rich Mix",
-      "km": 6.66
+      "name": "Palm Wine Bar",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Seven Sisters Market",
+      "id": null,
+      "unverified": true
      }
     ],
     "Qloo, city-wide": [
@@ -3221,28 +3209,28 @@
     ],
     "TasteBridge": [
      {
-      "name": "Deluxe manna",
-      "id": "803EA75E-0270-440D-8B35-2A49AD387BC3",
+      "name": "Accra Palace Ghanaian Restaurant",
+      "id": "06DBA675-7424-4220-8868-42D23D06FAEF",
       "type": "urn:entity:place",
-      "popularity": 0.721,
-      "affinity": 0.817,
-      "distance_m": 586,
-      "lat": 51.5890552,
-      "lon": -0.06457689999999999,
-      "address": "135 137 High Cross Rd London N17 9NU United Kingdom",
-      "neighborhood": "Tottenham Hale",
-      "price_level": "3",
-      "description": "Relaxed eatery offering Africa-inspired dishes, steaks and hearty platters with organic ingredients, plus vegan, vegetarian and late-night options.",
-      "category": "African restaurant",
+      "popularity": 0.226,
+      "affinity": 0.862,
+      "distance_m": 2242,
+      "lat": 51.5639141,
+      "lon": -0.0588346,
+      "address": "140A Upper Clapton Rd London E5 9JZ United Kingdom",
+      "neighborhood": "Hackney",
+      "price_level": "2",
+      "description": "Authentic Ghanaian restaurant offering West African small plates, vegan and vegetarian options, late-night dining, wine and a vibrant neighborhood atmosphere.",
+      "category": "West african restaurant",
       "vibe": [
-       "Large group",
-       "Casual",
-       "Welcoming",
+       "Unpretentious",
+       "Homely",
+       "Lively",
        "Vibrant"
       ],
-      "image": "https://images.qloo.com/i/803EA75E-0270-440D-8B35-2A49AD387BC3-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/06DBA675-7424-4220-8868-42D23D06FAEF-420x-auto.jpg",
       "leisure": true,
-      "km": 0.59
+      "km": 2.24
      },
      {
       "name": "Uncle John's Bakery",
@@ -3276,37 +3264,6 @@
       "km": 0.96
      },
      {
-      "name": "Bongo Bar & Restaurant",
-      "id": "C19C81FA-AED4-4BF4-B29D-8FCD6B4DFA0C",
-      "type": "urn:entity:place",
-      "popularity": 0.361,
-      "affinity": 0.847,
-      "distance_m": 431,
-      "lat": 51.584444399999995,
-      "lon": -0.0686111,
-      "address": "65-67 Broad Ln London N15 4DJ United Kingdom",
-      "neighborhood": "Seven Sisters",
-      "price_level": "2",
-      "description": "Snug informal spot serving West African plates, beers and cocktails in a bright, casual setting.",
-      "category": "West african restaurant",
-      "vibe": [
-       "Authentic",
-       "Cultural",
-       "Large group",
-       "Cozy"
-      ],
-      "image": "https://images.qloo.com/i/C19C81FA-AED4-4BF4-B29D-8FCD6B4DFA0C-420x-auto.jpg",
-      "score": 0.768,
-      "because": "Sarkodie",
-      "because_share": 0.5,
-      "supported_by": [
-       "Sarkodie",
-       "Stonebwoy"
-      ],
-      "leisure": true,
-      "km": 0.43
-     },
-     {
       "name": "Golden Buffet",
       "id": "4A1C0DF1-95F6-4F32-BDA2-51012156EE5D",
       "type": "urn:entity:place",
@@ -3336,6 +3293,35 @@
       ],
       "leisure": true,
       "km": 0.59
+     },
+     {
+      "name": "Peppers & Spice London",
+      "id": "6F6EE8FC-0024-43E5-9D07-92D53ADAC351",
+      "type": "urn:entity:place",
+      "popularity": 0.236,
+      "affinity": 0.804,
+      "distance_m": 1304,
+      "lat": 51.594847099999996,
+      "lon": -0.0694142,
+      "address": "541 High Rd London N17 6SD United Kingdom",
+      "price_level": "2",
+      "description": "Moderately priced Jamaican and Caribbean spot on High Road offering dine-in, takeout, and late-night quick bites with small plates and healthy options.",
+      "category": "Caribbean restaurant",
+      "vibe": [
+       "Lively",
+       "Casual",
+       "No frills"
+      ],
+      "image": "https://images.qloo.com/i/6F6EE8FC-0024-43E5-9D07-92D53ADAC351-420x-auto.jpg",
+      "score": 0.6115,
+      "because": "Sarkodie",
+      "because_share": 0.5,
+      "supported_by": [
+       "Sarkodie",
+       "Stonebwoy"
+      ],
+      "leisure": true,
+      "km": 1.3
      }
     ]
    }
@@ -3351,7 +3337,7 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Samba Brazilian Restaurant",
+      "name": "São Paulo Brazilian Restaurant",
       "id": null,
       "unverified": true
      },
@@ -3366,26 +3352,9 @@
       "unverified": true
      },
      {
-      "name": "Rich Mix",
-      "id": "FED807FE-3E0E-415A-8BDC-BAF5BF262351",
-      "type": "urn:entity:place",
-      "popularity": 0.904,
-      "lat": 51.5243955,
-      "lon": -0.07319679999999999,
-      "address": "35-47 Bethnal Grn Rd London E1 6LA United Kingdom",
-      "neighborhood": "London Borough of Tower Hamlets",
-      "description": "Community arts hub in East London offering cinema, live music, theatre, gallery exhibitions, food and regular film screenings and events.",
-      "category": "Cafe",
-      "vibe": [
-       "Lively",
-       "Intimate",
-       "Casual",
-       "Cultural"
-      ],
-      "image": "https://images.qloo.com/i/FED807FE-3E0E-415A-8BDC-BAF5BF262351-420x-auto.jpg",
-      "leisure": false,
-      "llm_name": "Rich Mix",
-      "km": 5.72
+      "name": "Cuba Libre",
+      "id": null,
+      "unverified": true
      }
     ],
     "Qloo, city-wide": [
@@ -3578,28 +3547,26 @@
     ],
     "TasteBridge": [
      {
-      "name": "Lost Society",
-      "id": "40EF48C2-A6CB-4928-8C71-DBC6A077BE04",
+      "name": "Brazilian Centre STOCKWELL - Produtos Brasileiros (Brazilian Products)",
+      "id": "84964302-3C4B-496D-9104-AAD654B81F24",
       "type": "urn:entity:place",
-      "popularity": 0.99,
-      "affinity": 0.742,
-      "distance_m": 2754,
-      "lat": 51.4740879,
-      "lon": -0.1570307,
-      "address": "339 Battersea Park Rd London SW11 4LS United Kingdom",
-      "neighborhood": "Wandsworth",
-      "price_level": "3",
-      "description": "Hip art-deco bar and restaurant with cocktails, terrace seating, DJ nights and bottomless brunches, offering a lively late-night club atmosphere.",
-      "category": "Garden",
+      "popularity": 0.186,
+      "affinity": 0.722,
+      "distance_m": 1179,
+      "lat": 51.4713955,
+      "lon": -0.1238996,
+      "address": "284 Clapham Rd London SW9 9AE United Kingdom",
+      "neighborhood": "Lambeth",
+      "description": "Brazilian supermarket and butcher in Stockwell offering imported groceries, frozen goods, deli items, in-store shopping, pickup, and UK delivery.",
+      "category": "Butcher shop deli",
       "vibe": [
-       "Romantic",
-       "Lively",
-       "Art deco",
-       "Social"
+       "Casual",
+       "Convenient",
+       "Functional"
       ],
-      "image": "https://images.qloo.com/i/40EF48C2-A6CB-4928-8C71-DBC6A077BE04-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/84964302-3C4B-496D-9104-AAD654B81F24-420x-auto.jpg",
       "leisure": true,
-      "km": 2.75
+      "km": 1.18
      },
      {
       "name": "Mosquito Bar",
@@ -3710,58 +3677,75 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Santo Remedio - Asador, London Bridge",
-      "id": "34DA93E6-AE32-4171-BB13-0DEC97384FAD",
+      "name": "El Camion",
+      "id": "D5B79E64-53D4-49E6-83D9-933E1EA3624F",
       "type": "urn:entity:place",
-      "popularity": 0.971,
-      "lat": 51.503630799999996,
-      "lon": -0.0809753,
-      "address": "152 Tooley St London SE1 2TU United Kingdom",
-      "neighborhood": "Bermondsey Village",
-      "price_level": "3",
-      "description": "Experience vibrant Mexican flavors and expertly mixed margaritas in a cozy, colorful setting near London Bridge.",
+      "popularity": 0.985,
+      "lat": 51.512044599999996,
+      "lon": -0.1343519,
+      "address": "25-27 Brewer St London W1F 0RR United Kingdom",
+      "neighborhood": "Soho",
+      "price_level": "2",
+      "description": "A vibrant Soho hotspot offering Mexican street food, potent margaritas, and a lively basement bar.",
       "category": "Mexican restaurant",
       "vibe": [
-       "Unique",
-       "Large group",
+       "Welcoming",
+       "Fun",
+       "Energetic",
+       "Comfortable"
+      ],
+      "image": "https://images.qloo.com/i/D5B79E64-53D4-49E6-83D9-933E1EA3624F-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "El Camion",
+      "km": 2.69
+     },
+     {
+      "name": "Rio Cinema",
+      "id": "3ECBD7CB-AF58-415C-BEE8-BF9945ACB80E",
+      "type": "urn:entity:place",
+      "popularity": 0.983,
+      "lat": 51.5496766,
+      "lon": -0.0755165,
+      "address": "107 Kingsland High St London E8 2PB United Kingdom",
+      "neighborhood": "Hackney",
+      "description": "Art Deco East London cinema screening mainstream, arthouse, classic, and children’s films alongside live events, festivals, and community-focused programming.",
+      "category": "Movie theater",
+      "vibe": [
        "Stylish",
-       "Charming"
+       "Lively",
+       "Historic",
+       "Open minded"
       ],
-      "image": "https://images.qloo.com/i/34DA93E6-AE32-4171-BB13-0DEC97384FAD-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/3ECBD7CB-AF58-415C-BEE8-BF9945ACB80E-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "Santo Remedio",
-      "km": 4.47
+      "llm_name": "Rio Cinema",
+      "km": 3.59
      },
      {
-      "name": "El Pastor London Bridge",
-      "id": "5622A826-B2B5-4EDD-BE02-552B53F36A56",
+      "name": "The Old Kings Head",
+      "id": "151FDFF3-7296-490D-980F-B84077BC7E06",
       "type": "urn:entity:place",
-      "popularity": 0.991,
-      "lat": 51.5053051,
-      "lon": -0.09121169999999999,
-      "address": "7A Stoney St London SE1 9AA United Kingdom",
+      "popularity": 0.916,
+      "lat": 51.504647,
+      "lon": -0.0895184,
+      "address": "King's Head Yard London SE1 1NA United Kingdom",
       "neighborhood": "The Borough",
-      "price_level": "3",
-      "description": "Authentic Mexican cuisine with famous tacos al pastor in a lively, colorful setting near Borough Market.",
-      "category": "Mexican restaurant",
+      "price_level": "2",
+      "description": "Conventional local pub offering bar food, real ales and beer, upstairs room, and frequent sports on large-screen TVs.",
+      "category": "Pub",
       "vibe": [
-       "Noisy",
-       "Social",
-       "Bustling",
-       "Modern"
+       "Cozy",
+       "Traditional",
+       "Hidden gem",
+       "Lively"
       ],
-      "image": "https://images.qloo.com/i/5622A826-B2B5-4EDD-BE02-552B53F36A56-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/151FDFF3-7296-490D-980F-B84077BC7E06-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "El Pastor",
-      "km": 3.91
+      "llm_name": "The Old Queen’s Head",
+      "km": 4.03
      },
      {
-      "name": "Mexican Cultural Institute",
-      "id": null,
-      "unverified": true
-     },
-     {
-      "name": "La Barra Mexicana",
+      "name": "Fernandez & Wells",
       "id": null,
       "unverified": true
      }
@@ -4064,7 +4048,7 @@
        "Relaxing"
       ],
       "image": "https://images.qloo.com/i/D4D51BE0-2AA0-4798-BC01-D9E990610296-420x-auto.jpg",
-      "score": 0.578,
+      "score": 0.5803,
       "because": "Natalia Lafourcade",
       "because_share": 0.53,
       "supported_by": [
@@ -4089,60 +4073,42 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Jose",
+      "name": "Brindisa St Pancras",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Iberica",
+      "name": "Barrafina Soho",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Sabor",
-      "id": "D3B48C0A-A97F-4D29-90C4-801CA4F6E8C8",
+      "name": "La Bodega",
+      "id": "C807D994-3277-43CB-8409-59702FD7245D",
       "type": "urn:entity:place",
-      "popularity": 0.972,
-      "lat": 51.511396399999995,
-      "lon": -0.1396951,
-      "address": "35-37 Heddon St London W1B 4BR United Kingdom",
-      "neighborhood": "Westminster",
-      "price_level": "4",
-      "description": "Authentic Spanish tapas and asador dining in a vibrant, lively setting with open kitchens and attentive service in Mayfair, London.",
-      "category": "Fine dining restaurant",
-      "vibe": [
-       "Hidden gem",
-       "Elegant",
-       "Lively",
-       "Casual"
-      ],
-      "image": "https://images.qloo.com/i/D3B48C0A-A97F-4D29-90C4-801CA4F6E8C8-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Sabor",
-      "km": 3.15
-     },
-     {
-      "name": "La Tasca London Broadgate",
-      "id": "2A71A412-415B-40B9-A6EF-1A710C806CAA",
-      "type": "urn:entity:place",
-      "popularity": 0.501,
-      "lat": 51.5182486,
-      "lon": -0.0847042,
-      "address": "16 Eldon St London EC2M 7LA United Kingdom",
-      "neighborhood": "Broadgate",
+      "popularity": 0.822,
+      "lat": 51.5182691,
+      "lon": -0.20663569999999998,
+      "address": "78 Tavistock Rd London W11 1AN United Kingdom",
+      "neighborhood": "North Kensington",
       "price_level": "2",
-      "description": "Laid-back tapas restaurant in Broadgate serving traditional Spanish small plates, paellas, desserts and an extensive wine and cocktail selection.",
-      "category": "Wine bar",
+      "description": "Bustling tapas bar offering all-day Spanish small plates and English breakfast, with pavement seating overlooking the local market.",
+      "category": "Tapas bar",
       "vibe": [
-       "Dimly lit",
-       "Social",
+       "Neighborhood style",
        "Lively",
-       "Casual"
+       "Welcoming",
+       "No frills"
       ],
-      "image": "https://images.qloo.com/i/2A71A412-415B-40B9-A6EF-1A710C806CAA-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/C807D994-3277-43CB-8409-59702FD7245D-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "La Tasca",
-      "km": 4.66
+      "llm_name": "La Bodega Negra",
+      "km": 5.03
+     },
+     {
+      "name": "The Jazz Cafe Camden",
+      "id": null,
+      "unverified": true
      }
     ],
     "Qloo, city-wide": [
@@ -4306,7 +4272,7 @@
        "Historic"
       ],
       "image": "https://images.qloo.com/i/FA73A8D9-1974-4FCC-B066-F79799A8F2BD-420x-auto.jpg",
-      "leisure": true,
+      "leisure": false,
       "km": 0.46
      },
      {
@@ -4335,34 +4301,28 @@
     ],
     "TasteBridge": [
      {
-      "name": "The Camden Pub Crawl",
-      "id": "FA73A8D9-1974-4FCC-B066-F79799A8F2BD",
+      "name": "Aqua Nueva",
+      "id": "040FDBD3-395D-4A17-B2E1-E632CF91E296",
       "type": "urn:entity:place",
-      "popularity": 0.552,
-      "affinity": 0.872,
-      "distance_m": 455,
-      "lat": 51.536044999999994,
-      "lon": -0.1395738,
-      "address": "48-50 Camden High St London NW1 0LT United Kingdom",
-      "neighborhood": "Chalk Farm",
-      "description": "Guided nightlife tour combining historic pubs, bars, clubs and restaurants along Camden High Street.",
-      "category": "Night club",
+      "popularity": 0.992,
+      "affinity": 0.8,
+      "distance_m": 2810,
+      "lat": 51.514452,
+      "lon": -0.1407718,
+      "address": "30 Argyll St London W1B 3BR United Kingdom",
+      "neighborhood": "Soho",
+      "price_level": "4",
+      "description": "Modern northern Spanish restaurant with a bull-guarded entrance and a roof terrace offering city views.",
+      "category": "Spanish restaurant",
       "vibe": [
-       "High energy",
-       "Lively",
-       "Fun",
-       "Historic"
+       "Romantic",
+       "Modern",
+       "Chilled",
+       "Clubby"
       ],
-      "image": "https://images.qloo.com/i/FA73A8D9-1974-4FCC-B066-F79799A8F2BD-420x-auto.jpg",
-      "score": 0.6964,
-      "because": "Rosalía",
-      "because_share": 0.5,
-      "supported_by": [
-       "Rosalía",
-       "Money Heist"
-      ],
+      "image": "https://images.qloo.com/i/040FDBD3-395D-4A17-B2E1-E632CF91E296-420x-auto.jpg",
       "leisure": true,
-      "km": 0.46
+      "km": 2.81
      },
      {
       "name": "GA KINGSX",
@@ -4385,7 +4345,7 @@
        "Lively"
       ],
       "image": "https://images.qloo.com/i/A34964D1-5B7C-4A43-B611-19EEFCF63655-420x-auto.jpg",
-      "score": 0.6405,
+      "score": 0.7267,
       "because": "Money Heist",
       "because_share": 0.52,
       "supported_by": [
@@ -4416,7 +4376,7 @@
        "Bright"
       ],
       "image": "https://images.qloo.com/i/6D56A438-D2BA-4ED0-9543-6CB324D882A8-420x-auto.jpg",
-      "score": 0.629,
+      "score": 0.7103,
       "because": "Rosalía",
       "because_share": 0.56,
       "supported_by": [
@@ -4425,6 +4385,37 @@
       ],
       "leisure": true,
       "km": 1.77
+     },
+     {
+      "name": "Broski Lounge",
+      "id": "D4D51BE0-2AA0-4798-BC01-D9E990610296",
+      "type": "urn:entity:place",
+      "popularity": 0.28,
+      "affinity": 0.818,
+      "distance_m": 1857,
+      "lat": 51.523232799999995,
+      "lon": -0.138065,
+      "address": "112 Whitfield St London W1T 5EE United Kingdom",
+      "neighborhood": "Fitzrovia",
+      "price_level": "2",
+      "description": "Casual late-night lounge in central London serving drinks, coffee and small plates with outdoor seating and a friendly atmosphere.",
+      "category": "Restaurant",
+      "vibe": [
+       "Social",
+       "Welcoming",
+       "Casual",
+       "Relaxing"
+      ],
+      "image": "https://images.qloo.com/i/D4D51BE0-2AA0-4798-BC01-D9E990610296-420x-auto.jpg",
+      "score": 0.6093,
+      "because": "Rosalía",
+      "because_share": 0.53,
+      "supported_by": [
+       "Rosalía",
+       "Money Heist"
+      ],
+      "leisure": true,
+      "km": 1.86
      }
     ]
    }
@@ -4440,57 +4431,22 @@
    "picks": {
     "LLM only": [
      {
-      "name": "The Electric Cinema",
+      "name": "Rossopomodoro Kensington",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Cicchetti by San Carlo - London Covent Garden",
-      "id": "97396106-8AD5-4BBC-9E7C-216F37FEAD46",
-      "type": "urn:entity:place",
-      "popularity": 0.983,
-      "lat": 51.512306099999996,
-      "lon": -0.12060059999999999,
-      "address": "30 Wellington St London WC2E 7BD United Kingdom",
-      "neighborhood": "Westminster",
-      "price_level": "3",
-      "description": "Experience vibrant Italian dining and sharing plates in the heart of London's lively theatre district.",
-      "category": "Restaurant",
-      "vibe": [
-       "Classic",
-       "Elegant",
-       "Lively",
-       "Charming"
-      ],
-      "image": "https://images.qloo.com/i/97396106-8AD5-4BBC-9E7C-216F37FEAD46-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "San Carlo Cicchetti",
-      "km": 4.8
+      "name": "Da Vittorio Cafe",
+      "id": null,
+      "unverified": true
      },
      {
-      "name": "Daunt Books Marylebone",
-      "id": "14FE26F5-E4BC-4A2F-9B35-8369FFC22970",
-      "type": "urn:entity:place",
-      "popularity": 0.964,
-      "lat": 51.5204015,
-      "lon": -0.15199169999999998,
-      "address": "84 Marylebone High St London W1U 4QW United Kingdom",
-      "neighborhood": "Westminster",
-      "description": "Independent, travel-focused bookshop with geographically organized shelves, curated literary and non-fiction titles, and regular author talks and events.",
-      "category": "Book store",
-      "vibe": [
-       "Quiet",
-       "Relaxing",
-       "Unique",
-       "Warm"
-      ],
-      "image": "https://images.qloo.com/i/14FE26F5-E4BC-4A2F-9B35-8369FFC22970-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Daunt Books",
-      "km": 3.18
+      "name": "The Gate Cinema",
+      "id": null,
+      "unverified": true
      },
      {
-      "name": "Floor Coffee Co.",
+      "name": "Forza Wine Bar",
       "id": null,
       "unverified": true
      }
@@ -4707,26 +4663,27 @@
       "km": 1.88
      },
      {
-      "name": "South Kensington Farmers' Market",
-      "id": "5F920195-0718-4011-8971-B3E4747ED2FE",
+      "name": "Stables Bar",
+      "id": "5CD27012-B25C-4832-B52A-BA6A7360068C",
       "type": "urn:entity:place",
-      "popularity": 0.363,
-      "affinity": 0.826,
-      "distance_m": 1324,
-      "lat": 51.4935847,
-      "lon": -0.1762712,
-      "address": "Bute St South Kensington, London SW7 3EX United Kingdom",
-      "neighborhood": "Brompton",
-      "description": "Weekly pedestrian street market offering local organic produce, free-range meats, baked goods and hot street food near South Kensington museums.",
-      "category": "Florist",
+      "popularity": 0.269,
+      "affinity": 0.822,
+      "distance_m": 148,
+      "lat": 51.502007199999994,
+      "lon": -0.18662669999999998,
+      "address": "1-3 Kensington Ct London W8 5DL United Kingdom",
+      "neighborhood": "South Kensington",
+      "price_level": "3",
+      "description": "Elegant wood-panelled hotel cocktail bar serving inventive cocktails and elevated small-plate bar food in a refined, intimate setting.",
+      "category": "Bar",
       "vibe": [
        "Welcoming",
-       "Bustling",
-       "Clean",
-       "Artisanal"
+       "Elegant",
+       "Classic",
+       "Historic"
       ],
-      "image": "https://images.qloo.com/i/5F920195-0718-4011-8971-B3E4747ED2FE-420x-auto.jpg",
-      "score": 0.5869,
+      "image": "https://images.qloo.com/i/5CD27012-B25C-4832-B52A-BA6A7360068C-420x-auto.jpg",
+      "score": 0.5858,
       "because": "Måneskin",
       "because_share": 0.5,
       "supported_by": [
@@ -4734,7 +4691,38 @@
        "Elena Ferrante. Parole chiave"
       ],
       "leisure": true,
-      "km": 1.32
+      "km": 0.15
+     },
+     {
+      "name": "Aglio E Olio",
+      "id": "91CB87ED-9C40-4B5B-945C-8734956634B1",
+      "type": "urn:entity:place",
+      "popularity": 0.245,
+      "affinity": 0.817,
+      "distance_m": 1932,
+      "lat": 51.486076999999995,
+      "lon": -0.181026,
+      "address": "194 Fulham Rd. London SW10 9PN United Kingdom",
+      "neighborhood": "The Boltons",
+      "price_level": "3",
+      "description": "Cozy Italian restaurant on Fulham Road serving seafood and steaks with attentive service, a good atmosphere, and a well-curated wine and drinks list.",
+      "category": "Italian restaurant",
+      "vibe": [
+       "Cozy",
+       "Comfortable",
+       "Large group",
+       "Lively"
+      ],
+      "image": "https://images.qloo.com/i/91CB87ED-9C40-4B5B-945C-8734956634B1-420x-auto.jpg",
+      "score": 0.4574,
+      "because": "Elena Ferrante. Parole chiave",
+      "because_share": 0.55,
+      "supported_by": [
+       "Elena Ferrante. Parole chiave",
+       "Måneskin"
+      ],
+      "leisure": true,
+      "km": 1.93
      },
      {
       "name": "ChoJo",
@@ -4766,37 +4754,6 @@
       ],
       "leisure": true,
       "km": 1.38
-     },
-     {
-      "name": "Stables Bar",
-      "id": "5CD27012-B25C-4832-B52A-BA6A7360068C",
-      "type": "urn:entity:place",
-      "popularity": 0.269,
-      "affinity": 0.822,
-      "distance_m": 148,
-      "lat": 51.502007199999994,
-      "lon": -0.18662669999999998,
-      "address": "1-3 Kensington Ct London W8 5DL United Kingdom",
-      "neighborhood": "South Kensington",
-      "price_level": "3",
-      "description": "Elegant wood-panelled hotel cocktail bar serving inventive cocktails and elevated small-plate bar food in a refined, intimate setting.",
-      "category": "Bar",
-      "vibe": [
-       "Welcoming",
-       "Elegant",
-       "Classic",
-       "Historic"
-      ],
-      "image": "https://images.qloo.com/i/5CD27012-B25C-4832-B52A-BA6A7360068C-420x-auto.jpg",
-      "score": 0.5858,
-      "because": "Måneskin",
-      "because_share": 0.5,
-      "supported_by": [
-       "Måneskin",
-       "Elena Ferrante. Parole chiave"
-      ],
-      "leisure": true,
-      "km": 0.15
      }
     ]
    }
@@ -4817,72 +4774,55 @@
       "unverified": true
      },
      {
-      "name": "Cadogan Hall",
-      "id": "F74C1A3D-8A1D-488B-8541-275DB72148E1",
+      "name": "Le Relais de Venise L'Entrecote | Marylebone",
+      "id": "CAACD90B-8BE9-4D9F-A5B7-2690EB5AC295",
       "type": "urn:entity:place",
-      "popularity": 0.948,
-      "lat": 51.493792199999994,
-      "lon": -0.15723189999999998,
-      "address": "5 Sloane Terrace London SW1X 9DQ United Kingdom",
-      "neighborhood": "Hans Town",
-      "description": "Early 20th-century concert hall in Chelsea, home of the Royal Philharmonic Orchestra offering a varied classical music programme and versatile event hosting.",
-      "category": "Concert hall",
+      "popularity": 0.975,
+      "lat": 51.5181773,
+      "lon": -0.1510393,
+      "address": "120 Marylebone Ln London W1U 2QG United Kingdom",
+      "neighborhood": "Westminster",
+      "price_level": "3",
+      "description": "Classic French bistro offering a fixed menu of salad, entrecôte with fries and indulgent desserts in a lively, long-established setting.",
+      "category": "French restaurant",
       "vibe": [
-       "Cosy",
-       "Intimate",
-       "Romantic",
-       "Historic"
+       "No frills",
+       "Charming",
+       "Classic",
+       "Efficient"
       ],
-      "image": "https://images.qloo.com/i/F74C1A3D-8A1D-488B-8541-275DB72148E1-420x-auto.jpg",
-      "leisure": false,
-      "llm_name": "Cadogan Hall",
-      "km": 1.64
+      "image": "https://images.qloo.com/i/CAACD90B-8BE9-4D9F-A5B7-2690EB5AC295-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Le Relais de Venise L'Entrecôte",
+      "km": 2.86
      },
      {
-      "name": "Ministry of Sound",
-      "id": "EAD7BEEF-EF86-408D-8817-0513192607B0",
+      "name": "sketch",
+      "id": "2796A94B-FC49-462F-B475-5079CE593CBE",
       "type": "urn:entity:place",
-      "popularity": 0.993,
-      "lat": 51.4977929,
-      "lon": -0.09946859999999999,
-      "address": "103 Gaunt St London SE1 6DP United Kingdom",
-      "neighborhood": "Elephant and Castle",
-      "price_level": "3",
-      "description": "Flagship all-night dance club offering multiple rooms, live DJs, cocktails and late-night food in central London.",
-      "category": "Bar",
+      "popularity": 0.997,
+      "lat": 51.512693,
+      "lon": -0.141529,
+      "address": "9 Conduit St London W1S 2XG United Kingdom",
+      "neighborhood": "Westminster",
+      "price_level": "4",
+      "description": "An internationally acclaimed destination renowned for its avant-garde design, multiple immersive rooms, and Michelin-starred modern European cuisine in Mayfair.",
+      "category": "Art cafe",
       "vibe": [
        "Lively",
+       "Charming",
        "Classic",
-       "Stylish",
-       "Industrial chic"
+       "Hidden gem"
       ],
-      "image": "https://images.qloo.com/i/EAD7BEEF-EF86-408D-8817-0513192607B0-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/2796A94B-FC49-462F-B475-5079CE593CBE-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "Ministry of Sound",
-      "km": 5.52
+      "llm_name": "Sketch",
+      "km": 3.0
      },
      {
-      "name": "La Fromagerie",
-      "id": "EA2D14B0-2CB3-4CDE-9228-BF0881C29167",
-      "type": "urn:entity:place",
-      "popularity": 0.937,
-      "lat": 51.519882499999994,
-      "lon": -0.1523168,
-      "address": "2-6 Moxon St London W1U 4EW United Kingdom",
-      "neighborhood": "Westminster",
-      "price_level": "2",
-      "description": "Artisan cheesemonger and café offering Modern European dishes, cheese boards, sandwiches, wine, and a retail cheese shop in a relaxed Marylebone setting.",
-      "category": "Restaurant",
-      "vibe": [
-       "Intimate",
-       "Relaxing",
-       "Casual",
-       "Elegant"
-      ],
-      "image": "https://images.qloo.com/i/EA2D14B0-2CB3-4CDE-9228-BF0881C29167-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "La Fromagerie",
-      "km": 2.95
+      "name": "Belgo Centraal",
+      "id": null,
+      "unverified": true
      }
     ],
     "Qloo, city-wide": [
@@ -5079,7 +5019,7 @@
       "id": "44823335-5C8D-4265-B0FE-03A0E9593DC0",
       "type": "urn:entity:place",
       "popularity": 0.179,
-      "affinity": 0.889,
+      "affinity": 0.882,
       "distance_m": 1297,
       "lat": 51.4900126,
       "lon": -0.1904469,
@@ -5095,14 +5035,6 @@
        "Lively"
       ],
       "image": "https://images.qloo.com/i/44823335-5C8D-4265-B0FE-03A0E9593DC0-420x-auto.jpg",
-      "score": 0.9015,
-      "because": "Amélie",
-      "because_share": 0.43,
-      "supported_by": [
-       "Amélie",
-       "Asterix and the Goths (Asterix, #3)",
-       "Daft Punk"
-      ],
       "leisure": true,
       "km": 1.3
      },
@@ -5136,6 +5068,37 @@
       ],
       "leisure": true,
       "km": 1.86
+     },
+     {
+      "name": "Chelsea Theatre",
+      "id": "820CA4EC-61D9-4E72-9646-18729F6350EB",
+      "type": "urn:entity:place",
+      "popularity": 0.729,
+      "affinity": 0.87,
+      "distance_m": 1963,
+      "lat": 51.4816836,
+      "lon": -0.1797596,
+      "address": "7 World's End Place London SW10 0DR United Kingdom",
+      "neighborhood": "World's End",
+      "description": "A studio theatre and community hub offering new productions, workshops, and family-friendly performances in a creative setting.",
+      "category": "Event venue",
+      "vibe": [
+       "Relaxing",
+       "Inclusive",
+       "Welcoming",
+       "Social"
+      ],
+      "image": "https://images.qloo.com/i/820CA4EC-61D9-4E72-9646-18729F6350EB-420x-auto.jpg",
+      "score": 0.5119,
+      "because": "Amélie",
+      "because_share": 0.47,
+      "supported_by": [
+       "Amélie",
+       "Asterix and the Goths (Asterix, #3)",
+       "Daft Punk"
+      ],
+      "leisure": true,
+      "km": 1.96
      },
      {
       "name": "Duke of Wellington",
@@ -5182,16 +5145,6 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Hala Cafe",
-      "id": null,
-      "unverified": true
-     },
-     {
-      "name": "Ankara Sofrasi",
-      "id": null,
-      "unverified": true
-     },
-     {
       "name": "Gökyüzü Restaurant",
       "id": "A7A32496-68D5-48EF-BEA6-6BE57E7515AC",
       "type": "urn:entity:place",
@@ -5215,9 +5168,53 @@
       "km": 7.15
      },
      {
-      "name": "Sahil Restaurant",
+      "name": "Antepliler Baklava",
+      "id": "53E11933-CECE-49E3-B0BB-CA1355A32BB3",
+      "type": "urn:entity:place",
+      "popularity": 0.626,
+      "lat": 51.5792473,
+      "lon": -0.09883059999999999,
+      "address": "47 Grand Parade 47 Green Lanes London N4 1AG United Kingdom",
+      "neighborhood": "Harringay",
+      "description": "Turkish dessert shop specializing in baklava, trilice and cakes, noted for friendly, helpful staff and takeaway and dine-in service.",
+      "category": "Dessert shop",
+      "vibe": [
+       "Clean",
+       "No frills",
+       "Casual",
+       "Straightforward"
+      ],
+      "image": "https://images.qloo.com/i/53E11933-CECE-49E3-B0BB-CA1355A32BB3-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Antepliler Baklava",
+      "km": 3.67
+     },
+     {
+      "name": "Saray Muhallebisi",
       "id": null,
       "unverified": true
+     },
+     {
+      "name": "Baraka London",
+      "id": "D765E76D-EF4A-4D93-A983-C2AA2DF623B0",
+      "type": "urn:entity:place",
+      "popularity": 0.306,
+      "lat": 51.519417499999996,
+      "lon": -0.0851817,
+      "address": "Unit 4, 1 Finsbury Ave Broadgate London EC2M 2PF United Kingdom",
+      "neighborhood": "Broadgate",
+      "description": "Contemporary Turkish bar-and-grill in Broadgate serving halal organic small plates, signature mixed grills, cocktails, wine and late-night dining with outdoor seating.",
+      "category": "Turkish restaurant",
+      "vibe": [
+       "Lively",
+       "Welcoming",
+       "Modern",
+       "Contemporary"
+      ],
+      "image": "https://images.qloo.com/i/D765E76D-EF4A-4D93-A983-C2AA2DF623B0-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Baraka",
+      "km": 3.38
      }
     ],
     "Qloo, city-wide": [
@@ -5304,7 +5301,7 @@
        "Lively"
       ],
       "image": "https://images.qloo.com/i/99ADEFD5-0DB7-4B10-8240-38255798DB0A-420x-auto.jpg",
-      "leisure": true,
+      "leisure": false,
       "km": 4.78
      }
     ],
@@ -5431,36 +5428,6 @@
       "km": 0.15
      },
      {
-      "name": "314 KITCHEN + BAR",
-      "id": "1BF34392-E65C-41E2-8D18-2A4E89E87E43",
-      "type": "urn:entity:place",
-      "popularity": 0.117,
-      "affinity": 0.786,
-      "distance_m": 1824,
-      "lat": 51.5462369,
-      "lon": -0.10240139999999999,
-      "address": "314 St Paul's Rd London N1 2LF United Kingdom",
-      "neighborhood": "Islington",
-      "description": "Family-run Mediterranean grill and cocktail bar in London offering mezze, grilled mains, brunch, and cocktails.",
-      "category": "Bar grill",
-      "vibe": [
-       "Romantic",
-       "Large group",
-       "Stylish",
-       "Welcoming"
-      ],
-      "image": "https://images.qloo.com/i/1BF34392-E65C-41E2-8D18-2A4E89E87E43-420x-auto.jpg",
-      "score": 0.6041,
-      "because": "Tarkan",
-      "because_share": 0.56,
-      "supported_by": [
-       "Tarkan",
-       "The Magnificent Century: Kosem"
-      ],
-      "leisure": true,
-      "km": 1.82
-     },
-     {
       "name": "Babel Art House / Cafe & Restaurant London.",
       "id": "6FF71183-1782-4481-94EB-DDB8D390EA4C",
       "type": "urn:entity:place",
@@ -5521,6 +5488,36 @@
       ],
       "leisure": true,
       "km": 0.21
+     },
+     {
+      "name": "Gracepoint",
+      "id": "14289155-3BA6-4F77-B6E8-D59AA24B00F6",
+      "type": "urn:entity:place",
+      "popularity": 0.746,
+      "affinity": 0.801,
+      "distance_m": 1731,
+      "lat": 51.540310299999994,
+      "lon": -0.09691229999999999,
+      "address": "161-169 Essex Rd London N1 2SN United Kingdom",
+      "neighborhood": "Islington",
+      "description": "Historic Grade II listed auditorium in Islington, built by architect George Coles, seating over 1,100 with a large 3,826 m² auditorium for conferences and concerts.",
+      "category": "Auditorium",
+      "vibe": [
+       "Unusual",
+       "Royal",
+       "Historic",
+       "Social"
+      ],
+      "image": "https://images.qloo.com/i/14289155-3BA6-4F77-B6E8-D59AA24B00F6-420x-auto.jpg",
+      "score": 0.4835,
+      "because": "Tarkan",
+      "because_share": 0.5,
+      "supported_by": [
+       "Tarkan",
+       "The Magnificent Century: Kosem"
+      ],
+      "leisure": true,
+      "km": 1.73
      }
     ]
    }
@@ -5536,59 +5533,41 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Shamshiri Restaurant",
+      "name": "Shahrazad Persian Restaurant",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Sofra",
-      "id": "ABA2C943-5E75-4B3B-BA5C-E9B04D4D88E1",
+      "name": "Naan Kabob",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "The Persian Tea House",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Curzon Victoria",
+      "id": "6DCFA195-E13F-49C7-82C1-DEB6360A8673",
       "type": "urn:entity:place",
-      "popularity": 0.909,
-      "lat": 51.5062419,
-      "lon": -0.1470949,
-      "address": "18 Shepherd St London W1J 7JG United Kingdom",
+      "popularity": 0.82,
+      "lat": 51.4974876,
+      "lon": -0.1368256,
+      "address": "58 Victoria St London SW1E 6QW United Kingdom",
       "neighborhood": "Westminster",
-      "price_level": "2",
-      "description": "Mayfair eatery serving meze-style sharing plates and a Tokkat/Hittite menu of Northern Turkish historic recipes, with cocktails and late-night drinks.",
-      "category": "Turkish restaurant",
+      "description": "Central Victoria cinema with bar, café and restaurant offering food, arcade games and LGBTQ+ friendly atmosphere.",
+      "category": "Cafe",
       "vibe": [
-       "Casual",
+       "Comfortable",
        "Welcoming",
-       "Lively",
-       "Large group"
-      ],
-      "image": "https://images.qloo.com/i/ABA2C943-5E75-4B3B-BA5C-E9B04D4D88E1-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Sofra",
-      "km": 2.35
-     },
-     {
-      "name": "Asia House",
-      "id": "F0F0B0B8-0ECA-4ABB-B8B5-B1560BE0C689",
-      "type": "urn:entity:place",
-      "popularity": 0.943,
-      "lat": 51.519623599999996,
-      "lon": -0.146172,
-      "address": "63 New Cavendish St London W1G 7LP United Kingdom",
-      "neighborhood": "Westminster",
-      "description": "Independent London-based platform driving engagement between Asia, the Middle East and Europe through research, events, and venue hire in a historic Marylebone building.",
-      "category": "Business to business service",
-      "vibe": [
-       "Stylish",
-       "Business friendly",
        "Elegant",
-       "Professional"
+       "Cozy"
       ],
-      "image": "https://images.qloo.com/i/F0F0B0B8-0ECA-4ABB-B8B5-B1560BE0C689-420x-auto.jpg",
-      "leisure": false,
-      "llm_name": "Asia House",
-      "km": 2.14
-     },
-     {
-      "name": "SOAS Brunei Gallery",
-      "id": null,
-      "unverified": true
+      "image": "https://images.qloo.com/i/6DCFA195-E13F-49C7-82C1-DEB6360A8673-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Curzon Cinema, Victoria",
+      "km": 3.48
      }
     ],
     "Qloo, city-wide": [
@@ -5658,7 +5637,7 @@
        "Lively"
       ],
       "image": "https://images.qloo.com/i/99ADEFD5-0DB7-4B10-8240-38255798DB0A-420x-auto.jpg",
-      "leisure": true,
+      "leisure": false,
       "km": 6.46
      },
      {
@@ -5903,40 +5882,22 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Pho & Bun",
-      "id": "3C27DADF-0AD6-4A89-BA0F-9FCE715DFB54",
-      "type": "urn:entity:place",
-      "popularity": 0.94,
-      "lat": 51.5119378,
-      "lon": -0.1317572,
-      "address": "76 Shaftesbury Ave London W1D 6ND United Kingdom",
-      "neighborhood": "Soho",
-      "price_level": "2",
-      "description": "Experience authentic Vietnamese street food, including steaming bowls of pho and fluffy bao burgers, right in the heart of London.",
-      "category": "Vietnamese restaurant",
-      "vibe": [
-       "Casual",
-       "Bustling",
-       "Lively",
-       "Welcoming"
-      ],
-      "image": "https://images.qloo.com/i/3C27DADF-0AD6-4A89-BA0F-9FCE715DFB54-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Pho & Bun",
-      "km": 4.36
-     },
-     {
-      "name": "Vietfood Kitchen",
+      "name": "Pho Viet Hoa",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Hanoi Bike Shop",
+      "name": "Saigon Supermarket Cafe",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Saigon Social",
+      "name": "The Viet Cafe",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "New Crown",
       "id": null,
       "unverified": true
      }
@@ -6265,60 +6226,41 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Sala Thai Restaurant",
+      "name": "Rosa's Thai Cafe Fitzrovia",
       "id": null,
       "unverified": true
      },
      {
-      "name": "The Attendant",
+      "name": "Tuk Tuk Thai Bar",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Experimental Cocktail Club Chinatown",
-      "id": "673012D1-E5D3-4A7A-B64E-A3DB7CB190B8",
+      "name": "Cha Cha Tea Warren Street",
+      "id": null,
+      "unverified": true
+     },
+     {
+      "name": "Prince Charles Cinema",
+      "id": "D202DA43-6E08-4834-B53E-5B33C23DF36A",
       "type": "urn:entity:place",
-      "popularity": 0.552,
-      "lat": 51.5119233,
-      "lon": -0.13102719999999998,
-      "address": "13a Gerrard St London W1D 5PS United Kingdom",
+      "popularity": 0.997,
+      "lat": 51.511447399999994,
+      "lon": -0.1301978,
+      "address": "7 Leicester Pl London WC2H 7BY United Kingdom",
       "neighborhood": "Westminster",
-      "price_level": "2",
-      "description": "Speakeasy-style Chinatown basement cocktail bar offering inventive, 1920s-inspired drinks, curated music nights, and a two-floor dance-friendly atmosphere.",
-      "category": "Cocktail bar",
+      "description": "Central West End cinema specializing in new releases, cult classics, singalongs and all-night screenings, with an onsite bar and casual food.",
+      "category": "Movie theater",
       "vibe": [
-       "Dim lit",
-       "Social",
-       "Modern",
-       "Romantic"
-      ],
-      "image": "https://images.qloo.com/i/673012D1-E5D3-4A7A-B64E-A3DB7CB190B8-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Experimental Cocktail Club",
-      "km": 0.44
-     },
-     {
-      "name": "Busaba Soho",
-      "id": "A600905F-2433-4D92-AE82-6F4DAABCBFF3",
-      "type": "urn:entity:place",
-      "popularity": 0.97,
-      "lat": 51.513782,
-      "lon": -0.134049,
-      "address": "106-110 Wardour St London W1F 0TR United Kingdom",
-      "neighborhood": "Soho",
-      "price_level": "2",
-      "description": "Low-lit modern Thai chain serving quick Southeast Asian dishes, small plates and cocktails at communal square tables.",
-      "category": "Thai restaurant",
-      "vibe": [
+       "Welcoming",
+       "Historic",
        "Casual",
-       "Lively",
-       "Communal",
-       "Modern"
+       "Social"
       ],
-      "image": "https://images.qloo.com/i/A600905F-2433-4D92-AE82-6F4DAABCBFF3-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/D202DA43-6E08-4834-B53E-5B33C23DF36A-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "Busaba Eathai Soho",
-      "km": 0.25
+      "llm_name": "Prince Charles Cinema",
+      "km": 0.51
      }
     ],
     "Qloo, city-wide": [
@@ -6517,28 +6459,28 @@
     ],
     "TasteBridge": [
      {
-      "name": "Thai Tho Soho",
-      "id": "8CDF174F-3463-41DA-A7B8-CB1352445D82",
+      "name": "Speedboat Bar",
+      "id": "5FB56F17-574F-4D97-A304-987D73BB4593",
       "type": "urn:entity:place",
-      "popularity": 0.876,
-      "affinity": 0.671,
-      "distance_m": 491,
-      "lat": 51.5113938,
-      "lon": -0.13283419999999999,
-      "address": "42 Rupert St London W1D 6DP United Kingdom",
-      "neighborhood": "Soho",
-      "price_level": "2",
-      "description": "Modern, colourful Thai restaurant in Soho offering classic curries, noodles, stir-fries, and private karaoke rooms.",
+      "popularity": 0.054,
+      "affinity": 0.653,
+      "distance_m": 515,
+      "lat": 51.5111755,
+      "lon": -0.13265449999999998,
+      "address": "30 Rupert St London W1D 6DL United Kingdom",
+      "neighborhood": "Westminster",
+      "price_level": "3",
+      "description": "Vibrant Thai small-plates and late-night cocktail bar serving adventurous street-food dishes and tasting menus in central London.",
       "category": "Thai restaurant",
       "vibe": [
-       "Large group",
-       "Modern",
-       "Lively",
-       "Fun"
+       "Unpretentious",
+       "Social",
+       "Noisy",
+       "Casual"
       ],
-      "image": "https://images.qloo.com/i/8CDF174F-3463-41DA-A7B8-CB1352445D82-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/5FB56F17-574F-4D97-A304-987D73BB4593-420x-auto.jpg",
       "leisure": true,
-      "km": 0.49
+      "km": 0.52
      },
      {
       "name": "The Brass Rail",
@@ -6647,76 +6589,59 @@
    "picks": {
     "LLM only": [
      {
-      "name": "Harry Potter Shop King's Cross",
-      "id": "8BF58D7F-F428-4902-A85C-076CC0CC3578",
+      "name": "The Cauldron London",
+      "id": "1D9F1F41-A6F4-4D17-87D1-D35E726D1DBE",
       "type": "urn:entity:place",
-      "popularity": 0.998,
-      "lat": 51.5322396,
-      "lon": -0.1240271,
-      "address": "Kings Cross Station Euston Rd. London N1 9AP United Kingdom",
-      "neighborhood": "King's Cross",
-      "description": "Harry Potter-themed official shop at King's Cross Station with Platform 9 3/4 photo opportunity and extensive Wizarding World merchandise.",
-      "category": "Gift shop",
+      "popularity": 0.834,
+      "lat": 51.5507827,
+      "lon": -0.0753278,
+      "address": "5d Stoke Newington Rd London N16 8BH United Kingdom",
+      "neighborhood": "Hackney",
+      "price_level": "3",
+      "description": "Ticketed interactive cocktail experience offering extravagant molecular cocktails served in a themed laboratory-style bar and event venue.",
+      "category": "Restaurant",
       "vibe": [
-       "Comfortable",
-       "Busy",
-       "Nostalgic",
-       "Cultural"
+       "Fun",
+       "Romantic",
+       "Playful",
+       "Stylish"
       ],
-      "image": "https://images.qloo.com/i/8BF58D7F-F428-4902-A85C-076CC0CC3578-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/1D9F1F41-A6F4-4D17-87D1-D35E726D1DBE-420x-auto.jpg",
       "leisure": true,
-      "llm_name": "Harry Potter Photographic Exhibition",
-      "km": 2.36
+      "llm_name": "The Cauldron",
+      "km": 5.19
      },
      {
-      "name": "Friends Experience",
+      "name": "Prince Charles Cinema",
+      "id": "D202DA43-6E08-4834-B53E-5B33C23DF36A",
+      "type": "urn:entity:place",
+      "popularity": 0.997,
+      "lat": 51.511447399999994,
+      "lon": -0.1301978,
+      "address": "7 Leicester Pl London WC2H 7BY United Kingdom",
+      "neighborhood": "Westminster",
+      "description": "Central West End cinema specializing in new releases, cult classics, singalongs and all-night screenings, with an onsite bar and casual food.",
+      "category": "Movie theater",
+      "vibe": [
+       "Welcoming",
+       "Historic",
+       "Casual",
+       "Social"
+      ],
+      "image": "https://images.qloo.com/i/D202DA43-6E08-4834-B53E-5B33C23DF36A-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Prince Charles Cinema",
+      "km": 0.97
+     },
+     {
+      "name": "The Harry Potter Shop - Covent Garden",
       "id": null,
       "unverified": true
      },
      {
-      "name": "The Piano Works - Farringdon",
-      "id": "D5B85FBF-8190-47C1-9BFF-8B94D9D0CDA6",
-      "type": "urn:entity:place",
-      "popularity": 0.996,
-      "lat": 51.5228928,
-      "lon": -0.1080405,
-      "address": "113-117 Farringdon Rd London EC1R 3BX United Kingdom",
-      "neighborhood": "Islington",
-      "price_level": "3",
-      "description": "Victorian warehouse piano bar and restaurant with live pianists performing audience-requested playlists, drinks, dancing, and a late-night atmosphere.",
-      "category": "Restaurant",
-      "vibe": [
-       "Fun",
-       "Social",
-       "Noisy",
-       "Energetic"
-      ],
-      "image": "https://images.qloo.com/i/D5B85FBF-8190-47C1-9BFF-8B94D9D0CDA6-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "The Piano Works",
-      "km": 1.38
-     },
-     {
-      "name": "The Diamond Jubilee Tea Salon at Fortnum & Mason",
-      "id": "95F5301F-D596-4414-BD49-074D93FC254B",
-      "type": "urn:entity:place",
-      "popularity": 0.987,
-      "lat": 51.508258299999994,
-      "lon": -0.13827219999999998,
-      "address": "4th Floor Fortnum & Mason, 181 Piccadilly London W1A 1ER United Kingdom",
-      "neighborhood": "Westminster",
-      "description": "Elegant Edwardian-style tea salon inside a historic London department store offering classic afternoon tea since its 2012 royal opening.",
-      "category": "Tea store",
-      "vibe": [
-       "Refined",
-       "Elegant",
-       "Classic",
-       "Traditional"
-      ],
-      "image": "https://images.qloo.com/i/95F5301F-D596-4414-BD49-074D93FC254B-420x-auto.jpg",
-      "leisure": true,
-      "llm_name": "Fortnum & Mason",
-      "km": 1.57
+      "name": "The Princess Louise",
+      "id": null,
+      "unverified": true
      }
     ],
     "Qloo, city-wide": [
@@ -6902,28 +6827,28 @@
     ],
     "TasteBridge": [
      {
-      "name": "Hard Rock Cafe",
-      "id": "2698BD51-4922-4AA0-9C14-B54876FFF4B9",
+      "name": "The Garden Bistro Bar",
+      "id": "0E00A4BB-FAC6-435C-82BA-C9BA32940B76",
       "type": "urn:entity:place",
-      "popularity": 0.993,
-      "affinity": 0.88,
-      "distance_m": 1237,
-      "lat": 51.5097593,
-      "lon": -0.1338578,
-      "address": "Criterion Building 225-229 Piccadilly London W1J 9HR United Kingdom",
+      "popularity": 0.432,
+      "affinity": 0.874,
+      "distance_m": 496,
+      "lat": 51.508396,
+      "lon": -0.121205,
+      "address": "25 Victoria Gardens Victoria Embankment London WC2N 6PB United Kingdom",
       "neighborhood": "Westminster",
       "price_level": "2",
-      "description": "Rock ’n’ roll-themed flagship restaurant at Piccadilly Circus serving American classics, live music, and walls of authentic music memorabilia.",
-      "category": "American restaurant",
+      "description": "Garden pavilion with a parkside terrace serving an all-day light café menu, ice creams, coffee, wine, and vegetarian options.",
+      "category": "Breakfast restaurant",
       "vibe": [
-       "Energetic",
-       "Lively",
-       "Upbeat",
-       "Casual"
+       "Chilled",
+       "Nature focused",
+       "Welcoming",
+       "Large group"
       ],
-      "image": "https://images.qloo.com/i/2698BD51-4922-4AA0-9C14-B54876FFF4B9-420x-auto.jpg",
+      "image": "https://images.qloo.com/i/0E00A4BB-FAC6-435C-82BA-C9BA32940B76-420x-auto.jpg",
       "leisure": true,
-      "km": 1.24
+      "km": 0.5
      },
      {
       "name": "Borough Market",
@@ -6968,9 +6893,9 @@
        "Bright"
       ],
       "image": "https://images.qloo.com/i/9A2686B8-550E-414E-AD19-5D479CE0760C-420x-auto.jpg",
-      "score": 0.5102,
+      "score": 0.5198,
       "because": "Taylor Swift",
-      "because_share": 0.65,
+      "because_share": 0.63,
       "supported_by": [
        "Taylor Swift",
        "Friends"
@@ -7022,24 +6947,71 @@
    "picks": {
     "LLM only": [
      {
-      "name": "POSK – Polish Social and Cultural Association",
+      "name": "Karczma Polish Restaurant",
       "id": null,
       "unverified": true
      },
      {
-      "name": "Chopin Restaurant",
-      "id": null,
-      "unverified": true
+      "name": "The Dove, Hammersmith",
+      "id": "8769033A-383D-4F9C-9615-3FB79251613F",
+      "type": "urn:entity:place",
+      "popularity": 0.986,
+      "lat": 51.490504699999995,
+      "lon": -0.23485019999999998,
+      "address": "19 Upper Mall London W6 9TA United Kingdom",
+      "neighborhood": "Brook Green",
+      "price_level": "2",
+      "description": "Historic riverside Fuller's pub with a tiny, famed barroom; reputedly visited by Charles II and Nell Gwynne, serving seasonal British pub food and drinks.",
+      "category": "Pub",
+      "vibe": [
+       "Charming",
+       "Cozy",
+       "Quiet",
+       "Casual"
+      ],
+      "image": "https://images.qloo.com/i/8769033A-383D-4F9C-9615-3FB79251613F-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "The Dove",
+      "km": 0.36
      },
      {
-      "name": "Polka Deli & Café",
-      "id": null,
-      "unverified": true
+      "name": "Riverside Studios",
+      "id": "DAC8DA30-69B8-4FBC-872E-33841574510B",
+      "type": "urn:entity:place",
+      "popularity": 0.903,
+      "lat": 51.488741999999995,
+      "lon": -0.22829049999999998,
+      "address": "101 Queen Caroline St London W6 9BN United Kingdom",
+      "neighborhood": "Brook Green",
+      "description": "Multi-arts venue combining cinema, TV studios and performance spaces with an onsite restaurant, bar and cafe, plus community and event facilities.",
+      "category": "Movie theater",
+      "vibe": [
+       "Lively",
+       "Intimate",
+       "Welcoming",
+       "Cultural"
+      ],
+      "image": "https://images.qloo.com/i/DAC8DA30-69B8-4FBC-872E-33841574510B-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Riverside Studios",
+      "km": 0.56
      },
      {
-      "name": "Hammersmith Apollo",
-      "id": null,
-      "unverified": true
+      "name": "Waterstones",
+      "id": "37C9A1A7-386C-4CE0-AFAB-E24D98A966C2",
+      "type": "urn:entity:place",
+      "popularity": 0.692,
+      "lat": 51.508931,
+      "lon": -0.22113809999999998,
+      "address": "Unit SU121 Westfield, Ariel Way London W12 7GF United Kingdom",
+      "neighborhood": "Lancaster West Estate",
+      "price_level": "2",
+      "description": "Chain bookseller offering a broad selection of mainstream and academic titles in a shopping-centre location, often with comfortable browsing spaces and some stores featuring cafés.",
+      "category": "Book store",
+      "image": "https://images.qloo.com/i/37C9A1A7-386C-4CE0-AFAB-E24D98A966C2-420x-auto.jpg",
+      "leisure": true,
+      "llm_name": "Waterstones Westfield London",
+      "km": 1.9
      }
     ],
     "Qloo, city-wide": [
@@ -7232,6 +7204,30 @@
      }
     ],
     "TasteBridge": [
+     {
+      "name": "Łowiczanka Restaurant",
+      "id": "1C94DBD7-D8B1-4AA0-BF3E-051E1A3DB6D1",
+      "type": "urn:entity:place",
+      "popularity": 0.157,
+      "affinity": 0.782,
+      "distance_m": 387,
+      "lat": 51.493503,
+      "lon": -0.2374972,
+      "address": "238-246 King St London W6 0RF United Kingdom",
+      "neighborhood": "Brook Green",
+      "price_level": "2",
+      "description": "Authentic Polish classics and vodkas served in simple cultural-institute surroundings in Hammersmith using imported Polish produce.",
+      "category": "Polish restaurant",
+      "vibe": [
+       "Cultural",
+       "Unpretentious",
+       "Welcoming",
+       "Classic"
+      ],
+      "image": "https://images.qloo.com/i/1C94DBD7-D8B1-4AA0-BF3E-051E1A3DB6D1-420x-auto.jpg",
+      "leisure": true,
+      "km": 0.39
+     },
      {
       "name": "Hammersmith Salsa & Bachata Club",
       "id": "87000630-8B5F-4BF3-B773-E383016FE1D3",

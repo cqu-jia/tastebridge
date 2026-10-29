@@ -24,11 +24,11 @@ on optimal-novelty theory (Berlyne): too familiar is dull, too foreign is stress
 
 ## Why it's better because of Qloo
 
-A plain LLM recommends the famous places, and often places it can't back up: in our test below, 45 of the 80
+A plain LLM recommends the famous places, and often places it can't back up: in our test below, 51 of the 80
 places Nemotron named on its own could not be found in Qloo. Qloo connects taste *across domains* (Jay Chou →
 a bubble-tea shop near Russell Square) and *locally* (radius, popularity and tag filters), but raw results are
 still dominated by landmarks: an unfiltered query for "Jay Chou + Spirited Away" returns the Disney Store and
-The Lion King. TasteBridge's pipeline on top of Qloo cuts tourist hotspots from 56–59% of picks to 7%, keeps
+The Lion King. TasteBridge's pipeline on top of Qloo cuts tourist hotspots from 58–59% of picks to 5%, keeps
 picks within ~1 km, and makes every pick a real, verifiable leisure place.
 
 ## How the ranking works (`app/engine.py`)
@@ -74,18 +74,17 @@ through four ways of answering "where should I go?", 4 picks each (`scripts/eval
 
 | Method | Tourist hotspots | Distance from you | Chain outlets | Real leisure places |
 |---|---|---|---|---|
-| LLM only | 80% | 3.9 km | 3% | 35% |
-| Qloo, city-wide | 59% | 5.5 km | 0% | 84% |
-| Qloo, nearby | 56% | 1.1 km | 0% | 82% |
-| TasteBridge | 7% | 1.2 km | 1% | 100% |
+| LLM only | 62% | 2.5 km | 0% | 34% |
+| Qloo, city-wide | 59% | 5.5 km | 0% | 81% |
+| Qloo, nearby | 58% | 1.1 km | 0% | 81% |
+| TasteBridge | 5% | 1.2 km | 0% | 100% |
 
 - *Tourist hotspots* = Qloo popularity ≥ 0.9. Raw Qloo results are dominated by Big Ben, Piccadilly Circus
-  and Tower Bridge; TasteBridge's 7% are almost all deliberate "taste of home" picks.
-- *Real leisure places* = places we can verify in Qloo that aren't hotels, offices, schools etc. 45 of the
+  and Tower Bridge; TasteBridge's 5% are all deliberate "taste of home" picks (a well-known home-food place is fine when you're homesick).
+- *Real leisure places* = places we can verify in Qloo that aren't hotels, offices, schools etc. 51 of the
   80 places the LLM named could not be found in Qloo at all. TasteBridge scores 100% partly by construction:
   every pick comes from Qloo and passes its leisure filter.
 - Distance: raw nearby Qloo is as close as TasteBridge (1.1 vs 1.2 km); the gain is in *what* is nearby.
-- TasteBridge returned fewer than 4 picks for some personas (75 picks in total).
 - Caveats: synthetic personas, one run, no human ratings yet. Raw data in `eval/results.json`.
 
 ## Run locally
