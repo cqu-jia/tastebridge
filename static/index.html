@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TasteBridge</title>
 <meta name="description" content="Make a new city feel like yours: places in London and other UK cities matched to the music, films and food you love from home.">
+<!-- the header logo as the tab icon; inline so there's no extra file to serve -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23c2410c'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M3 17c3-6 6-9 9-9s6 3 9 9'/%3E%3Cpath d='M7 17v-3M12 17V12M17 17v-3'/%3E%3C/g%3E%3C/svg%3E">
+<!-- link previews on Devpost, Discord, WeChat, X -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TasteBridge">
+<meta property="og:title" content="TasteBridge: make a new city feel like yours">
+<meta property="og:description" content="For international students: tell it the music, films and food you love from home, and an NVIDIA Nemotron agent uses Qloo's taste graph to find a taste of home nearby and local places people like you love.">
+<meta property="og:url" content="https://tastebridge-xofy.onrender.com/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TasteBridge: make a new city feel like yours">
+<meta name="twitter:description" content="Places in a new city matched to the music, films and food you love from home, via Qloo's taste graph and an NVIDIA Nemotron agent.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,6 +28,7 @@
     --home: #1d1b18; --warn: #b42318; --warn-soft: #fdecea; --ok: #15803d;
     --shadow: 0 1px 2px rgba(40, 30, 10, .05), 0 8px 24px rgba(40, 30, 10, .06);
     --radius: 16px;
+    --pin-ink: #fff;  /* numbers on comfort/bridge colours: white on the dark light-mode hues, dark on the bright dark-mode ones */
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -25,6 +37,7 @@
       --comfort: #fbbf24; --comfort-soft: #3a2c12; --bridge: #5eead4; --bridge-soft: #123330;
       --home: #efebe4; --warn: #fca5a5; --warn-soft: #3a1918; --ok: #86efac;
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+      --pin-ink: #1a1008;
     }
   }
   * { box-sizing: border-box; }
@@ -114,7 +127,7 @@
   .card:hover, .card.hl { border-color: var(--accent); }
   .card .img { background: var(--border) center/cover no-repeat; min-height: 118px; position: relative; }
   .card .num { position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
-    font-size: 12px; font-weight: 700; color: #fff; }
+    font-size: 12px; font-weight: 700; color: var(--pin-ink); }
   .num.comfort { background: var(--comfort); } .num.bridge { background: var(--bridge); } .num.shared { background: var(--accent); }
   .card .body { padding: 12px 14px; min-width: 0; }
   .badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; }
@@ -131,7 +144,7 @@
   .leaflet-container { background: var(--border); font: inherit; }
   .leaflet-tile-pane { filter: saturate(.55) sepia(.12); }
   @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) saturate(.4); } }
-  .pin { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 700 12px Inter, sans-serif;
+  .pin { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: var(--pin-ink); font: 700 12px Inter, sans-serif;
     border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
   .pin.comfort { background: var(--comfort); } .pin.bridge { background: var(--bridge); } .pin.shared { background: var(--accent); }
   .pin.home { background: var(--home); color: var(--bg); width: auto; padding: 0 8px; border-radius: 999px; }
@@ -160,6 +173,7 @@
     .card { grid-template-columns: 92px minmax(0, 1fr); }
     .slider output { min-width: 0; }
     .slider { flex-wrap: wrap; }
+    input, select { font-size: 16px; }  /* below 16px, iOS Safari zooms the page on focus */
   }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
@@ -328,11 +342,11 @@
     if (live) li.className = "live";
     ul.appendChild(li);
   }
-  function finishSteps(collapse) {
+  // Stays open when done: the agent's tool calls are part of the answer, not a loading screen
+  function finishSteps(done) {
     document.querySelectorAll("#steps li.live").forEach(li => li.classList.remove("live"));
-    if (collapse && $("stepsBox")) {
+    if (done && $("stepsBox")) {
       $("stepsTitle").textContent = `How the agent got here (${$("steps").children.length} steps)`;
-      $("stepsBox").open = false;
     }
   }
 
@@ -458,9 +472,15 @@
   }
 
   async function run(button, url, body, render) {
-    button.disabled = true;
+    // The progress panel opens below the form, often off screen: bring it into view and keep a
+    // visible clock on the button, so a ~50 s cold start doesn't look like a dead button
+    const label = button.textContent, started = Date.now();
+    const tick = () => { button.textContent = `Working… ${Math.round((Date.now() - started) / 1000)}s`; };
+    const clock = setInterval(tick, 1000);
+    button.disabled = true; tick();
     resetOut();
     $("out").innerHTML = `${stepsPanel()}<div id="result" class="results" style="margin-top:16px"></div>`;
+    $("stepsBox").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     addStep("Reading your taste");
     try {
       await stream(url, body, e => {
@@ -473,6 +493,8 @@
       finishSteps();
       $("result").innerHTML = `<p class="err">${esc(err.message)}</p>`;
     } finally {
+      clearInterval(clock);
+      button.textContent = label;
       button.disabled = false;
     }
   }
@@ -481,6 +503,11 @@
     favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
     explore: parseFloat($("explore").value), note: $("note").value,
   }, renderSolo);
+
+  // Enter in any text box submits that panel, as it would in a form
+  [["solo", "goSolo"], ["twin", "goTwin"]].forEach(([panel, go]) => $(panel).addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && !e.isComposing && !$(go).disabled) $(go).click();
+  }));
 
   $("goTwin").onclick = () => needFavs("favsA", "favsB") && run($("goTwin"), "/api/twin/stream", {
     me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
