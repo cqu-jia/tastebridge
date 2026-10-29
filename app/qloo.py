@@ -29,7 +29,16 @@ NON_LEISURE = (
     "college", "university", "agency", "office", "consultan", "clinic", "hospital", "dentist",
     "bank", "pharmacy", "estate agent", "coworking", "publisher", "charity", "banquet",
     "wedding venue", "conference", "corporate", "non-profit", "bus company", "coach", "transport",
-    "travel agency", "car rental", "taxi",
+    "travel agency", "car rental", "taxi", "tour operator", "tour agency", "ferry terminal",
+    "train station", "transit station", "bus station",
+)
+# Guided tours and crawls are bookable products, not somewhere to meet; they often hide under
+# "Night club" or "Bar", so match the name too. Not plain "tour": it would catch "tourist attraction".
+# Members-only rooms (e.g. "Tate Modern Members Room") are listed as bars but a student can't get in.
+NOT_A_PLACE = (
+    "pub crawl", "bar crawl", "walking tour", "food tour", "ghost tour", "bus tour", "boat tour", "bike tour",
+    "members room", "members' room", "members bar", "members' bar", "members lounge", "members club",
+    "members' club", "member's club",
 )
 
 
@@ -39,7 +48,8 @@ def is_leisure(entity: dict) -> bool:
         for t in entity.get("tags") or []
         if ":category:" in t.get("type", "") or ":genre:" in t.get("type", "")
     )
-    return not any(word in kinds for word in NON_LEISURE)
+    name = (entity.get("name") or "").lower()
+    return not any(word in kinds for word in NON_LEISURE) and not any(p in name for p in NOT_A_PLACE)
 
 
 def _client() -> httpx.Client:
@@ -52,6 +62,16 @@ def _client() -> httpx.Client:
 
 _cache: Dict[str, dict] = {}
 _CACHE_MAX = 2000
+MAX_RETRY_WAIT = 5.0  # seconds; a large Retry-After would otherwise hang the visitor's request
+
+
+def _retry_after(header: Optional[str], attempt: int) -> float:
+    """Seconds to wait after a 429: the server's Retry-After (if it's a number), capped."""
+    try:
+        wait = float(header)
+    except (TypeError, ValueError):  # missing, or an HTTP date
+        wait = 0.5 * 2 ** attempt
+    return max(0.0, min(wait, MAX_RETRY_WAIT))
 
 
 def _get(path: str, params: dict) -> dict:
@@ -64,7 +84,7 @@ def _get(path: str, params: dict) -> dict:
             r = c.get(path, params=params)
             if r.status_code != 429:
                 break
-            time.sleep(float(r.headers.get("Retry-After") or 0.5 * 2 ** attempt))
+            time.sleep(_retry_after(r.headers.get("Retry-After"), attempt))
         r.raise_for_status()
     data = r.json()
     if len(_cache) >= _CACHE_MAX:

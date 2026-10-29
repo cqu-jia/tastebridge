@@ -43,7 +43,8 @@ The pipeline borrows from sequential-recommendation research:
 | Attribution | Each place records which favourite contributed most, so every explanation cites a real cause; a cause-diversity re-rank (MMR) stops one favourite explaining everything |
 | Group fusion | Taste Twin uses least-misery aggregation: a place scores as well as the person who'd like it less |
 
-On top sits a tool-calling agent (`app/agent.py`): an NVIDIA Nemotron model on **Nebius Token Factory**
+On top sits a tool-calling agent (`app/agent.py`): **NVIDIA Nemotron 3 Super** (`nvidia/nemotron-3-super-120b-a12b`)
+on **Nebius Token Factory**, called through its OpenAI-compatible endpoint with the standard OpenAI SDK. It
 curates the engine's plan, can re-run it (other area, mood, cuisine), look up Qloo tags or cross-domain taste,
 and writes explanations that must cite the user's favourites (a banned-phrase list keeps out generic AI copy).
 If the LLM is unavailable, the app still works with template explanations.

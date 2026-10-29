@@ -22,7 +22,7 @@ AI_CLICHES = [
 ]
 
 SYSTEM_PROMPT = f"""You are TasteBridge, an agent that helps international students who have just moved
-to London find places that feel like theirs.
+to a UK city (usually London) find places that feel like theirs.
 
 Psychology you design around:
 - Acculturation research (Berry): people adapt best through *integration*, keeping home culture
@@ -41,13 +41,18 @@ What to do:
    "noisy", "tag", "plan" or "weight": call them favourites and talk like a friend.
 2. If the user's note asks for something the plan doesn't cover (e.g. "quiet", "late night",
    "cheap", a different area): call search_tags to find a matching tag id, then call build_plan with
-   bridge_tag set to it. Keep the user's location unless their note names another area. If that
-   returns too few places, keep the original plan.
+   bridge_tag set to it. Keep the user's location unless their note names another area. If
+   build_plan answers `too_few`, the original plan stands and its places were NOT filtered for that
+   request: never describe a pick as quiet, cheap etc. because of it, and say in note that you
+   couldn't find enough such places nearby.
 3. Pick the final places: follow suggested_mix, prefer independent places over chains, and prefer
-   picks explained by different favourites.
-4. For each BRIDGE pick, write one sentence that cites the favourite in its `because` field and one
+   picks explained by different favourites. If the note is about studying, reading or working, don't
+   pick bars, pubs or clubs as bridges even when they are tagged quiet.
+4. For each BRIDGE pick, write one sentence that cites the favourite in its `because` field (by that
+   exact name, even when writing in another language; a why that doesn't is replaced) and one
    concrete detail from the place data (category, vibe, description). COMFORT picks are not caused by
-   a favourite: describe them as a taste of home and give one concrete detail. Never invent facts.
+   a favourite: describe them as a taste of home and give one concrete detail. Never invent facts:
+   a place only fits the note's wish (quiet, good for study...) if its own data says so.
    The favourites are things the user likes, so phrase the link as taste ("Popular with Faye Wong
    fans: ...") and never claim anything about the artist or film themselves.
 
@@ -65,15 +70,19 @@ places near their midpoint ranked with least-misery fusion (both must like it). 
 `because_me` and `because_friend`: the favourite of each person that led to it.
 
 Pick the best 3 places, prefer independent places over chains. For each, write one short sentence on
-why it works for both, e.g. "Popular with Jay Chou fans and Paddington fans alike; a cosy bakery 1 km
-from each of you." The favourites are things the two people like (artists, films...), not people:
-address the users as "you" and "your friend", never speak as if a film or character will visit.
-Use only facts from the place data.
+why it works for both, e.g. "Popular with Jay Chou fans and Paddington fans alike; a cosy bakery near
+your halfway point." `distance_m` is from the halfway point, not from either person. The favourites are
+things the two people like (artists, films...), not people: address the users as "you" and "your
+friend", never speak as if a film or character will visit. Use only facts from the place data.
 
 Then write 3 short, natural conversation starters a shy student could actually say, grounded in the two
 people's real favourites (an overlap or an interesting contrast). One sentence each. `common` lists
-taste descriptors Qloo says they share (e.g. "Artistically Rich"); use one if it helps. Ask about the
-other person's experience and taste ("What got you into ...?", "Which ... would you show a first-timer?").
+taste descriptors Qloo says they share (e.g. "Artistically Rich"); use one if it helps.
+The user says these lines TO the friend, so keep whose favourite is whose straight:
+- `friend_favourites` are the friend's. Ask about those ("What got you into Paddington?",
+  "Which Arctic Monkeys album would you show a first-timer?").
+- `your_favourites` are the user's own. Only mention them as the user's ("I've had Jay Chou on repeat
+  lately, have you heard him?"), never as something the friend likes.
 Never mention news, releases or facts about the artists or films, and never imagine characters doing things.
 
 Do not use these words: {", ".join(AI_CLICHES)}.
@@ -90,7 +99,7 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "location": {"type": "string", "description": "UK postcode or London area"},
+                    "location": {"type": "string", "description": "UK postcode or area name"},
                     "explore": {"type": "number", "description": "0 homesick .. 1 adventurous"},
                     "home_food": {"type": "string", "description": "e.g. 'chinese restaurant', 'korean'"},
                     "radius_m": {"type": "integer"},
@@ -168,6 +177,28 @@ def _compact(plan: dict) -> dict:
     return out
 
 
+def _tag_label(args: dict) -> str:
+    """'urn:tag:genre:place:quiet_study' -> 'quiet study'."""
+    return (args.get("bridge_tag") or "").split(":")[-1].replace("_", " ")
+
+
+STUDY_WORDS = ("study", "studying", "revise", "revision", "read", "reading", "work on", "laptop", "homework",
+               "学习", "复习", "自习", "看书", "读书", "写作业", "工作")
+# Whole Qloo category names: a plain "bar" substring would also drop poke bars, sushi bars and barbecue
+NIGHTLIFE = {"bar", "pub", "cocktail bar", "wine bar", "beer bar", "sports bar", "night club", "nightclub",
+             "brewery", "brewpub", "taproom", "lounge", "gastropub", "karaoke bar", "bar & grill", "club"}
+
+
+def _respect_note(plan: dict, note: str) -> dict:
+    """Wishes we can enforce in code, so they hold even when the LLM step fails: studying -> no nightlife."""
+    if "error" in plan or not any(w in (note or "").lower() for w in STUDY_WORDS):
+        return plan
+    def nightlife(p):
+        return (p.get("category") or "").strip().lower() in NIGHTLIFE
+    kept = [p for p in plan["bridge"] if not nightlife(p)]
+    return {**plan, "bridge": kept} if kept else plan
+
+
 def _narrate(name: str, args: dict, result) -> str:
     """One plain-English line per tool call, shown live in the UI."""
     if isinstance(result, dict) and "error" in result:
@@ -176,16 +207,20 @@ def _narrate(name: str, args: dict, result) -> str:
         found = ", ".join(list(dict.fromkeys(t["name"] for t in result))[:3]) or "nothing"
         return f"Nemotron looked up \"{args.get('query')}\" in Qloo's tags: {found}"
     if name == "build_plan":
-        what = args.get("bridge_tag", "").split(":")[-1].replace("_", " ") or "new settings"
+        what = _tag_label(args) or "new settings"
+        if isinstance(result, dict) and result.get("too_few"):
+            return f"Nemotron tried narrowing to {what}, but too few places nearby match, so it kept the original picks"
         return f"Nemotron re-ran the plan, narrowing to {what}"
     return f"Nemotron explored {args.get('target_type', 'more')}s people with your taste love"
 
 
-def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, note: str, trace: list, emit):
-    """Let the LLM call tools until it answers. Returns (parsed JSON or None, latest plan or None)."""
+def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: dict, note: str, trace: list, emit,
+                    min_bridge: int = 0):
+    """Let the LLM call tools until it answers. Returns (parsed JSON or None, latest usable plan or None,
+    names of filters that left too few places)."""
     client, model = _llm(), os.environ["NEBIUS_MODEL"]
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-    latest_plan = None
+    latest_plan, too_few, retried = None, [], False
 
     for _ in range(MAX_STEPS):
         resp = client.chat.completions.create(
@@ -193,7 +228,14 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
         )
         msg = resp.choices[0].message
         if not msg.tool_calls:
-            return _parse_json(msg.content), latest_plan
+            parsed = _parse_json(msg.content)
+            if parsed is None and not retried:
+                # Occasionally the model answers in prose; one nudge usually fixes it
+                retried = True
+                messages += [{"role": "assistant", "content": msg.content or ""},
+                             {"role": "user", "content": "That wasn't valid JSON. Reply with the JSON object only."}]
+                continue
+            return parsed, latest_plan, too_few
 
         messages.append(msg.model_dump(exclude_none=True))
         for call in msg.tool_calls:
@@ -205,8 +247,17 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
                     # Models like to "widen" or "fix" the area; only move if the user named a new one
                     if settings["location"].strip().lower() not in note.lower():
                         settings["location"] = defaults["location"]
-                    latest_plan = engine.build_plan(favourites, **settings)
-                    result = _compact(latest_plan)
+                    newer = _respect_note(engine.build_plan(favourites, **settings), note)
+                    if "error" not in newer and len(newer["bridge"]) < min_bridge:
+                        # Tell the model now, before it writes: otherwise it explains the old picks
+                        # as if they matched the filter ("quiet, good for study")
+                        what = _tag_label(args) or "those settings"
+                        too_few.append(what)
+                        result = {"too_few": True, "found": len(newer["bridge"]), "message":
+                                  f"Only {len(newer['bridge'])} places match {what}; the original plan stands, unfiltered."}
+                    else:
+                        latest_plan = newer
+                        result = _compact(newer)
                 elif name == "search_tags":
                     result = qloo.search_tags(args["query"])
                 else:
@@ -216,7 +267,7 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
             trace.append({"tool": name, "args": args})
             emit({"type": "step", "text": _narrate(name, args, result)})
             messages.append({"role": "tool", "tool_call_id": call.id, "content": json.dumps(result)})
-    return None, latest_plan
+    return None, latest_plan, too_few
 
 
 # ---------- template fallback (no LLM) ----------
@@ -249,6 +300,58 @@ def _fallback_twin(plan: dict) -> dict:
     return {"intro": "Somewhere in the middle that suits you both.", "picks": picks, "starters": starters}
 
 
+def _aliases(seed: dict) -> List[str]:
+    """Names a starter might use for a favourite: what the user typed, Qloo's name, and its Latin/CJK halves."""
+    names = {seed.get("input") or "", seed.get("name") or ""}
+    for n in list(names):
+        names.update(part.strip() for part in re.split(r"(?<=[A-Za-z])\s+(?=[^\x00-\x7f])", n))
+    return [n for n in names if len(n) >= 2]
+
+
+# "you" + liking verb shortly before a favourite = the starter says the friend likes it
+_YOU_LIKE = r"(?:got you into|you(?:'re| are)? (?:really |also )?(?:into|enjoy|love|like)|your (?:love|taste) (?:of|for))"
+
+
+_THIRD_PERSON = re.compile(r"\b(your friend|my friend|the friend|they both|you both like)\b", re.I)
+
+
+def _fix_starters(starters: List[str], plan: dict) -> List[str]:
+    """Replace starters that tell the friend they like one of the user's own favourites."""
+    friend = {a.lower() for s in plan["friend_seeds"] for a in _aliases(s)}
+    mine = [a for s in plan["my_seeds"] for a in _aliases(s) if a.lower() not in friend]
+    wrong = [re.compile(_YOU_LIKE + r"[^.?!,;]{0,40}?" + re.escape(a), re.I) for a in mine]
+    spare = [s for s in _fallback_twin(plan)["starters"] if s not in starters]
+    fixed = []
+    for line in starters:
+        # The user says these lines to the friend, so "your friend" means the model lost the speaker
+        if any(p.search(line) for p in wrong) or _THIRD_PERSON.search(line):
+            if spare:
+                fixed.append(spare.pop(0))
+        else:
+            fixed.append(line)
+    return fixed
+
+
+def _grounded(why: str, causes: List[str], seeds: List[dict]) -> bool:
+    """A why must cite one of its causes (any alias of that favourite) and avoid generic AI copy."""
+    low = (why or "").lower()
+    if not low or any(w in low for w in AI_CLICHES):
+        return False
+    if not causes:
+        return True
+    names = set(causes) | {a for s in seeds if s["name"] in causes for a in _aliases(s)}
+    return any(n.lower() in low for n in names)
+
+
+def _check_whys(cards: List[dict], seeds: List[dict], causes, template) -> int:
+    """Swap whys that fail _grounded for the template one, so every shown reason is traceable."""
+    replaced = 0
+    for c in cards:
+        if not _grounded(c.get("why"), causes(c), seeds):
+            c["why"], replaced = template(c), replaced + 1
+    return replaced
+
+
 # ---------- entry points ----------
 
 def _attach(answer: dict, places: List[dict], kind_default: str) -> List[dict]:
@@ -268,6 +371,10 @@ def _plan_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
     comfort_ids = {p["id"] for p in plan["comfort"]}
     for c in cards:  # the engine knows which list a place came from; don't trust the LLM's label
         c["kind"] = "comfort" if c["id"] in comfort_ids else "bridge"
+    # Comfort picks have no causing favourite, so only the cliché check applies to them
+    if _check_whys(cards, plan["seeds"], lambda c: [c["because"]] if c["kind"] == "bridge" and c.get("because") else [],
+                   lambda c: _why(c, c["kind"])):
+        trace = trace + [{"tool": "why_check", "args": {}}]
     return {
         "intro": answer.get("intro", ""),
         "note": answer.get("note", ""),
@@ -287,33 +394,41 @@ def plan(favourites: List[dict], location: str, explore: float, home_food: str, 
     emit = emit or (lambda _e: None)
     defaults = {"location": location, "explore": explore, "home_food": home_food or None}
     trace = [{"tool": "build_plan", "args": defaults}]
-    base = engine.build_plan(favourites, **defaults, with_profile=True, emit=emit)
+    base = _respect_note(engine.build_plan(favourites, **defaults, with_profile=True, emit=emit), note)
     if "error" in base:
         return {"error": base["error"]}
     emit({"type": "draft", "data": _plan_result(_fallback_plan(base), base, trace, final=False)})
 
-    answer, final_plan = None, base
+    answer, final_plan, too_few = None, base, []
     if llm_enabled():
         emit({"type": "step", "text": "Asking Nemotron to choose and explain your picks"})
         user = json.dumps({"note": note, "explore": explore, "plan": _compact(base)}, ensure_ascii=False)
         try:
-            answer, newer = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, note, trace, emit)
             # A narrowing tag can leave almost nothing; then the original plan is the better answer
-            usable = newer and "error" not in newer and len(newer["bridge"]) >= base["suggested_mix"]["bridge"]
-            if newer and not usable:
-                emit({"type": "step", "text": "That filter left too few places, so I kept the original plan"})
+            rerun = {**defaults, "noisy_ids": [x["id"] for x in base["seeds"] if x.get("noisy")]}
+            answer, newer, too_few = _run_tools_loop(SYSTEM_PROMPT, user, favourites, rerun, note, trace, emit,
+                                                     min_bridge=base["suggested_mix"]["bridge"])
+            usable = newer and "error" not in newer
             final_plan = {**newer, "profile": base["profile"]} if usable else base
         except Exception as e:  # LLM down or misconfigured: still serve the engine's plan
             trace.append({"tool": "llm_error", "args": {"error": str(e)[:120]}})
-    return _plan_result(answer or _fallback_plan(final_plan), final_plan, trace, final=True)
+    answer = answer or _fallback_plan(final_plan)
+    if too_few and final_plan is base and not answer.get("note"):
+        # The page must not imply the picks match a wish we couldn't filter for
+        answer = {**answer, "note": f"Not enough places nearby match \"{too_few[-1]}\", so these picks aren't filtered for it."}
+    return _plan_result(answer, final_plan, trace, final=True)
 
 
 def _twin_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
     cards = _attach(answer, plan["shared"], "shared") or _attach(_fallback_twin(plan), plan["shared"], "shared")
+    if _check_whys(cards, plan["my_seeds"] + plan["friend_seeds"],
+                   lambda c: [n for n in (c.get("because_me"), c.get("because_friend")) if n],
+                   lambda c: f"Fits {c['because_me']} fans and {c['because_friend']} fans alike."):
+        trace = trace + [{"tool": "why_check", "args": {}}]
     return {
         "intro": answer.get("intro", ""),
         "cards": cards,
-        "starters": answer.get("starters", []),
+        "starters": _fix_starters(answer.get("starters", []), plan),
         "common": plan["common"],
         "my_seeds": plan["my_seeds"],
         "friend_seeds": plan["friend_seeds"],
@@ -342,7 +457,11 @@ def twin(me: List[dict], friend: List[dict], my_location: str, friend_location: 
                 model=os.environ["NEBIUS_MODEL"],
                 messages=[
                     {"role": "system", "content": TWIN_PROMPT},
-                    {"role": "user", "content": json.dumps(_compact(base), ensure_ascii=False)},
+                    {"role": "user", "content": json.dumps({
+                        "your_favourites": [s["name"] for s in base["my_seeds"]],
+                        "friend_favourites": [s["name"] for s in base["friend_seeds"]],
+                        **_compact(base),
+                    }, ensure_ascii=False)},
                 ],
                 temperature=0.5,
             )

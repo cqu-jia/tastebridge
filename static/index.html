@@ -4,7 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TasteBridge</title>
-<meta name="description" content="Make a new city feel like yours: places in London matched to the music, films and food you love from home.">
+<meta name="description" content="Make a new city feel like yours: places in London and other UK cities matched to the music, films and food you love from home.">
+<!-- the header logo as the tab icon; inline so there's no extra file to serve -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23c2410c'/%3E%3Cg transform='translate(4 4)' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M3 17c3-6 6-9 9-9s6 3 9 9'/%3E%3Cpath d='M7 17v-3M12 17V12M17 17v-3'/%3E%3C/g%3E%3C/svg%3E">
+<!-- link previews on Devpost, Discord, WeChat, X -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TasteBridge">
+<meta property="og:title" content="TasteBridge: make a new city feel like yours">
+<meta property="og:description" content="For international students: tell it the music, films and food you love from home, and an NVIDIA Nemotron agent uses Qloo's taste graph to find a taste of home nearby and local places people like you love.">
+<meta property="og:url" content="https://tastebridge-xofy.onrender.com/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TasteBridge: make a new city feel like yours">
+<meta name="twitter:description" content="Places in a new city matched to the music, films and food you love from home, via Qloo's taste graph and an NVIDIA Nemotron agent.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,6 +28,7 @@
     --home: #1d1b18; --warn: #b42318; --warn-soft: #fdecea; --ok: #15803d;
     --shadow: 0 1px 2px rgba(40, 30, 10, .05), 0 8px 24px rgba(40, 30, 10, .06);
     --radius: 16px;
+    --pin-ink: #fff;  /* numbers on comfort/bridge colours: white on the dark light-mode hues, dark on the bright dark-mode ones */
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -25,6 +37,7 @@
       --comfort: #fbbf24; --comfort-soft: #3a2c12; --bridge: #5eead4; --bridge-soft: #123330;
       --home: #efebe4; --warn: #fca5a5; --warn-soft: #3a1918; --ok: #86efac;
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+      --pin-ink: #1a1008;
     }
   }
   * { box-sizing: border-box; }
@@ -81,7 +94,10 @@
   .stack { display: grid; gap: 16px; min-width: 0; }
   .sticky { position: sticky; top: 16px; display: grid; gap: 16px; min-width: 0; }
   .intro { font-family: Fraunces, Georgia, serif; font-size: 21px; line-height: 1.3; margin: 0; font-weight: 500; }
-  .note { background: var(--warn-soft); color: var(--warn); padding: 9px 12px; border-radius: 10px; font-size: 13.5px; margin: 0; }
+  /* the agent explaining a choice (e.g. a favourite counted less), not an error */
+  .note { background: var(--accent-soft); color: var(--text); padding: 9px 12px; border-radius: 10px; font-size: 13.5px; margin: 0; }
+  .note::before { content: "ℹ︎ "; color: var(--accent); font-weight: 600; }
+  .empty { background: var(--panel); border: 1px dashed var(--border); border-radius: 14px; padding: 16px; color: var(--muted); margin: 0; }
   .meta { font-size: 12.5px; color: var(--muted); }
 
   .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 7px; font-size: 13.5px; }
@@ -111,7 +127,7 @@
   .card:hover, .card.hl { border-color: var(--accent); }
   .card .img { background: var(--border) center/cover no-repeat; min-height: 118px; position: relative; }
   .card .num { position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
-    font-size: 12px; font-weight: 700; color: #fff; }
+    font-size: 12px; font-weight: 700; color: var(--pin-ink); }
   .num.comfort { background: var(--comfort); } .num.bridge { background: var(--bridge); } .num.shared { background: var(--accent); }
   .card .body { padding: 12px 14px; min-width: 0; }
   .badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; }
@@ -120,13 +136,15 @@
   .card h3 { margin: 6px 0 1px; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
   .why { margin: 7px 0 0; font-size: 14px; }
   .why.pending { color: var(--faint); }
+  .maplink { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; }
+  .maplink:hover { text-decoration: underline; }
   .via strong { color: var(--text); font-weight: 600; }
 
   #map, #twinMap { height: 380px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); z-index: 0; }
   .leaflet-container { background: var(--border); font: inherit; }
   .leaflet-tile-pane { filter: saturate(.55) sepia(.12); }
   @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.9) saturate(.4); } }
-  .pin { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 700 12px Inter, sans-serif;
+  .pin { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: var(--pin-ink); font: 700 12px Inter, sans-serif;
     border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
   .pin.comfort { background: var(--comfort); } .pin.bridge { background: var(--bridge); } .pin.shared { background: var(--accent); }
   .pin.home { background: var(--home); color: var(--bg); width: auto; padding: 0 8px; border-radius: 999px; }
@@ -155,6 +173,7 @@
     .card { grid-template-columns: 92px minmax(0, 1fr); }
     .slider output { min-width: 0; }
     .slider { flex-wrap: wrap; }
+    input, select { font-size: 16px; }  /* below 16px, iOS Safari zooms the page on focus */
   }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
@@ -167,9 +186,9 @@
         <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M3 17c3-6 6-9 9-9s6 3 9 9"/><path d="M7 17v-3M12 17V12M17 17v-3"/></svg></span>
         TasteBridge
       </div>
-      <h1>Make London feel like <em>yours</em>.</h1>
-      <p class="lede">New to the city? Tell us what you loved back home. We use Qloo's taste graph to find a taste of home nearby,
-        and local places loved by people who share your taste.</p>
+      <h1>Make a new city feel like <em>yours</em>.</h1>
+      <p class="lede">New to London, Manchester or another UK city? Tell us what you loved back home. We use Qloo's taste graph
+        to find a taste of home nearby, and local places loved by people who share your taste.</p>
     </div>
     <div class="how" aria-label="What you get">
       <div><span class="dot comfort"></span><span><b>A taste of home</b>Home-style food near you, for the homesick days.</span></div>
@@ -232,13 +251,13 @@
 
   <div id="out" class="out" aria-live="polite"></div>
 
-  <footer>Built for the Qloo Agentic Hackathon · Taste data by <a href="https://www.qloo.com">Qloo</a> · Agent: NVIDIA Nemotron on Nebius Token Factory ·
+  <footer>Built for the Qloo Agentic Hackathon and the Nebius × NVIDIA Global AI Hackathon · Taste data by <a href="https://www.qloo.com">Qloo</a> · Agent: NVIDIA Nemotron on Nebius Token Factory ·
     <a href="https://github.com/cqu-jia/tastebridge">Source</a></footer>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  const TYPES = [["artist", "Music"], ["movie", "Film"], ["tv_show", "TV"], ["book", "Book"], ["videogame", "Game"], ["brand", "Brand"], ["podcast", "Podcast"]];
+  const TYPES = [["artist", "Music"], ["movie", "Film"], ["tv_show", "TV"], ["book", "Book"], ["videogame", "Game"], ["person", "Actor / person"], ["brand", "Brand"], ["podcast", "Podcast"]];
   const DEMO = {
     favs: [["Jay Chou", "artist", "now"], ["Spirited Away", "movie", "always"], ["Faye Wong", "artist", "always"], ["Call of Duty", "videogame", "always"]],
     favsA: [["Jay Chou", "artist", "always"], ["Spirited Away", "movie", "always"]],
@@ -323,11 +342,11 @@
     if (live) li.className = "live";
     ul.appendChild(li);
   }
-  function finishSteps(collapse) {
+  // Stays open when done: the agent's tool calls are part of the answer, not a loading screen
+  function finishSteps(done) {
     document.querySelectorAll("#steps li.live").forEach(li => li.classList.remove("live"));
-    if (collapse && $("stepsBox")) {
+    if (done && $("stepsBox")) {
       $("stepsTitle").textContent = `How the agent got here (${$("steps").children.length} steps)`;
-      $("stepsBox").open = false;
     }
   }
 
@@ -338,6 +357,9 @@
     const via = c.because ? `<div class="meta via">via <strong>${esc(c.because)}</strong></div>`
       : c.because_me ? `<div class="meta via">via <strong>${esc(c.because_me)}</strong> + <strong>${esc(c.because_friend)}</strong></div>` : "";
     const label = c.kind === "comfort" ? "Taste of home" : c.kind === "bridge" ? "Bridge" : "For you both";
+    // Name + address finds the venue's own listing; coordinates alone only drop a pin
+    const q = c.address ? `${c.name}, ${c.address}` : c.lat != null ? `${c.lat},${c.lon}` : "";
+    const maps = q ? `<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}" target="_blank" rel="noopener">Open in Maps ↗</a>` : "";
     return `<article class="card" data-i="${i}">
       <div class="img" style="${c.image ? `background-image:url('${esc(c.image)}')` : ""}"><span class="num ${esc(c.kind)}">${i + 1}</span></div>
       <div class="body">
@@ -346,9 +368,13 @@
         <div class="meta">${esc(meta)}</div>
         ${via}
         <p class="why ${pending ? "pending" : ""}">${esc(c.why)}</p>
+        ${maps}
       </div></article>`;
   }
 
+  function cardsHtml(cards, pending, empty) {
+    return cards.length ? `<div class="cards">${cards.map((c, i) => card(c, i, pending)).join("")}</div>` : `<p class="empty">${empty}</p>`;
+  }
   function profileHtml(p) {
     if (!p) return "";
     const domains = p.domains.filter(d => d.items.length);
@@ -359,10 +385,22 @@
       <p class="meta" style="margin:12px 0 0">From Qloo's taste graph: what else people with your favourites love.</p></div>`;
   }
 
-  // Qloo search is fuzzy, so show what each favourite was matched to when the names differ
+  // Qloo search is fuzzy, so show what each favourite was matched to when the names differ.
+  // Containment alone isn't enough: "Shah Rukh Khan" → the film "Shahrukh khan ki Maut", "Halo" → "Halo Wars".
+  // Names like "Jay Chou 周杰伦" are compared by their Latin and CJK halves too, so 周杰伦 and Jay Chou both pass.
   function matchedHtml(seeds) {
-    const norm = s => s.toLowerCase().replace(/[^a-z0-9一-鿿]/g, "");
-    const odd = seeds.filter(s => s.input && !norm(s.name).includes(norm(s.input)) && !norm(s.input).includes(norm(s.name)));
+    const keeps = [/[^a-z0-9一-鿿]/g, /[^a-z0-9]/g, /[^一-鿿]/g];
+    const same = (a, b) => (a.includes(b) || b.includes(a)) && Math.min(a.length, b.length) / Math.max(a.length, b.length) >= 0.75;
+    // Qloo mixes Traditional and Simplified names (周杰伦 → 周杰倫); fold the common pairs before comparing
+    const T2S = { "倫": "伦", "陳": "陈", "華": "华", "張": "张", "劉": "刘", "楊": "杨", "黃": "黄", "鄧": "邓",
+      "蘇": "苏", "東": "东", "國": "国", "學": "学", "樂": "乐", "島": "岛", "傳": "传", "龍": "龙", "愛": "爱",
+      "風": "风", "雲": "云", "夢": "梦", "鳥": "鸟", "語": "语", "說": "说", "電": "电", "車": "车", "門": "门" };
+    const fold = s => s.toLowerCase().replace(/[\u4e00-\u9fff]/g, ch => T2S[ch] || ch);
+    const close = (input, name) => keeps.some(re => {
+      const a = fold(input).replace(re, ""), b = fold(name).replace(re, "");
+      return a && b && same(a, b);
+    });
+    const odd = seeds.filter(s => s.input && !close(s.input, s.name));
     return odd.length ? `<p class="meta">Matched ${odd.map(s => `"${esc(s.input)}" → <strong>${esc(s.name)}</strong>`).join(", ")}. Not right? Try a more specific name.</p>` : "";
   }
 
@@ -410,7 +448,7 @@
       <div class="stack">
         <p class="intro">${esc(pending ? "Here's a first draft from your taste. The agent is refining it…" : data.intro)}</p>
         ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}${matchedHtml(data.seeds)}
-        <div class="cards">${data.cards.map((c, i) => card(c, i, pending)).join("")}</div>
+        ${cardsHtml(data.cards, pending, "We couldn't find places near you that match these favourites. Try a nearby area, another favourite, or move the slider.")}
         ${pending ? "" : howHtml(data, seedsHtml(data.seeds))}
       </div>
       <div class="sticky">
@@ -427,7 +465,7 @@
         <p class="intro">${esc(pending ? "Here are spots you'd both like. The agent is writing why…" : data.intro)}</p>
         ${matchedHtml([...data.my_seeds, ...data.friend_seeds])}
         ${data.common?.length ? `<div><div class="label" style="margin-top:0">What your tastes have in common</div><div class="chips">${data.common.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div></div>` : ""}
-        <div class="cards">${data.cards.map((c, i) => card(c, i, pending)).join("")}</div>
+        ${cardsHtml(data.cards, pending, "No spot near your halfway point suits you both yet. Try adding another favourite for each of you, or areas closer together.")}
         ${!pending && data.starters?.length ? `<div class="panel"><h2>Conversation starters</h2><ul class="starters">${data.starters.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
         ${pending ? "" : howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}`)}
       </div>
@@ -439,9 +477,15 @@
   }
 
   async function run(button, url, body, render) {
-    button.disabled = true;
+    // The progress panel opens below the form, often off screen: bring it into view and keep a
+    // visible clock on the button, so a ~50 s cold start doesn't look like a dead button
+    const label = button.textContent, started = Date.now();
+    const tick = () => { button.textContent = `Working… ${Math.round((Date.now() - started) / 1000)}s`; };
+    const clock = setInterval(tick, 1000);
+    button.disabled = true; tick();
     resetOut();
     $("out").innerHTML = `${stepsPanel()}<div id="result" class="results" style="margin-top:16px"></div>`;
+    $("stepsBox").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     addStep("Reading your taste");
     try {
       await stream(url, body, e => {
@@ -454,6 +498,8 @@
       finishSteps();
       $("result").innerHTML = `<p class="err">${esc(err.message)}</p>`;
     } finally {
+      clearInterval(clock);
+      button.textContent = label;
       button.disabled = false;
     }
   }
@@ -462,6 +508,11 @@
     favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
     explore: parseFloat($("explore").value), note: $("note").value,
   }, renderSolo);
+
+  // Enter in any text box submits that panel, as it would in a form
+  [["solo", "goSolo"], ["twin", "goTwin"]].forEach(([panel, go]) => $(panel).addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && !e.isComposing && !$(go).disabled) $(go).click();
+  }));
 
   $("goTwin").onclick = () => needFavs("favsA", "favsB") && run($("goTwin"), "/api/twin/stream", {
     me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
