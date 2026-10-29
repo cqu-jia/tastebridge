@@ -18,7 +18,8 @@ Alongside the picks you get **your taste, translated**: Qloo's descriptors for y
 Rich, Lushly Animated*) and the artists, films and TV people like you love, plus a **map** of every pick
 relative to home. While it works, the page shows **each step the agent takes, live**.
 
-A slider from *Homesick* to *Adventurous* sets the mix. It is based on acculturation research (Berry):
+Six short questions collect favourites, location and this week's mood. Four mood choices, from
+*Missing home a lot* to *Ready to explore*, set the mix. It is based on acculturation research (Berry):
 people adapt best by *integrating*, keeping home culture while engaging with the new one. It also draws
 on optimal-novelty theory (Berlyne): too familiar is dull, too foreign is stressful.
 
