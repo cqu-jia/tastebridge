@@ -29,7 +29,8 @@ NON_LEISURE = (
     "college", "university", "agency", "office", "consultan", "clinic", "hospital", "dentist",
     "bank", "pharmacy", "estate agent", "coworking", "publisher", "charity", "banquet",
     "wedding venue", "conference", "corporate", "non-profit", "bus company", "coach", "transport",
-    "travel agency", "car rental", "taxi", "tour operator", "tour agency",
+    "travel agency", "car rental", "taxi", "tour operator", "tour agency", "ferry terminal",
+    "train station", "transit station", "bus station",
 )
 # Guided tours and crawls are bookable products, not somewhere to meet; they often hide under
 # "Night club" or "Bar", so match the name too. Not plain "tour": it would catch "tourist attraction".

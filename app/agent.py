@@ -46,7 +46,8 @@ What to do:
    request: never describe a pick as quiet, cheap etc. because of it, and say in note that you
    couldn't find enough such places nearby.
 3. Pick the final places: follow suggested_mix, prefer independent places over chains, and prefer
-   picks explained by different favourites.
+   picks explained by different favourites. If the note is about studying, reading or working, don't
+   pick bars, pubs or clubs as bridges even when they are tagged quiet.
 4. For each BRIDGE pick, write one sentence that cites the favourite in its `because` field (by that
    exact name, even when writing in another language; a why that doesn't is replaced) and one
    concrete detail from the place data (category, vibe, description). COMFORT picks are not caused by
@@ -181,6 +182,23 @@ def _tag_label(args: dict) -> str:
     return (args.get("bridge_tag") or "").split(":")[-1].replace("_", " ")
 
 
+STUDY_WORDS = ("study", "studying", "revise", "revision", "read", "reading", "work on", "laptop", "homework",
+               "学习", "复习", "自习", "看书", "读书", "写作业", "工作")
+# Whole Qloo category names: a plain "bar" substring would also drop poke bars, sushi bars and barbecue
+NIGHTLIFE = {"bar", "pub", "cocktail bar", "wine bar", "beer bar", "sports bar", "night club", "nightclub",
+             "brewery", "brewpub", "taproom", "lounge", "gastropub", "karaoke bar", "bar & grill", "club"}
+
+
+def _respect_note(plan: dict, note: str) -> dict:
+    """Wishes we can enforce in code, so they hold even when the LLM step fails: studying -> no nightlife."""
+    if "error" in plan or not any(w in (note or "").lower() for w in STUDY_WORDS):
+        return plan
+    def nightlife(p):
+        return (p.get("category") or "").strip().lower() in NIGHTLIFE
+    kept = [p for p in plan["bridge"] if not nightlife(p)]
+    return {**plan, "bridge": kept} if kept else plan
+
+
 def _narrate(name: str, args: dict, result) -> str:
     """One plain-English line per tool call, shown live in the UI."""
     if isinstance(result, dict) and "error" in result:
@@ -202,7 +220,7 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
     names of filters that left too few places)."""
     client, model = _llm(), os.environ["NEBIUS_MODEL"]
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
-    latest_plan, too_few = None, []
+    latest_plan, too_few, retried = None, [], False
 
     for _ in range(MAX_STEPS):
         resp = client.chat.completions.create(
@@ -210,7 +228,14 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
         )
         msg = resp.choices[0].message
         if not msg.tool_calls:
-            return _parse_json(msg.content), latest_plan, too_few
+            parsed = _parse_json(msg.content)
+            if parsed is None and not retried:
+                # Occasionally the model answers in prose; one nudge usually fixes it
+                retried = True
+                messages += [{"role": "assistant", "content": msg.content or ""},
+                             {"role": "user", "content": "That wasn't valid JSON. Reply with the JSON object only."}]
+                continue
+            return parsed, latest_plan, too_few
 
         messages.append(msg.model_dump(exclude_none=True))
         for call in msg.tool_calls:
@@ -222,7 +247,7 @@ def _run_tools_loop(system: str, user: str, favourites: List[dict], defaults: di
                     # Models like to "widen" or "fix" the area; only move if the user named a new one
                     if settings["location"].strip().lower() not in note.lower():
                         settings["location"] = defaults["location"]
-                    newer = engine.build_plan(favourites, **settings)
+                    newer = _respect_note(engine.build_plan(favourites, **settings), note)
                     if "error" not in newer and len(newer["bridge"]) < min_bridge:
                         # Tell the model now, before it writes: otherwise it explains the old picks
                         # as if they matched the filter ("quiet, good for study")
@@ -287,6 +312,9 @@ def _aliases(seed: dict) -> List[str]:
 _YOU_LIKE = r"(?:got you into|you(?:'re| are)? (?:really |also )?(?:into|enjoy|love|like)|your (?:love|taste) (?:of|for))"
 
 
+_THIRD_PERSON = re.compile(r"\b(your friend|my friend|the friend|they both|you both like)\b", re.I)
+
+
 def _fix_starters(starters: List[str], plan: dict) -> List[str]:
     """Replace starters that tell the friend they like one of the user's own favourites."""
     friend = {a.lower() for s in plan["friend_seeds"] for a in _aliases(s)}
@@ -295,7 +323,8 @@ def _fix_starters(starters: List[str], plan: dict) -> List[str]:
     spare = [s for s in _fallback_twin(plan)["starters"] if s not in starters]
     fixed = []
     for line in starters:
-        if any(p.search(line) for p in wrong):
+        # The user says these lines to the friend, so "your friend" means the model lost the speaker
+        if any(p.search(line) for p in wrong) or _THIRD_PERSON.search(line):
             if spare:
                 fixed.append(spare.pop(0))
         else:
@@ -365,7 +394,7 @@ def plan(favourites: List[dict], location: str, explore: float, home_food: str, 
     emit = emit or (lambda _e: None)
     defaults = {"location": location, "explore": explore, "home_food": home_food or None}
     trace = [{"tool": "build_plan", "args": defaults}]
-    base = engine.build_plan(favourites, **defaults, with_profile=True, emit=emit)
+    base = _respect_note(engine.build_plan(favourites, **defaults, with_profile=True, emit=emit), note)
     if "error" in base:
         return {"error": base["error"]}
     emit({"type": "draft", "data": _plan_result(_fallback_plan(base), base, trace, final=False)})
@@ -376,7 +405,8 @@ def plan(favourites: List[dict], location: str, explore: float, home_food: str, 
         user = json.dumps({"note": note, "explore": explore, "plan": _compact(base)}, ensure_ascii=False)
         try:
             # A narrowing tag can leave almost nothing; then the original plan is the better answer
-            answer, newer, too_few = _run_tools_loop(SYSTEM_PROMPT, user, favourites, defaults, note, trace, emit,
+            rerun = {**defaults, "noisy_ids": [x["id"] for x in base["seeds"] if x.get("noisy")]}
+            answer, newer, too_few = _run_tools_loop(SYSTEM_PROMPT, user, favourites, rerun, note, trace, emit,
                                                      min_bridge=base["suggested_mix"]["bridge"])
             usable = newer and "error" not in newer
             final_plan = {**newer, "profile": base["profile"]} if usable else base

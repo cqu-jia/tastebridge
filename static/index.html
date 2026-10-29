@@ -391,8 +391,13 @@
   function matchedHtml(seeds) {
     const keeps = [/[^a-z0-9一-鿿]/g, /[^a-z0-9]/g, /[^一-鿿]/g];
     const same = (a, b) => (a.includes(b) || b.includes(a)) && Math.min(a.length, b.length) / Math.max(a.length, b.length) >= 0.75;
+    // Qloo mixes Traditional and Simplified names (周杰伦 → 周杰倫); fold the common pairs before comparing
+    const T2S = { "倫": "伦", "陳": "陈", "華": "华", "張": "张", "劉": "刘", "楊": "杨", "黃": "黄", "鄧": "邓",
+      "蘇": "苏", "東": "东", "國": "国", "學": "学", "樂": "乐", "島": "岛", "傳": "传", "龍": "龙", "愛": "爱",
+      "風": "风", "雲": "云", "夢": "梦", "鳥": "鸟", "語": "语", "說": "说", "電": "电", "車": "车", "門": "门" };
+    const fold = s => s.toLowerCase().replace(/[\u4e00-\u9fff]/g, ch => T2S[ch] || ch);
     const close = (input, name) => keeps.some(re => {
-      const a = input.toLowerCase().replace(re, ""), b = name.toLowerCase().replace(re, "");
+      const a = fold(input).replace(re, ""), b = fold(name).replace(re, "");
       return a && b && same(a, b);
     });
     const odd = seeds.filter(s => s.input && !close(s.input, s.name));

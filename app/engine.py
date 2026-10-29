@@ -34,6 +34,7 @@ CHAIN_FACTOR = 0.5  # a newcomer can find a Costa without help; push chains down
 COMFORT_PENALTY = 0.6  # popularity penalty for home-food picks at explore 1, down to 0 when homesick
 COMFORT_RADIUS = 3000
 COMFORT_WIDE_RADIUS = 7000  # home food is worth a longer trip than a bridge place
+COMFORT_TAG_KINDS = (":category:place:", ":cuisine:", ":genre:place:restaurant", ":specialty_dish:place:")
 CHAINS = (
     "joe & the juice", "costa", "starbucks", "pret", "pizzaexpress", "pizza express", "nando", "wagamama",
     "mcdonald", "kfc", "burger king", "greggs", "caffe nero", "caffè nero", "leon", "itsu", "wasabi",
@@ -182,14 +183,22 @@ def _comfort(seeds, lat, lon, home_food: Optional[str], explore: float = 0.5) ->
     """
     if not home_food:
         return None, []
-    tags = [t for t in qloo.search_tags(home_food) if t["id"] and ":place:" in t["id"]]
+    # One word gives several tags (genre:place:restaurant:nigerian, cuisine:qloo:nigerian...) and some
+    # have no places behind them, so try the likeliest kinds in order until one finds something
+    tags = [t for t in qloo.search_tags(home_food) if t["id"] and any(k in t["id"] for k in COMFORT_TAG_KINDS)]
+    tags.sort(key=lambda t: next(i for i, k in enumerate(COMFORT_TAG_KINDS) if k in t["id"]))
     if not tags:
         return None, []
-    tag = tags[0]
     good = [s["id"] for s in seeds if not s.get("noisy")] or [s["id"] for s in seeds]
-    places = qloo.nearby_places(good, lat, lon, radius_m=COMFORT_RADIUS, tag=tag["id"], take=10)
-    if not places:
-        places = qloo.nearby_places(good, lat, lon, radius_m=COMFORT_WIDE_RADIUS, tag=tag["id"], take=10)
+    tag, places = tags[0], []
+    for candidate in tags[:3]:
+        for radius in (COMFORT_RADIUS, COMFORT_WIDE_RADIUS):
+            places = qloo.nearby_places(good, lat, lon, radius_m=radius, tag=candidate["id"], take=10)
+            if places:
+                break
+        if places:
+            tag = candidate
+            break
     penalty = COMFORT_PENALTY * explore
 
     def score(rank_place):
@@ -245,10 +254,16 @@ def _noop(_event):
     pass
 
 
-def _plan_for(seeds, lat, lon, explore, radius_m, tag=None):
+def _plan_for(seeds, lat, lon, explore, radius_m, tag=None, noisy_ids=None):
     popularity_max = round(0.95 - 0.35 * explore, 2)
     lists = _per_seed_lists(seeds, lat, lon, radius_m, popularity_max, tag)
     _denoise(seeds, lists)
+    if noisy_ids is not None:
+        # A re-run (e.g. narrowed to "quiet") sees different lists; keep the first verdict so the
+        # page doesn't say a favourite counts less while showing a pick caused by it
+        for s in seeds:
+            s["noisy"] = s["id"] in noisy_ids
+            s["weight"] = NOISE_WEIGHT if s["noisy"] else 1.0
     return taste_scores(seeds, lists, explore)
 
 
@@ -261,8 +276,10 @@ def build_plan(
     bridge_tag: Optional[str] = None,
     with_profile: bool = False,
     emit: Callable[[dict], None] = _noop,
+    noisy_ids: Optional[List[str]] = None,
 ) -> dict:
-    """Comfort + Bridge plan for one person. bridge_tag (a Qloo tag id) narrows the bridge places."""
+    """Comfort + Bridge plan for one person. bridge_tag (a Qloo tag id) narrows the bridge places;
+    noisy_ids fixes which favourites count as noise (from an earlier run) instead of re-detecting it."""
     point = geo.geocode(location)
     if not point:
         return {"error": f"Could not find location '{location}'. Try a UK postcode."}
@@ -272,7 +289,7 @@ def build_plan(
         return {"error": "None of the favourites were found in Qloo.", "unresolved": missing}
     emit({"type": "step", "text": "Matched your favourites in Qloo: " + ", ".join(s["name"] for s in seeds)})
 
-    scored = _plan_for(seeds, *point, explore, radius_m, bridge_tag)
+    scored = _plan_for(seeds, *point, explore, radius_m, bridge_tag, noisy_ids)
     noisy = [s["name"] for s in seeds if s.get("noisy")]
     emit({"type": "step", "text": (
         f"{', '.join(noisy)} doesn't fit your other favourites, so it counts less" if noisy
