@@ -47,7 +47,7 @@
   a { color: inherit; }
 
   /* hero */
-  header.hero { padding: 40px 0 26px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; align-items: end; }
+  header.hero { padding: 40px 0 26px; }
   .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: .01em; }
   .brand .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
   .brand .mark svg { width: 18px; height: 18px; }
@@ -55,24 +55,37 @@
     letter-spacing: -.02em; margin: 18px 0 12px; }
   h1 em { font-style: normal; color: var(--accent); }
   .lede { color: var(--muted); margin: 0; max-width: 520px; font-size: 16px; }
-  .how { display: grid; gap: 10px; }
-  .how div { display: flex; gap: 12px; align-items: flex-start; background: var(--panel); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 12px; font-size: 13.5px; color: var(--muted); }
-  .how b { color: var(--text); font-weight: 600; display: block; }
   .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
   .dot.comfort { background: var(--comfort); } .dot.bridge { background: var(--bridge); } .dot.twin { background: var(--accent); }
 
-  /* tabs + form */
-  .tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--border); border-radius: 999px; margin-bottom: 14px; }
-  .tabs button { border: 0; background: none; color: var(--muted); padding: 8px 16px; border-radius: 999px; font: inherit; font-weight: 500; cursor: pointer; }
-  .tabs button[aria-selected="true"] { background: var(--text); color: var(--bg); }
+  /* start screen + steps */
   .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .panel h2.q { font-family: Fraunces, Georgia, serif; font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em;
+    text-transform: none; color: var(--text); margin: 4px 0 6px; }
+  .q label { font: inherit; color: inherit; margin: 0; }
+  .sub { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .choice { display: flex; gap: 12px; align-items: flex-start; text-align: left; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px; font: inherit; font-size: 14px; color: var(--muted); cursor: pointer; transition: border-color .15s; }
+  .choice:hover, .choice:focus-visible { border-color: var(--accent); }
+  .choice b { display: block; color: var(--text); font-size: 17px; font-weight: 600; margin-bottom: 2px; }
+  .try { margin: 16px 0 0; font-size: 13.5px; color: var(--muted); }
+  .link { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); font-weight: 600; cursor: pointer; }
+  .link:hover { text-decoration: underline; }
+  .wizhead { display: flex; align-items: center; gap: 12px; font-size: 13px; margin-bottom: 10px; }
+  .wizhead .progress { flex: 1; text-align: center; color: var(--muted); }
+  .wizard { max-width: 760px; }
+  .recap { margin: 0 0 14px; padding: 8px 12px; background: var(--bg); border-radius: 10px; font-size: 13px; color: var(--muted); }
+  .recap .link { margin-left: 6px; font-size: 13px; }
+  .chip.toggle { border: 1px solid var(--border); background: var(--bg); font: inherit; font-size: 13px; cursor: pointer; }
+  .chip.toggle[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+  .chip.toggle[aria-pressed="true"]::before { content: "★ "; color: var(--accent); }
   label, .label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin: 14px 0 6px; }
   .panel > label:first-child, .col > label:first-child { margin-top: 0; }
   input, select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
     padding: 9px 11px; width: 100%; min-width: 0; }
   input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
-  .fav { display: grid; grid-template-columns: 1fr 104px 148px 30px; gap: 6px; margin-bottom: 6px; }
+  .fav { display: grid; grid-template-columns: 1fr 140px 30px; gap: 6px; margin-bottom: 6px; }
   .fav .rm { border: 0; background: none; color: var(--faint); cursor: pointer; font-size: 20px; line-height: 1; }
   .fav .rm:hover { color: var(--warn); }
   .ghost { border: 1px dashed var(--border); background: none; color: var(--muted); border-radius: 10px; padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; }
@@ -162,14 +175,13 @@
   footer { margin-top: 40px; font-size: 12.5px; color: var(--faint); text-align: center; }
 
   @media (max-width: 860px) {
-    header.hero, .results { grid-template-columns: 1fr; }
+    .results { grid-template-columns: 1fr; }
     .sticky { position: static; }
     #map, #twinMap { height: 300px; }
   }
   @media (max-width: 600px) {
-    .fav { grid-template-columns: 1fr 1fr 30px; }
-    .fav input { grid-column: 1 / -1; }
-    .row, .twin-cols, .domains { grid-template-columns: 1fr; }
+    .fav { grid-template-columns: 1fr 104px 30px; }
+    .row, .twin-cols, .domains, .choices { grid-template-columns: 1fr; }
     .card { grid-template-columns: 92px minmax(0, 1fr); }
     .slider output { min-width: 0; }
     .slider { flex-wrap: wrap; }
@@ -190,57 +202,80 @@
       <p class="lede">New to London, Manchester or another UK city? Tell us what you loved back home. We use Qloo's taste graph
         to find a taste of home nearby, and local places loved by people who share your taste.</p>
     </div>
-    <div class="how" aria-label="What you get">
-      <div><span class="dot comfort"></span><span><b>A taste of home</b>Home-style food near you, for the homesick days.</span></div>
-      <div><span class="dot bridge"></span><span><b>Bridges</b>Local places your music and films lead to, each with the reason why.</span></div>
-      <div><span class="dot twin"></span><span><b>Taste Twin</b>Met someone new? Find a spot you'd both like, halfway between you.</span></div>
-    </div>
   </header>
 
-  <div class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="solo">My week</button>
-    <button role="tab" aria-selected="false" data-tab="twin">Taste Twin meetup</button>
-  </div>
-
-  <section id="solo" class="panel">
-    <label>Favourites from home: music, films, TV, books, games…</label>
-    <div id="favs"></div>
-    <button class="ghost" type="button" data-add="favs">+ add favourite</button>
-    <div class="row">
-      <div>
-        <label for="loc">Where you live or study</label>
-        <input id="loc" value="WC2R 2LS" placeholder="UK postcode or area, e.g. Camden">
-      </div>
-      <div>
-        <label for="food">Food that tastes like home</label>
-        <input id="food" value="chinese restaurant" placeholder="e.g. korean, nigerian, hot pot">
-      </div>
+  <!-- Start: pick what to do, nothing filled in until the user asks for it -->
+  <section id="start" class="panel">
+    <h2 class="q">What would you like to do?</h2>
+    <div class="choices">
+      <button type="button" class="choice" data-open="solo">
+        <span class="dot comfort"></span>
+        <span><b>Plan my week</b>A taste of home nearby, plus local places loved by people who share your taste.</span>
+      </button>
+      <button type="button" class="choice" data-open="twin">
+        <span class="dot twin"></span>
+        <span><b>Meet someone new</b>Find a spot you'd both like, halfway between you, with things to talk about.</span>
+      </button>
     </div>
-    <label for="explore">How are you feeling this week?</label>
-    <div class="slider"><span>Homesick</span><input id="explore" type="range" min="0" max="1" step="0.05" value="0.6"><span>Adventurous</span><output id="exploreOut"></output></div>
-    <label for="note">Anything else? <span class="hint">(optional, any language)</span></label>
-    <input id="note" placeholder="e.g. somewhere quiet to study, cheap, open late, 我有点想家">
+    <p class="hint try">Just looking around? <button type="button" class="link" data-example="solo">Try it with an example</button>
+      (a student from China living near King's College London).</p>
+  </section>
+
+  <!-- Plan my week: one question per step -->
+  <section id="solo" class="panel wizard" hidden>
+    <div class="wizhead">
+      <button type="button" class="link" id="soloBack">← Back</button>
+      <span class="progress" id="soloProg"></span>
+      <button type="button" class="link" data-example="solo">Fill in an example</button>
+    </div>
+    <div class="step" data-step="1">
+      <h2 class="q">What did you love back home?</h2>
+      <p class="sub">Music, films, TV, books, games… Two to five favourites work best.</p>
+      <div id="favs"></div>
+      <button class="ghost" type="button" data-add="favs">+ add another</button>
+    </div>
+    <div class="step" data-step="2" hidden>
+      <h2 class="q"><label for="loc">Where do you live or study?</label></h2>
+      <input id="loc" placeholder="UK postcode or area, e.g. Camden or M1 1AE" autocomplete="postal-code">
+      <label for="food">What food tastes like home? <span class="hint">(optional)</span></label>
+      <input id="food" placeholder="e.g. chinese, korean, nigerian, hot pot">
+    </div>
+    <div class="step" data-step="3" hidden>
+      <p class="recap" id="recap"></p>
+      <h2 class="q"><label for="explore">How are you feeling this week?</label></h2>
+      <div class="slider"><span>Homesick</span><input id="explore" type="range" min="0" max="1" step="0.05" value="0.6"><span>Adventurous</span><output id="exploreOut"></output></div>
+      <label id="nowLabel">Into any of these right now? <span class="hint">(tap to mark; they count a bit more)</span></label>
+      <div class="chips" id="nowChips" role="group" aria-labelledby="nowLabel"></div>
+      <label for="note">Anything else? <span class="hint">(optional, any language)</span></label>
+      <input id="note" placeholder="e.g. somewhere quiet to study, cheap, open late, 我有点想家">
+    </div>
+    <p class="err" id="soloErr" hidden></p>
     <div class="actions">
-      <button class="go" id="goSolo">Plan my week</button>
-      <span class="hint">Takes about 15 seconds. Results appear first, then the agent refines them.</span>
+      <button class="go" id="goSolo"></button>
+      <span class="hint" id="soloHint"></span>
     </div>
   </section>
 
-  <section id="twin" class="panel" hidden>
+  <section id="twin" class="panel wizard" hidden>
+    <div class="wizhead">
+      <button type="button" class="link" id="twinBack">← Back</button>
+      <span class="progress">Meet someone new</span>
+      <button type="button" class="link" data-example="twin">Fill in an example</button>
+    </div>
     <div class="twin-cols">
       <div class="col">
         <label>Your favourites</label>
         <div id="favsA"></div>
         <button class="ghost" type="button" data-add="favsA">+ add</button>
         <label for="locA">Your postcode or area</label>
-        <input id="locA" value="WC2R 2LS">
+        <input id="locA" placeholder="e.g. WC2R 2LS">
       </div>
       <div class="col">
         <label>Your new friend's favourites</label>
         <div id="favsB"></div>
         <button class="ghost" type="button" data-add="favsB">+ add</button>
         <label for="locB">Their postcode or area</label>
-        <input id="locB" value="Camden">
+        <input id="locB" placeholder="e.g. Camden">
       </div>
     </div>
     <div class="actions">
@@ -258,50 +293,110 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
   const TYPES = [["artist", "Music"], ["movie", "Film"], ["tv_show", "TV"], ["book", "Book"], ["videogame", "Game"], ["person", "Actor / person"], ["brand", "Brand"], ["podcast", "Podcast"]];
+  // Example inputs, only filled in when the user asks ("Try it with an example" / "Fill in an example")
   const DEMO = {
     favs: [["Jay Chou", "artist", "now"], ["Spirited Away", "movie", "always"], ["Faye Wong", "artist", "always"], ["Call of Duty", "videogame", "always"]],
     favsA: [["Jay Chou", "artist", "always"], ["Spirited Away", "movie", "always"]],
     favsB: [["Arctic Monkeys", "artist", "always"], ["Paddington", "movie", "always"]],
+    solo: { loc: "WC2R 2LS", food: "chinese restaurant", explore: 0.6, note: "" },
+    twin: { locA: "WC2R 2LS", locB: "Camden" },
   };
+  // Empty rows start with a hint and the matching type, so the type picker rarely needs touching
+  const BLANKS = [["e.g. Jay Chou", "artist"], ["e.g. Spirited Away", "movie"], ["e.g. Harry Potter", "book"]];
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   let map = null;
 
   // ---------- form ----------
-  function addFav(listId, [name, type, when] = ["", "artist", "always"]) {
+  function addFav(listId, [name, type, when] = ["", "artist", "always"], hint = "e.g. Studio Ghibli, BTS, Harry Potter") {
     const row = document.createElement("div");
     row.className = "fav";
+    if (when === "now") row.dataset.now = "1";
     row.innerHTML = `
-      <input placeholder="e.g. Studio Ghibli, BTS, Harry Potter" value="${esc(name)}" aria-label="Favourite">
+      <input placeholder="${esc(hint)}" value="${esc(name)}" aria-label="Favourite">
       <select aria-label="Type">${TYPES.map(([v, l]) => `<option value="${v}" ${v === type ? "selected" : ""}>${l}</option>`).join("")}</select>
-      <select aria-label="When">
-        <option value="now" ${when === "now" ? "selected" : ""}>Into it now</option>
-        <option value="always" ${when !== "now" ? "selected" : ""}>Always loved</option>
-      </select>
       <button type="button" class="rm" aria-label="Remove">×</button>`;
     row.querySelector(".rm").onclick = () => row.remove();
     $(listId).appendChild(row);
+    return row;
   }
+  // "Into it now" is asked once in step 3 (chips), not per row
   const readFavs = listId => [...$(listId).children]
-    .map(r => { const [n, t, w] = r.querySelectorAll("input, select"); return { name: n.value.trim(), type: t.value, when: w.value }; })
+    .map(r => { const [n, t] = r.querySelectorAll("input, select"); return { name: n.value.trim(), type: t.value, when: r.dataset.now ? "now" : "always" }; })
     .filter(f => f.name);
+  const fillFavs = (listId, rows) => { $(listId).innerHTML = ""; rows.forEach(r => addFav(listId, r)); };
+  const blankFavs = (listId, n) => { $(listId).innerHTML = ""; BLANKS.slice(0, n).forEach(([hint, type]) => addFav(listId, ["", type, "always"], hint)); };
   const needFavs = (...lists) => {
     if (lists.every(l => readFavs(l).length)) return true;
     $("out").innerHTML = `<p class="err">Add at least one favourite${lists.length > 1 ? " for each person" : ""}.</p>`;
     return false;
   };
 
-  Object.entries(DEMO).forEach(([id, rows]) => rows.forEach(r => addFav(id, r)));
-  document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addFav(b.dataset.add));
-  document.querySelectorAll("[role=tab]").forEach(tab => tab.onclick = () => {
-    document.querySelectorAll("[role=tab]").forEach(t => t.setAttribute("aria-selected", t === tab));
-    $("solo").hidden = tab.dataset.tab !== "solo";
-    $("twin").hidden = tab.dataset.tab !== "twin";
-    resetOut();
-  });
+  blankFavs("favs", 3); blankFavs("favsA", 2); blankFavs("favsB", 2);
+  document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addFav(b.dataset.add).querySelector("input").focus());
   const moods = [[0.2, "Missing home a lot"], [0.45, "A bit homesick"], [0.7, "Curious"], [1.01, "Ready to explore"]];
   const showMood = () => { const v = +$("explore").value; $("exploreOut").textContent = moods.find(([t]) => v < t)[1]; };
   $("explore").oninput = showMood; showMood();
+
+  // ---------- screens: start → solo (3 steps) or twin ----------
+  const STEPS = 3;
+  let step = 1;
+  function show(screen) {
+    ["start", "solo", "twin"].forEach(id => $(id).hidden = id !== screen);
+    resetOut();
+    if (screen === "solo") goStep(1);
+    if (screen === "twin") $("favsA").querySelector("input").focus();
+  }
+  function goStep(n, focus = true) {
+    step = n;
+    document.querySelectorAll("#solo .step").forEach(s => s.hidden = +s.dataset.step !== n);
+    $("soloProg").textContent = `Step ${n} of ${STEPS}`;
+    $("soloErr").hidden = true;
+    $("goSolo").textContent = n < STEPS ? "Next →" : "Plan my week";
+    $("soloHint").textContent = n < STEPS ? "" : "Takes about 15 seconds. Results appear first, then the agent refines them.";
+    if (n === STEPS) { nowChips(); recap(); }
+    if (focus) (n < STEPS ? document.querySelector(`#solo .step[data-step="${n}"] input`) : $("goSolo")).focus();
+  }
+  function stepError(msg) { $("soloErr").textContent = msg; $("soloErr").hidden = false; }
+  // One chip per favourite; tapping marks it "into it now"
+  function nowChips() {
+    const rows = [...$("favs").children].filter(r => r.querySelector("input").value.trim());
+    $("nowChips").innerHTML = "";
+    rows.forEach(r => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip toggle";
+      b.textContent = r.querySelector("input").value.trim();
+      b.setAttribute("aria-pressed", !!r.dataset.now);
+      b.onclick = () => {
+        if (r.dataset.now) delete r.dataset.now; else r.dataset.now = "1";
+        b.setAttribute("aria-pressed", !!r.dataset.now);
+      };
+      $("nowChips").appendChild(b);
+    });
+  }
+  function recap() {
+    const food = $("food").value.trim();
+    $("recap").innerHTML = `${esc(readFavs("favs").map(f => f.name).join(", "))} · near ${esc($("loc").value.trim())}${food ? ` · ${esc(food)}` : ""}
+      <button type="button" class="link" id="editRecap">Edit</button>`;
+    $("editRecap").onclick = () => goStep(1);
+  }
+  function fillExample(screen) {
+    if (screen === "solo") {
+      fillFavs("favs", DEMO.favs);
+      Object.entries(DEMO.solo).forEach(([id, v]) => $(id).value = v);
+      showMood();
+      show("solo"); goStep(STEPS);
+    } else {
+      fillFavs("favsA", DEMO.favsA); fillFavs("favsB", DEMO.favsB);
+      Object.entries(DEMO.twin).forEach(([id, v]) => $(id).value = v);
+      show("twin"); $("goTwin").focus();
+    }
+  }
+  document.querySelectorAll("[data-open]").forEach(b => b.onclick = () => show(b.dataset.open));
+  document.querySelectorAll("[data-example]").forEach(b => b.onclick = () => fillExample(b.dataset.example));
+  $("soloBack").onclick = () => step > 1 ? goStep(step - 1) : show("start");
+  $("twinBack").onclick = () => show("start");
+  goStep(1, false);
 
   // ---------- streaming ----------
   async function stream(url, body, onEvent) {
@@ -504,17 +599,29 @@
     }
   }
 
-  $("goSolo").onclick = () => needFavs("favs") && run($("goSolo"), "/api/plan/stream", {
-    favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
-    explore: parseFloat($("explore").value), note: $("note").value,
-  }, renderSolo);
+  // Steps 1–2: check and move on; step 3: plan
+  $("goSolo").onclick = () => {
+    if (step === 1 && !readFavs("favs").length) return stepError("Add at least one favourite.");
+    if (step === 2 && !$("loc").value.trim()) return stepError("Add a postcode or area so we can look nearby.");
+    if (step < STEPS) return goStep(step + 1);
+    run($("goSolo"), "/api/plan/stream", {
+      favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
+      explore: parseFloat($("explore").value), note: $("note").value,
+    }, renderSolo);
+  };
 
-  // Enter in any text box submits that panel, as it would in a form
+  // Enter in any text box moves on / submits that panel, as it would in a form
   [["solo", "goSolo"], ["twin", "goTwin"]].forEach(([panel, go]) => $(panel).addEventListener("keydown", e => {
-    if (e.key === "Enter" && e.target.tagName === "INPUT" && !e.isComposing && !$(go).disabled) $(go).click();
+    // preventDefault: otherwise the same Enter also "presses" the button focus moves to on the next step
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && !e.isComposing && !$(go).disabled) { e.preventDefault(); $(go).click(); }
   }));
 
-  $("goTwin").onclick = () => needFavs("favsA", "favsB") && run($("goTwin"), "/api/twin/stream", {
+  const needLocs = () => {
+    if ($("locA").value.trim() && $("locB").value.trim()) return true;
+    $("out").innerHTML = `<p class="err">Add a postcode or area for both of you.</p>`;
+    return false;
+  };
+  $("goTwin").onclick = () => needFavs("favsA", "favsB") && needLocs() && run($("goTwin"), "/api/twin/stream", {
     me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
   }, renderTwin);
 </script>
