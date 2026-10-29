@@ -31,6 +31,9 @@ NOISE_MIN_PEER = 0.15  # ...but only if the peers themselves agree this much
 CAUSE_REPEAT_PENALTY = 0.35  # per earlier pick explained by the same favourite
 QLOO_PARALLEL = 4  # per request; the hackathon key rate-limits bursts
 CHAIN_FACTOR = 0.5  # a newcomer can find a Costa without help; push chains down, don't ban them
+COMFORT_PENALTY = 0.6  # popularity penalty for home-food picks at explore 1, down to 0 when homesick
+COMFORT_RADIUS = 3000
+COMFORT_WIDE_RADIUS = 7000  # home food is worth a longer trip than a bridge place
 CHAINS = (
     "joe & the juice", "costa", "starbucks", "pret", "pizzaexpress", "pizza express", "nando", "wagamama",
     "mcdonald", "kfc", "burger king", "greggs", "caffe nero", "caffè nero", "leon", "itsu", "wasabi",
@@ -170,8 +173,13 @@ def diversify(candidates: List[dict], k: int) -> List[dict]:
     return picked
 
 
-def _comfort(seeds, lat, lon, home_food: Optional[str]) -> Tuple[Optional[dict], List[dict]]:
-    """Home-culture spots: same taste signal, restricted to a home-cuisine tag."""
+def _comfort(seeds, lat, lon, home_food: Optional[str], explore: float = 0.5) -> Tuple[Optional[dict], List[dict]]:
+    """Home-culture spots: same taste signal, restricted to a home-cuisine tag.
+
+    Ranked like the bridges (popularity and chain penalties), but the popularity penalty fades
+    out towards "homesick": a well-known home-food place is often exactly what they want. Home food is worth a longer
+    trip, so if nothing is within COMFORT_RADIUS we look again up to COMFORT_WIDE_RADIUS.
+    """
     if not home_food:
         return None, []
     tags = [t for t in qloo.search_tags(home_food) if t["id"] and ":place:" in t["id"]]
@@ -179,8 +187,16 @@ def _comfort(seeds, lat, lon, home_food: Optional[str]) -> Tuple[Optional[dict],
         return None, []
     tag = tags[0]
     good = [s["id"] for s in seeds if not s.get("noisy")] or [s["id"] for s in seeds]
-    places = qloo.nearby_places(good, lat, lon, radius_m=3000, tag=tag["id"], take=10)
-    return tag, places
+    places = qloo.nearby_places(good, lat, lon, radius_m=COMFORT_RADIUS, tag=tag["id"], take=10)
+    if not places:
+        places = qloo.nearby_places(good, lat, lon, radius_m=COMFORT_WIDE_RADIUS, tag=tag["id"], take=10)
+    penalty = COMFORT_PENALTY * explore
+
+    def score(rank_place):
+        rank, p = rank_place
+        return (1 / (RRF_K + rank + 1)) * (1 - penalty * p.get("popularity", 0)) * (CHAIN_FACTOR if is_chain(p) else 1)
+
+    return tag, [p for _, p in sorted(enumerate(places), key=score, reverse=True)]
 
 
 PROFILE_DOMAINS = (("artist", "Artists"), ("movie", "Films"), ("tv_show", "TV"))
@@ -265,8 +281,10 @@ def build_plan(
     # The profile uses the denoised seeds, so it runs after _plan_for, alongside the comfort lookup
     with ThreadPoolExecutor(2) as pool:
         profile_future = pool.submit(taste_profile, seeds) if with_profile else None
-        tag, comfort = _comfort(seeds, *point, home_food)
+        tag, comfort = _comfort(seeds, *point, home_food, explore)
         profile = profile_future.result() if profile_future else None
+    if comfort and comfort[0].get("distance_m", 0) > COMFORT_RADIUS:
+        emit({"type": "step", "text": f"No {home_food} within {COMFORT_RADIUS // 1000} km, so I looked a bit further out"})
 
     comfort_ids = {p["id"] for p in comfort}
     bridge = diversify([p for p in scored.values() if p["id"] not in comfort_ids], k=8)

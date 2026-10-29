@@ -22,7 +22,7 @@ AI_CLICHES = [
 ]
 
 SYSTEM_PROMPT = f"""You are TasteBridge, an agent that helps international students who have just moved
-to London find places that feel like theirs.
+to a UK city (usually London) find places that feel like theirs.
 
 Psychology you design around:
 - Acculturation research (Berry): people adapt best through *integration*, keeping home culture
@@ -47,7 +47,8 @@ What to do:
    couldn't find enough such places nearby.
 3. Pick the final places: follow suggested_mix, prefer independent places over chains, and prefer
    picks explained by different favourites.
-4. For each BRIDGE pick, write one sentence that cites the favourite in its `because` field and one
+4. For each BRIDGE pick, write one sentence that cites the favourite in its `because` field (by that
+   exact name, even when writing in another language; a why that doesn't is replaced) and one
    concrete detail from the place data (category, vibe, description). COMFORT picks are not caused by
    a favourite: describe them as a taste of home and give one concrete detail. Never invent facts:
    a place only fits the note's wish (quiet, good for study...) if its own data says so.
@@ -97,7 +98,7 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "location": {"type": "string", "description": "UK postcode or London area"},
+                    "location": {"type": "string", "description": "UK postcode or area name"},
                     "explore": {"type": "number", "description": "0 homesick .. 1 adventurous"},
                     "home_food": {"type": "string", "description": "e.g. 'chinese restaurant', 'korean'"},
                     "radius_m": {"type": "integer"},
@@ -302,6 +303,26 @@ def _fix_starters(starters: List[str], plan: dict) -> List[str]:
     return fixed
 
 
+def _grounded(why: str, causes: List[str], seeds: List[dict]) -> bool:
+    """A why must cite one of its causes (any alias of that favourite) and avoid generic AI copy."""
+    low = (why or "").lower()
+    if not low or any(w in low for w in AI_CLICHES):
+        return False
+    if not causes:
+        return True
+    names = set(causes) | {a for s in seeds if s["name"] in causes for a in _aliases(s)}
+    return any(n.lower() in low for n in names)
+
+
+def _check_whys(cards: List[dict], seeds: List[dict], causes, template) -> int:
+    """Swap whys that fail _grounded for the template one, so every shown reason is traceable."""
+    replaced = 0
+    for c in cards:
+        if not _grounded(c.get("why"), causes(c), seeds):
+            c["why"], replaced = template(c), replaced + 1
+    return replaced
+
+
 # ---------- entry points ----------
 
 def _attach(answer: dict, places: List[dict], kind_default: str) -> List[dict]:
@@ -321,6 +342,10 @@ def _plan_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
     comfort_ids = {p["id"] for p in plan["comfort"]}
     for c in cards:  # the engine knows which list a place came from; don't trust the LLM's label
         c["kind"] = "comfort" if c["id"] in comfort_ids else "bridge"
+    # Comfort picks have no causing favourite, so only the cliché check applies to them
+    if _check_whys(cards, plan["seeds"], lambda c: [c["because"]] if c["kind"] == "bridge" and c.get("because") else [],
+                   lambda c: _why(c, c["kind"])):
+        trace = trace + [{"tool": "why_check", "args": {}}]
     return {
         "intro": answer.get("intro", ""),
         "note": answer.get("note", ""),
@@ -366,6 +391,10 @@ def plan(favourites: List[dict], location: str, explore: float, home_food: str, 
 
 def _twin_result(answer: dict, plan: dict, trace: list, final: bool) -> dict:
     cards = _attach(answer, plan["shared"], "shared") or _attach(_fallback_twin(plan), plan["shared"], "shared")
+    if _check_whys(cards, plan["my_seeds"] + plan["friend_seeds"],
+                   lambda c: [n for n in (c.get("because_me"), c.get("because_friend")) if n],
+                   lambda c: f"Fits {c['because_me']} fans and {c['because_friend']} fans alike."):
+        trace = trace + [{"tool": "why_check", "args": {}}]
     return {
         "intro": answer.get("intro", ""),
         "cards": cards,

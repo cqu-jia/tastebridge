@@ -61,6 +61,16 @@ def _client() -> httpx.Client:
 
 _cache: Dict[str, dict] = {}
 _CACHE_MAX = 2000
+MAX_RETRY_WAIT = 5.0  # seconds; a large Retry-After would otherwise hang the visitor's request
+
+
+def _retry_after(header: Optional[str], attempt: int) -> float:
+    """Seconds to wait after a 429: the server's Retry-After (if it's a number), capped."""
+    try:
+        wait = float(header)
+    except (TypeError, ValueError):  # missing, or an HTTP date
+        wait = 0.5 * 2 ** attempt
+    return max(0.0, min(wait, MAX_RETRY_WAIT))
 
 
 def _get(path: str, params: dict) -> dict:
@@ -73,7 +83,7 @@ def _get(path: str, params: dict) -> dict:
             r = c.get(path, params=params)
             if r.status_code != 429:
                 break
-            time.sleep(float(r.headers.get("Retry-After") or 0.5 * 2 ** attempt))
+            time.sleep(_retry_after(r.headers.get("Retry-After"), attempt))
         r.raise_for_status()
     data = r.json()
     if len(_cache) >= _CACHE_MAX:

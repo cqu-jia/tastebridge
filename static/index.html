@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TasteBridge</title>
-<meta name="description" content="Make a new city feel like yours: places in London matched to the music, films and food you love from home.">
+<meta name="description" content="Make a new city feel like yours: places in London and other UK cities matched to the music, films and food you love from home.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -123,6 +123,8 @@
   .card h3 { margin: 6px 0 1px; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
   .why { margin: 7px 0 0; font-size: 14px; }
   .why.pending { color: var(--faint); }
+  .maplink { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; }
+  .maplink:hover { text-decoration: underline; }
   .via strong { color: var(--text); font-weight: 600; }
 
   #map, #twinMap { height: 380px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); z-index: 0; }
@@ -170,9 +172,9 @@
         <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M3 17c3-6 6-9 9-9s6 3 9 9"/><path d="M7 17v-3M12 17V12M17 17v-3"/></svg></span>
         TasteBridge
       </div>
-      <h1>Make London feel like <em>yours</em>.</h1>
-      <p class="lede">New to the city? Tell us what you loved back home. We use Qloo's taste graph to find a taste of home nearby,
-        and local places loved by people who share your taste.</p>
+      <h1>Make a new city feel like <em>yours</em>.</h1>
+      <p class="lede">New to London, Manchester or another UK city? Tell us what you loved back home. We use Qloo's taste graph
+        to find a taste of home nearby, and local places loved by people who share your taste.</p>
     </div>
     <div class="how" aria-label="What you get">
       <div><span class="dot comfort"></span><span><b>A taste of home</b>Home-style food near you, for the homesick days.</span></div>
@@ -341,6 +343,9 @@
     const via = c.because ? `<div class="meta via">via <strong>${esc(c.because)}</strong></div>`
       : c.because_me ? `<div class="meta via">via <strong>${esc(c.because_me)}</strong> + <strong>${esc(c.because_friend)}</strong></div>` : "";
     const label = c.kind === "comfort" ? "Taste of home" : c.kind === "bridge" ? "Bridge" : "For you both";
+    // Name + address finds the venue's own listing; coordinates alone only drop a pin
+    const q = c.address ? `${c.name}, ${c.address}` : c.lat != null ? `${c.lat},${c.lon}` : "";
+    const maps = q ? `<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}" target="_blank" rel="noopener">Open in Maps ↗</a>` : "";
     return `<article class="card" data-i="${i}">
       <div class="img" style="${c.image ? `background-image:url('${esc(c.image)}')` : ""}"><span class="num ${esc(c.kind)}">${i + 1}</span></div>
       <div class="body">
@@ -349,6 +354,7 @@
         <div class="meta">${esc(meta)}</div>
         ${via}
         <p class="why ${pending ? "pending" : ""}">${esc(c.why)}</p>
+        ${maps}
       </div></article>`;
   }
 
