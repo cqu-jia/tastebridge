@@ -18,84 +18,170 @@
 <meta name="twitter:description" content="Places in a new city matched to the music, films and food you love from home, via Qloo's taste graph and an NVIDIA Nemotron agent.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
   :root {
     --bg: #f7f3ec; --panel: #fffdf9; --text: #1d1b18; --muted: #6d675d; --faint: #a39d92; --border: #e8e1d4;
-    --accent: #c2410c; --accent-ink: #fff; --accent-soft: #fdeee3;
+    --accent: #c2410c; --accent-ink: #fff; --accent-soft: #fdeee3; --accent-line: #f3c9ad;
     --comfort: #b45309; --comfort-soft: #fdf0d5; --bridge: #0f766e; --bridge-soft: #d5f3ee;
-    --home: #1d1b18; --warn: #b42318; --warn-soft: #fdecea; --ok: #15803d;
+    --home: #1d1b18; --warn: #b42318; --warn-soft: #fdecea; --ok: #15803d; --ok-soft: #e3f4e8;
     --shadow: 0 1px 2px rgba(40, 30, 10, .05), 0 8px 24px rgba(40, 30, 10, .06);
+    --shadow-lg: 0 2px 4px rgba(40, 30, 10, .04), 0 24px 60px rgba(40, 30, 10, .10);
     --radius: 16px;
     --pin-ink: #fff;  /* numbers on comfort/bridge colours: white on the dark light-mode hues, dark on the bright dark-mode ones */
+    --blob-1: rgba(194, 65, 12, .16); --blob-2: rgba(15, 118, 110, .13); --blob-3: rgba(180, 83, 9, .12);
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #151412; --panel: #1f1d1a; --text: #efebe4; --muted: #a8a196; --faint: #6f6a61; --border: #34302a;
-      --accent: #fb923c; --accent-ink: #1a1008; --accent-soft: #33231a;
+      --accent: #fb923c; --accent-ink: #1a1008; --accent-soft: #33231a; --accent-line: #6b3d1f;
       --comfort: #fbbf24; --comfort-soft: #3a2c12; --bridge: #5eead4; --bridge-soft: #123330;
-      --home: #efebe4; --warn: #fca5a5; --warn-soft: #3a1918; --ok: #86efac;
+      --home: #efebe4; --warn: #fca5a5; --warn-soft: #3a1918; --ok: #86efac; --ok-soft: #14301d;
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+      --shadow-lg: 0 2px 4px rgba(0,0,0,.3), 0 24px 60px rgba(0,0,0,.35);
       --pin-ink: #1a1008;
+      --blob-1: rgba(251, 146, 60, .10); --blob-2: rgba(94, 234, 212, .07); --blob-3: rgba(251, 191, 36, .06);
     }
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }  /* flex/grid rules below would otherwise override the attribute */
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px 72px; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  /* soft colour fields behind everything, so the paper doesn't feel flat */
+  body::before { content: ""; position: fixed; inset: -20vmax; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(40vmax 34vmax at 12% 8%, var(--blob-1), transparent 70%),
+      radial-gradient(36vmax 30vmax at 92% 22%, var(--blob-2), transparent 70%),
+      radial-gradient(42vmax 32vmax at 70% 100%, var(--blob-3), transparent 70%); }
   a { color: inherit; }
+  button { font: inherit; color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px 56px; }
 
-  /* hero */
-  header.hero { padding: 40px 0 26px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; align-items: end; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: .01em; }
-  .brand .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
+  /* top bar */
+  .top { display: flex; align-items: center; gap: 16px; padding: 18px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: .01em; text-decoration: none; border: 0; background: none; cursor: pointer; padding: 0; }
+  .brand .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; flex: none; }
   .brand .mark svg { width: 18px; height: 18px; }
-  h1 { font-family: Fraunces, Georgia, serif; font-weight: 650; font-size: clamp(32px, 5vw, 50px); line-height: 1.04;
-    letter-spacing: -.02em; margin: 18px 0 12px; }
-  h1 em { font-style: normal; color: var(--accent); }
-  .lede { color: var(--muted); margin: 0; max-width: 520px; font-size: 16px; }
-  .how { display: grid; gap: 10px; }
-  .how div { display: flex; gap: 12px; align-items: flex-start; background: var(--panel); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 12px; font-size: 13.5px; color: var(--muted); }
-  .how b { color: var(--text); font-weight: 600; display: block; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
+  .progress { flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .progress .bar { flex: 1; height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .progress .fill { height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--comfort), var(--accent)); transition: width .35s ease; }
+  .progress .count { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .linkbtn { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 13.5px; padding: 6px 4px; border-radius: 8px; }
+  .linkbtn:hover { color: var(--text); }
+
+  /* one question per screen */
+  /* one column the width of the screen: an auto column would grow to the widest chip row and overflow on phones */
+  .stage { min-height: calc(100vh - 140px); display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 8px 0 24px; }
+  .q { width: 100%; max-width: 680px; min-width: 0; }
+  .q.wide { max-width: 860px; }
+  .q.enter { animation: qin .38s cubic-bezier(.2, .8, .2, 1) both; }
+  .q.enter.back { animation-name: qback; }
+  @keyframes qin { from { opacity: 0; transform: translateX(28px); } }
+  @keyframes qback { from { opacity: 0; transform: translateX(-28px); } }
+  .kicker { font-size: 12.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+  .q h1, .q h2.ask { font-family: Fraunces, Georgia, serif; font-weight: 650; letter-spacing: -.02em; margin: 0 0 10px; outline: none; }
+  .q h2.ask { font-size: clamp(28px, 4.4vw, 40px); line-height: 1.1; }
+  .help { color: var(--muted); font-size: 16px; margin: 0 0 22px; max-width: 560px; }
+
+  .field { display: flex; gap: 8px; align-items: stretch; background: var(--panel); border: 1.5px solid var(--border); border-radius: 14px;
+    padding: 6px; box-shadow: var(--shadow); transition: border-color .15s, box-shadow .15s; }
+  .field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow); }
+  .field input { flex: 1; min-width: 0; border: 0; background: none; font: 500 18px/1.4 Inter, sans-serif; color: var(--text); padding: 10px 12px; outline: none; }
+  .field input::placeholder { color: var(--faint); font-weight: 400; }
+  .field .add { border: 0; border-radius: 10px; background: var(--text); color: var(--bg); padding: 0 16px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .field .add:disabled { opacity: .35; cursor: default; }
+
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+  .seg button { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--border); background: var(--panel); border-radius: 999px;
+    padding: 6px 12px; font-size: 13.5px; cursor: pointer; color: var(--muted); }
+  .seg button svg { width: 15px; height: 15px; }
+  .seg button[aria-pressed="true"] { border-color: var(--text); color: var(--text); background: var(--panel); font-weight: 600; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; min-height: 40px; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; background: var(--panel); border: 1.5px solid var(--accent-line); border-radius: 999px;
+    padding: 6px 6px 6px 12px; font-weight: 500; box-shadow: var(--shadow); animation: pop .22s ease both; }
+  .tag svg { width: 15px; height: 15px; color: var(--accent); flex: none; }
+  .tag .x { width: 24px; height: 24px; border-radius: 50%; border: 0; background: var(--accent-soft); color: var(--muted); cursor: pointer; display: grid; place-items: center; font-size: 15px; line-height: 1; }
+  .tag .x:hover { color: var(--warn); }
+  .tags .placeholder { color: var(--faint); font-size: 14px; align-self: center; }
+  @keyframes pop { from { opacity: 0; transform: scale(.9); } }
+
+  .ideas { margin-top: 22px; }
+  .ideas .label { font-size: 12.5px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+  .chipbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chipbtn { border: 1.5px dashed var(--border); background: transparent; border-radius: 999px; padding: 6px 12px; font-size: 13.5px; cursor: pointer; color: var(--muted); }
+  .chipbtn:hover { border-color: var(--accent); color: var(--text); border-style: solid; }
+  .chipbtn[aria-pressed="true"] { border: 1.5px solid var(--accent); background: var(--accent-soft); color: var(--text); font-weight: 600; }
+
+  /* choice cards (single or multi select) */
+  .choices { display: grid; gap: 10px; }
+  .choices.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .choices.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .choice { position: relative; display: flex; align-items: center; gap: 14px; text-align: left; width: 100%; cursor: pointer;
+    background: var(--panel); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow);
+    transition: border-color .15s, transform .15s, background .15s; }
+  .choice:hover { border-color: var(--accent-line); transform: translateY(-1px); }
+  .choice[aria-pressed="true"], .choice[aria-checked="true"] { border-color: var(--accent); background: linear-gradient(0deg, var(--accent-soft), var(--accent-soft)), var(--panel); }
+  .choice .ico { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--accent-soft); color: var(--accent); }
+  .choice .ico svg { width: 22px; height: 22px; }
+  .choice b { display: block; font-weight: 600; font-size: 15.5px; }
+  .choice small { display: block; color: var(--muted); font-size: 13px; margin-top: 1px; }
+  .choice .key { margin-left: auto; font-size: 11.5px; color: var(--faint); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; font-variant-numeric: tabular-nums; }
+  .choice .tick { margin-left: auto; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); display: grid; place-items: center; color: transparent; flex: none; }
+  .choice[aria-pressed="true"] .tick { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .choice .tick svg { width: 14px; height: 14px; }
+  .choice.compact { padding: 11px 14px; }
+  .choice.compact .ico { width: 34px; height: 34px; border-radius: 10px; }
+  .choice.compact .ico svg { width: 18px; height: 18px; }
+
+  .status { margin-top: 12px; font-size: 14px; min-height: 22px; color: var(--muted); }
+  .status.ok { color: var(--ok); } .status.bad { color: var(--warn); }
+
+  .nav { display: flex; align-items: center; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  .go { display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 12px;
+    padding: 13px 22px; font-weight: 650; font-size: 15.5px; cursor: pointer; box-shadow: 0 6px 18px rgba(194, 65, 12, .25); transition: transform .12s, opacity .15s; }
+  .go:hover { transform: translateY(-1px); }
+  .go:disabled { opacity: .4; cursor: default; transform: none; box-shadow: none; }
+  .go svg { width: 18px; height: 18px; }
+  .back { border: 1.5px solid var(--border); background: var(--panel); border-radius: 12px; padding: 12px 16px; cursor: pointer; color: var(--muted); font-weight: 500; }
+  .back:hover { color: var(--text); border-color: var(--muted); }
+  .skip { border: 0; background: none; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 8px; }
+  .kbd { font-size: 12.5px; color: var(--faint); margin-left: auto; }
+  .kbd kbd { font: inherit; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; color: var(--muted); background: var(--panel); }
+
+  /* welcome */
+  .hero { text-align: left; }
+  .hero h1 { font-size: clamp(40px, 7vw, 72px); line-height: 1; margin: 0 0 16px; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero .help { font-size: 18px; max-width: 600px; }
+  .start { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 28px 0 14px; }
+  .start .choice { padding: 20px; align-items: flex-start; }
+  .start .choice .ico { width: 48px; height: 48px; }
+  .start .choice b { font-size: 18px; }
+  .start .choice .arrow { margin-left: auto; color: var(--accent); align-self: center; }
+  .start .choice .arrow svg { width: 22px; height: 22px; }
+  .gets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 34px; }
+  .gets div { font-size: 13.5px; color: var(--muted); border-top: 2px solid var(--border); padding-top: 10px; }
+  .gets b { display: flex; align-items: center; gap: 8px; color: var(--text); margin-bottom: 2px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
   .dot.comfort { background: var(--comfort); } .dot.bridge { background: var(--bridge); } .dot.twin { background: var(--accent); }
 
-  /* tabs + form */
-  .tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--border); border-radius: 999px; margin-bottom: 14px; }
-  .tabs button { border: 0; background: none; color: var(--muted); padding: 8px 16px; border-radius: 999px; font: inherit; font-weight: 500; cursor: pointer; }
-  .tabs button[aria-selected="true"] { background: var(--text); color: var(--bg); }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
-  label, .label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin: 14px 0 6px; }
-  .panel > label:first-child, .col > label:first-child { margin-top: 0; }
-  input, select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
-    padding: 9px 11px; width: 100%; min-width: 0; }
-  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
-  .fav { display: grid; grid-template-columns: 1fr 104px 148px 30px; gap: 6px; margin-bottom: 6px; }
-  .fav .rm { border: 0; background: none; color: var(--faint); cursor: pointer; font-size: 20px; line-height: 1; }
-  .fav .rm:hover { color: var(--warn); }
-  .ghost { border: 1px dashed var(--border); background: none; color: var(--muted); border-radius: 10px; padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; }
-  .ghost:hover { border-color: var(--accent); color: var(--text); }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .twin-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .slider { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
-  .slider input { flex: 1; padding: 0; accent-color: var(--accent); background: none; border: 0; }
-  .slider output { min-width: 150px; text-align: right; color: var(--text); font-weight: 500; }
-  .actions { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
-  .go { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 12px; padding: 12px 22px; font: inherit; font-weight: 600; cursor: pointer; }
-  .go:disabled { opacity: .6; cursor: progress; }
-  .hint { font-size: 12.5px; color: var(--faint); }
-
   /* results */
-  .out { margin-top: 22px; }
-  .err { color: var(--warn); background: var(--warn-soft); padding: 10px 14px; border-radius: 10px; }
+  .err { color: var(--warn); background: var(--warn-soft); padding: 12px 16px; border-radius: 12px; }
+  .answers { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 18px; }
+  .answers .lbl { font-size: 12.5px; color: var(--muted); margin-right: 4px; }
+  .answer { border: 1.5px solid var(--border); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-size: 13.5px; cursor: pointer; }
+  .answer:hover { border-color: var(--accent); }
+  .answer .pen { color: var(--faint); margin-left: 4px; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
   .results { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   .stack { display: grid; gap: 16px; min-width: 0; }
   .sticky { position: sticky; top: 16px; display: grid; gap: 16px; min-width: 0; }
-  .intro { font-family: Fraunces, Georgia, serif; font-size: 21px; line-height: 1.3; margin: 0; font-weight: 500; }
+  .intro { font-family: Fraunces, Georgia, serif; font-size: 23px; line-height: 1.3; margin: 0; font-weight: 500; }
   /* the agent explaining a choice (e.g. a favourite counted less), not an error */
-  .note { background: var(--accent-soft); color: var(--text); padding: 9px 12px; border-radius: 10px; font-size: 13.5px; margin: 0; }
+  .note { background: var(--accent-soft); color: var(--text); padding: 10px 14px; border-radius: 12px; font-size: 14px; margin: 0; }
   .note::before { content: "ℹ︎ "; color: var(--accent); font-weight: 600; }
   .empty { background: var(--panel); border: 1px dashed var(--border); border-radius: 14px; padding: 16px; color: var(--muted); margin: 0; }
   .meta { font-size: 12.5px; color: var(--muted); }
@@ -112,6 +198,7 @@
   .stepsbox summary { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
   .stepsbox[open] summary { margin-bottom: 12px; }
   .stepsbox .steps { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); column-gap: 24px; }
+  .stepsbox .clock { float: right; font-weight: 500; text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
   .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -122,18 +209,18 @@
   .domains li { overflow-wrap: anywhere; }
 
   .cards { display: grid; gap: 12px; }
-  .card { display: grid; grid-template-columns: 118px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--border);
-    border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); transition: border-color .15s; }
+  .card { display: grid; grid-template-columns: 124px minmax(0, 1fr); background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); transition: border-color .15s, transform .15s; animation: in .3s ease both; }
   .card:hover, .card.hl { border-color: var(--accent); }
-  .card .img { background: var(--border) center/cover no-repeat; min-height: 118px; position: relative; }
+  .card .img { background: var(--border) center/cover no-repeat; min-height: 124px; position: relative; }
   .card .num { position: absolute; top: 8px; left: 8px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
     font-size: 12px; font-weight: 700; color: var(--pin-ink); }
   .num.comfort { background: var(--comfort); } .num.bridge { background: var(--bridge); } .num.shared { background: var(--accent); }
-  .card .body { padding: 12px 14px; min-width: 0; }
+  .card .body { padding: 13px 15px; min-width: 0; }
   .badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; }
   .badge.comfort { background: var(--comfort-soft); color: var(--comfort); }
   .badge.bridge, .badge.shared { background: var(--bridge-soft); color: var(--bridge); }
-  .card h3 { margin: 6px 0 1px; font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+  .card h3 { margin: 6px 0 1px; font-size: 16.5px; font-weight: 600; overflow-wrap: anywhere; }
   .why { margin: 7px 0 0; font-size: 14px; }
   .why.pending { color: var(--faint); }
   .maplink { display: inline-block; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; }
@@ -159,97 +246,45 @@
   .seed { border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
   .seed.noisy { border-color: var(--warn); color: var(--warn); text-decoration: line-through; }
   code { background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .sk { background: linear-gradient(90deg, var(--border) 0%, var(--panel) 50%, var(--border) 100%); background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite; border-radius: 12px; opacity: .7; }
+  .sk-line { height: 22px; border-radius: 8px; }
+  .sk-card { height: 124px; border-radius: 16px; }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .again { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
   footer { margin-top: 40px; font-size: 12.5px; color: var(--faint); text-align: center; }
 
   @media (max-width: 860px) {
-    header.hero, .results { grid-template-columns: 1fr; }
+    .results { grid-template-columns: 1fr; }
     .sticky { position: static; }
     #map, #twinMap { height: 300px; }
   }
-  @media (max-width: 600px) {
-    .fav { grid-template-columns: 1fr 1fr 30px; }
-    .fav input { grid-column: 1 / -1; }
-    .row, .twin-cols, .domains { grid-template-columns: 1fr; }
+  @media (max-width: 640px) {
+    .start, .gets, .choices.cols-2, .choices.cols-3, .domains { grid-template-columns: 1fr; }
     .card { grid-template-columns: 92px minmax(0, 1fr); }
-    .slider output { min-width: 0; }
-    .slider { flex-wrap: wrap; }
-    input, select { font-size: 16px; }  /* below 16px, iOS Safari zooms the page on focus */
+    .stage { place-items: start center; padding-top: 12px; }
+    .kbd, .choice .key { display: none; }
+    .field input { font-size: 17px; }
+    input { font-size: 16px; }  /* below 16px, iOS Safari zooms the page on focus */
   }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="hero">
-    <div>
-      <div class="brand">
-        <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M3 17c3-6 6-9 9-9s6 3 9 9"/><path d="M7 17v-3M12 17V12M17 17v-3"/></svg></span>
-        TasteBridge
-      </div>
-      <h1>Make a new city feel like <em>yours</em>.</h1>
-      <p class="lede">New to London, Manchester or another UK city? Tell us what you loved back home. We use Qloo's taste graph
-        to find a taste of home nearby, and local places loved by people who share your taste.</p>
+  <header class="top">
+    <button class="brand" id="home" type="button" aria-label="TasteBridge, start over">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M3 17c3-6 6-9 9-9s6 3 9 9"/><path d="M7 17v-3M12 17V12M17 17v-3"/></svg></span>
+      TasteBridge
+    </button>
+    <div class="progress" id="progress" hidden aria-hidden="true">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <span class="count" id="count"></span>
     </div>
-    <div class="how" aria-label="What you get">
-      <div><span class="dot comfort"></span><span><b>A taste of home</b>Home-style food near you, for the homesick days.</span></div>
-      <div><span class="dot bridge"></span><span><b>Bridges</b>Local places your music and films lead to, each with the reason why.</span></div>
-      <div><span class="dot twin"></span><span><b>Taste Twin</b>Met someone new? Find a spot you'd both like, halfway between you.</span></div>
-    </div>
+    <button class="linkbtn" id="restart" type="button" hidden>Start over</button>
   </header>
 
-  <div class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="solo">My week</button>
-    <button role="tab" aria-selected="false" data-tab="twin">Taste Twin meetup</button>
-  </div>
-
-  <section id="solo" class="panel">
-    <label>Favourites from home: music, films, TV, books, games…</label>
-    <div id="favs"></div>
-    <button class="ghost" type="button" data-add="favs">+ add favourite</button>
-    <div class="row">
-      <div>
-        <label for="loc">Where you live or study</label>
-        <input id="loc" value="WC2R 2LS" placeholder="UK postcode or area, e.g. Camden">
-      </div>
-      <div>
-        <label for="food">Food that tastes like home</label>
-        <input id="food" value="chinese restaurant" placeholder="e.g. korean, nigerian, hot pot">
-      </div>
-    </div>
-    <label for="explore">How are you feeling this week?</label>
-    <div class="slider"><span>Homesick</span><input id="explore" type="range" min="0" max="1" step="0.05" value="0.6"><span>Adventurous</span><output id="exploreOut"></output></div>
-    <label for="note">Anything else? <span class="hint">(optional, any language)</span></label>
-    <input id="note" placeholder="e.g. somewhere quiet to study, cheap, open late, 我有点想家">
-    <div class="actions">
-      <button class="go" id="goSolo">Plan my week</button>
-      <span class="hint">Takes about 15 seconds. Results appear first, then the agent refines them.</span>
-    </div>
-  </section>
-
-  <section id="twin" class="panel" hidden>
-    <div class="twin-cols">
-      <div class="col">
-        <label>Your favourites</label>
-        <div id="favsA"></div>
-        <button class="ghost" type="button" data-add="favsA">+ add</button>
-        <label for="locA">Your postcode or area</label>
-        <input id="locA" value="WC2R 2LS">
-      </div>
-      <div class="col">
-        <label>Your new friend's favourites</label>
-        <div id="favsB"></div>
-        <button class="ghost" type="button" data-add="favsB">+ add</button>
-        <label for="locB">Their postcode or area</label>
-        <input id="locB" value="Camden">
-      </div>
-    </div>
-    <div class="actions">
-      <button class="go" id="goTwin">Find our spot</button>
-      <span class="hint">We only pick places you'd <em>both</em> like.</span>
-    </div>
-  </section>
-
-  <div id="out" class="out" aria-live="polite"></div>
+  <main id="app" aria-live="polite"></main>
 
   <footer>Built for the Qloo Agentic Hackathon and the Nebius × NVIDIA Global AI Hackathon · Taste data by <a href="https://www.qloo.com">Qloo</a> · Agent: NVIDIA Nemotron on Nebius Token Factory ·
     <a href="https://github.com/cqu-jia/tastebridge">Source</a></footer>
@@ -257,60 +292,392 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-  const TYPES = [["artist", "Music"], ["movie", "Film"], ["tv_show", "TV"], ["book", "Book"], ["videogame", "Game"], ["person", "Actor / person"], ["brand", "Brand"], ["podcast", "Podcast"]];
-  const DEMO = {
-    favs: [["Jay Chou", "artist", "now"], ["Spirited Away", "movie", "always"], ["Faye Wong", "artist", "always"], ["Call of Duty", "videogame", "always"]],
-    favsA: [["Jay Chou", "artist", "always"], ["Spirited Away", "movie", "always"]],
-    favsB: [["Arctic Monkeys", "artist", "always"], ["Paddington", "movie", "always"]],
-  };
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  let map = null;
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // ---------- form ----------
-  function addFav(listId, [name, type, when] = ["", "artist", "always"]) {
-    const row = document.createElement("div");
-    row.className = "fav";
-    row.innerHTML = `
-      <input placeholder="e.g. Studio Ghibli, BTS, Harry Potter" value="${esc(name)}" aria-label="Favourite">
-      <select aria-label="Type">${TYPES.map(([v, l]) => `<option value="${v}" ${v === type ? "selected" : ""}>${l}</option>`).join("")}</select>
-      <select aria-label="When">
-        <option value="now" ${when === "now" ? "selected" : ""}>Into it now</option>
-        <option value="always" ${when !== "now" ? "selected" : ""}>Always loved</option>
-      </select>
-      <button type="button" class="rm" aria-label="Remove">×</button>`;
-    row.querySelector(".rm").onclick = () => row.remove();
-    $(listId).appendChild(row);
-  }
-  const readFavs = listId => [...$(listId).children]
-    .map(r => { const [n, t, w] = r.querySelectorAll("input, select"); return { name: n.value.trim(), type: t.value, when: w.value }; })
-    .filter(f => f.name);
-  const needFavs = (...lists) => {
-    if (lists.every(l => readFavs(l).length)) return true;
-    $("out").innerHTML = `<p class="err">Add at least one favourite${lists.length > 1 ? " for each person" : ""}.</p>`;
-    return false;
+  // ---------- icons (24px stroke) ----------
+  const P = {
+    artist: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
+    movie: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
+    tv_show: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="m8 2 4 4 4-4"/>',
+    book: '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22.5z"/><path d="M4 4.5v18"/>',
+    videogame: '<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8"/><circle cx="18" cy="13.5" r=".8"/>',
+    person: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+    pin: '<path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+    locate: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+    bowl: '<path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 7c0-1.5 1-2 1-3.5M12 7c0-1.5 1-2 1-3.5M16 7c0-1.5 1-2 1-3.5"/>',
+    home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/>',
+    leaf: '<path d="M5 19c0-8 6-14 15-14 0 9-6 15-14 15"/><path d="M5 19 13 11"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+    rocket: '<path d="M5 15c-1.5 1.5-2 4-2 6 2 0 4.5-.5 6-2"/><path d="M9 15 6 12c2-5 6-9 13-9 0 7-4 11-9 13z"/><circle cx="15" cy="9" r="1.5"/>',
+    heart: '<path d="M12 20s-7-4.5-9-9a4.6 4.6 0 0 1 9-3 4.6 4.6 0 0 1 9 3c-2 4.5-9 9-9 9z"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.5c3 0 5 2 5.5 5"/>',
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    check: '<path d="m5 12 4.5 4.5L19 7"/>',
+    sparkle: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+  };
+  const icon = name => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || P.sparkle}</svg>`;
+
+  // ---------- content ----------
+  const TYPES = [["artist", "Music"], ["movie", "Film"], ["tv_show", "TV"], ["book", "Book"], ["videogame", "Game"], ["person", "Person"]];
+  const TYPE_LABEL = Object.fromEntries(TYPES);
+  const IDEAS = [["Jay Chou", "artist"], ["BTS", "artist"], ["Spirited Away", "movie"], ["Shah Rukh Khan", "person"], ["Burna Boy", "artist"],
+    ["Money Heist", "tv_show"], ["Harry Potter", "book"], ["Taylor Swift", "artist"], ["Squid Game", "tv_show"], ["The Witcher", "videogame"]];
+  const FRIEND_IDEAS = [["Arctic Monkeys", "artist"], ["Paddington", "movie"], ["Fleabag", "tv_show"], ["Adele", "artist"], ["Sherlock", "tv_show"], ["Studio Ghibli", "movie"]];
+  const AREAS = [["UCL · Bloomsbury", "WC1E 6BT"], ["King's College · Strand", "WC2R 2LS"], ["Imperial · South Ken", "SW7 2AZ"],
+    ["LSE · Holborn", "WC2A 2AE"], ["Queen Mary · Mile End", "E1 4NS"], ["King's Cross", "N1C 4AX"], ["Camden", "Camden"], ["Manchester", "M13 9PL"]];
+  const FOODS = [["Chinese", "chinese restaurant"], ["Hot pot", "hot pot"], ["Korean", "korean"], ["Japanese", "japanese restaurant"],
+    ["Indian", "indian"], ["Vietnamese", "vietnamese"], ["Thai", "thai"], ["Nigerian", "nigerian"], ["Middle Eastern", "middle eastern"],
+    ["Turkish", "turkish"], ["Mexican", "mexican"], ["Italian", "italian"], ["Spanish", "spanish"], ["Polish", "polish"], ["Brazilian", "brazilian"]];
+  const MOODS = [
+    [0.1, "Missing home a lot", "Mostly familiar places, a gentle first step", "home"],
+    [0.35, "A bit homesick", "Comfort first, with a couple of new things", "heart"],
+    [0.6, "Curious", "A good mix of home and somewhere new", "compass"],
+    [0.9, "Ready to explore", "Mostly new places, fewer tourist spots", "rocket"],
+  ];
+  const EXTRAS = [["Somewhere quiet to study", "somewhere quiet to study"], ["Cheap eats", "cheap"], ["Open late", "open late"],
+    ["Good for meeting people", "good for meeting people"], ["Live music", "live music"], ["Near green space", "near a park"]];
+  const EXAMPLE = {
+    favs: [{ name: "Jay Chou", type: "artist", now: true }, { name: "Spirited Away", type: "movie", now: false },
+      { name: "Faye Wong", type: "artist", now: false }, { name: "Call of Duty", type: "videogame", now: false }],
+    loc: "WC2R 2LS", locLabel: "King's College · Strand", food: "chinese restaurant", foodLabel: "Chinese", mood: 0.6, extras: [], noteText: "",
+    friendFavs: [{ name: "Arctic Monkeys", type: "artist", now: false }, { name: "Paddington", type: "movie", now: false }],
+    friendLoc: "Camden", friendLocLabel: "Camden",
   };
 
-  Object.entries(DEMO).forEach(([id, rows]) => rows.forEach(r => addFav(id, r)));
-  document.querySelectorAll("[data-add]").forEach(b => b.onclick = () => addFav(b.dataset.add));
-  document.querySelectorAll("[role=tab]").forEach(tab => tab.onclick = () => {
-    document.querySelectorAll("[role=tab]").forEach(t => t.setAttribute("aria-selected", t === tab));
-    $("solo").hidden = tab.dataset.tab !== "solo";
-    $("twin").hidden = tab.dataset.tab !== "twin";
-    resetOut();
-  });
-  const moods = [[0.2, "Missing home a lot"], [0.45, "A bit homesick"], [0.7, "Curious"], [1.01, "Ready to explore"]];
-  const showMood = () => { const v = +$("explore").value; $("exploreOut").textContent = moods.find(([t]) => v < t)[1]; };
-  $("explore").oninput = showMood; showMood();
+  // ---------- state ----------
+  const blank = () => ({ mode: null, favs: [], loc: "", locLabel: "", food: "", foodLabel: "", mood: null, extras: [], noteText: "",
+    friendFavs: [], friendLoc: "", friendLocLabel: "" });
+  let S = blank(), step = 0, map = null, busy = false;
 
-  // ---------- streaming ----------
+  const FLOWS = {
+    solo: ["favs", "now", "loc", "food", "mood", "extras"],
+    twin: ["favs", "loc", "friendFavs", "friendLoc"],
+  };
+  const flow = () => FLOWS[S.mode] || [];
+
+  // ---------- screens ----------
+  // Each screen: html() renders it, ready() says whether Continue is allowed, mount() wires events after render.
+  const SCREENS = {
+    welcome: {
+      html: () => `<div class="q hero wide">
+        <p class="kicker">For anyone new in town</p>
+        <h1 tabindex="-1">Make a new city feel like <em>yours</em>.</h1>
+        <p class="help">Tell us what you loved back home. We use Qloo's taste graph to find a taste of home nearby,
+          and local places loved by people who share your taste. Six quick questions.</p>
+        <div class="start">
+          <button class="choice" data-start="solo"><span class="ico">${icon("calendar")}</span>
+            <span><b>Plan my week</b><small>A taste of home, plus new places your taste leads to</small></span><span class="arrow">${icon("arrow")}</span></button>
+          <button class="choice" data-start="twin"><span class="ico">${icon("users")}</span>
+            <span><b>Meet a Taste Twin</b><small>Find a spot you and a new friend would both like</small></span><span class="arrow">${icon("arrow")}</span></button>
+        </div>
+        <button class="skip" id="tryExample" type="button">Just looking? Try it with an example →</button>
+        <div class="gets">
+          <div><b><span class="dot comfort"></span>A taste of home</b>Home-style food near you, for the homesick days.</div>
+          <div><b><span class="dot bridge"></span>Bridges</b>Local places your music and films lead to, each with the reason why.</div>
+          <div><b><span class="dot twin"></span>Taste Twin</b>Spots halfway between you and a new friend, with conversation starters.</div>
+        </div></div>`,
+      mount() {
+        document.querySelectorAll("[data-start]").forEach(b => b.onclick = () => { S = { ...blank(), mode: b.dataset.start }; go(1); });
+        $("tryExample").onclick = () => { S = { ...blank(), ...structuredClone(EXAMPLE), mode: "solo" }; submit(); };
+      },
+    },
+
+    favs: favScreen("favs", () => S.mode === "twin" ? "Let's start with you" : "Your taste",
+      () => S.mode === "twin" ? "What do you love?" : "What did you love back home?",
+      "Add 2–5 things: music, films, shows, books, games or people. The more varied, the better.", IDEAS),
+    friendFavs: favScreen("friendFavs", () => "Now your new friend", () => "What do they love?",
+      "Ask them for two or three favourites. We'll only pick places that suit you both.", FRIEND_IDEAS),
+
+    now: {
+      kicker: "Right now",
+      html: () => `<h2 class="ask" tabindex="-1">Which of these are you into right now?</h2>
+        <p class="help">We give what you're into lately a bit more weight. Pick any, or none.</p>
+        <div class="choices cols-2">${S.favs.map((f, i) => `<button class="choice compact" data-i="${i}" aria-pressed="${f.now}">
+          <span class="ico">${icon(f.type)}</span><span><b>${esc(f.name)}</b><small>${TYPE_LABEL[f.type] || ""}</small></span>
+          <span class="tick">${icon("check")}</span></button>`).join("")}</div>`,
+      ready: () => true,
+      mount() {
+        document.querySelectorAll(".choice[data-i]").forEach(b => b.onclick = () => {
+          const f = S.favs[+b.dataset.i]; f.now = !f.now; b.setAttribute("aria-pressed", f.now);
+        });
+      },
+    },
+
+    loc: locScreen("loc", "locLabel", () => S.mode === "twin" ? "Your side of town" : "Home base",
+      () => S.mode === "twin" ? "Where are you based?" : "Where do you live or study?"),
+    friendLoc: locScreen("friendLoc", "friendLocLabel", () => "Their side of town", () => "And where are they based?"),
+
+    food: {
+      kicker: "Comfort food",
+      html: () => `<h2 class="ask" tabindex="-1">What food tastes like home?</h2>
+        <p class="help">For the homesick days, we'll find somewhere nearby that cooks it.</p>
+        <div class="chipbtns" id="foods">${FOODS.map(([label, v]) => `<button class="chipbtn" data-food="${esc(v)}" data-label="${esc(label)}" aria-pressed="${S.food === v}">${esc(label)}</button>`).join("")}</div>
+        <div class="field" style="margin-top:16px"><input id="foodOther" placeholder="Something else? e.g. Cantonese dim sum, Ghanaian, Persian"
+          value="${FOODS.some(([, v]) => v === S.food) ? "" : esc(S.food)}" aria-label="Other food"></div>`,
+      skip: "No preference",
+      ready: () => true,
+      mount() {
+        const other = $("foodOther");
+        document.querySelectorAll("[data-food]").forEach(b => b.onclick = () => {
+          const on = S.food !== b.dataset.food;
+          S.food = on ? b.dataset.food : ""; S.foodLabel = on ? b.dataset.label : "";
+          other.value = "";
+          document.querySelectorAll("[data-food]").forEach(x => x.setAttribute("aria-pressed", x === b && on));
+          if (on) setTimeout(() => go(step + 1), reduceMotion ? 0 : 220);
+        });
+        other.oninput = () => {
+          S.food = other.value.trim(); S.foodLabel = S.food;
+          document.querySelectorAll("[data-food]").forEach(x => x.setAttribute("aria-pressed", "false"));
+        };
+      },
+      onSkip: () => { S.food = ""; S.foodLabel = ""; },
+    },
+
+    mood: {
+      kicker: "This week",
+      html: () => `<h2 class="ask" tabindex="-1">How are you feeling this week?</h2>
+        <p class="help">This sets the mix between familiar places and new ones.</p>
+        <div class="choices" role="radiogroup">${MOODS.map(([v, t, sub, ic], i) => `<button class="choice" role="radio" data-mood="${v}" aria-checked="${S.mood === v}">
+          <span class="ico">${icon(ic)}</span><span><b>${t}</b><small>${sub}</small></span><span class="key">${i + 1}</span></button>`).join("")}</div>`,
+      ready: () => S.mood != null,
+      mount() {
+        document.querySelectorAll("[data-mood]").forEach(b => b.onclick = () => {
+          S.mood = +b.dataset.mood;
+          document.querySelectorAll("[data-mood]").forEach(x => x.setAttribute("aria-checked", x === b));
+          setTimeout(() => go(step + 1), reduceMotion ? 0 : 240);
+        });
+      },
+      keys: e => { const n = +e.key; if (n >= 1 && n <= MOODS.length) { document.querySelectorAll("[data-mood]")[n - 1].click(); return true; } },
+    },
+
+    extras: {
+      kicker: "Last one",
+      html: () => `<h2 class="ask" tabindex="-1">Anything else on your mind?</h2>
+        <p class="help">Pick any that fit, or tell us in your own words, in any language.</p>
+        <div class="chipbtns">${EXTRAS.map(([label, v]) => `<button class="chipbtn" data-extra="${esc(v)}" aria-pressed="${S.extras.includes(v)}">${esc(label)}</button>`).join("")}</div>
+        <div class="field" style="margin-top:16px"><input id="noteText" placeholder="e.g. 我有点想家, somewhere with good coffee, near Brick Lane" value="${esc(S.noteText)}" aria-label="Anything else"></div>`,
+      ready: () => true,
+      cta: "Show my week",
+      mount() {
+        document.querySelectorAll("[data-extra]").forEach(b => b.onclick = () => {
+          const v = b.dataset.extra;
+          S.extras = S.extras.includes(v) ? S.extras.filter(x => x !== v) : [...S.extras, v];
+          b.setAttribute("aria-pressed", S.extras.includes(v));
+        });
+        $("noteText").oninput = e => { S.noteText = e.target.value; };
+      },
+    },
+  };
+
+  function favScreen(key, kicker, ask, help, ideas) {
+    let type = "artist";
+    return {
+      kicker: "", kickerFn: kicker,
+      html: () => `<h2 class="ask" tabindex="-1">${ask()}</h2>
+        <p class="help">${help}</p>
+        <div class="field"><input id="favIn" placeholder="Type a name, e.g. Studio Ghibli" autocomplete="off" aria-label="Favourite">
+          <button class="add" id="favAdd" type="button" disabled>Add</button></div>
+        <div class="seg" role="group" aria-label="What kind is it?">${TYPES.map(([v, l]) => `<button type="button" data-type="${v}" aria-pressed="${v === type}">${icon(v)}${l}</button>`).join("")}</div>
+        <div class="tags" id="tags"></div>
+        <div class="ideas"><div class="label">Need ideas? Tap to add</div>
+          <div class="chipbtns">${ideas.map(([n, t]) => `<button class="chipbtn" data-idea="${esc(n)}" data-t="${t}">+ ${esc(n)}</button>`).join("")}</div></div>`,
+      ready: () => S[key].length > 0,
+      mount() {
+        const input = $("favIn"), add = $("favAdd");
+        const draw = () => {
+          $("tags").innerHTML = S[key].length ? S[key].map((f, i) => `<span class="tag">${icon(f.type)}${esc(f.name)}
+            <button class="x" data-rm="${i}" aria-label="Remove ${esc(f.name)}">×</button></span>`).join("")
+            : `<span class="placeholder">Your favourites will appear here</span>`;
+          document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { S[key].splice(+b.dataset.rm, 1); draw(); refresh(); });
+          const have = new Set(S[key].map(f => f.name.toLowerCase()));
+          document.querySelectorAll("[data-idea]").forEach(b => b.hidden = have.has(b.dataset.idea.toLowerCase()));
+        };
+        const push = (name, t) => {
+          name = name.trim();
+          if (!name || S[key].some(f => f.name.toLowerCase() === name.toLowerCase()) || S[key].length >= 8) return;
+          S[key].push({ name, type: t, now: false }); draw(); refresh();
+        };
+        input.oninput = () => { add.disabled = !input.value.trim(); };
+        add.onclick = () => { push(input.value, type); input.value = ""; add.disabled = true; input.focus(); };
+        input.onkeydown = e => {
+          if (e.key === "Enter" && !e.isComposing && input.value.trim()) { e.preventDefault(); e.stopPropagation(); add.click(); }
+        };
+        document.querySelectorAll("[data-type]").forEach(b => b.onclick = () => {
+          type = b.dataset.type;
+          document.querySelectorAll("[data-type]").forEach(x => x.setAttribute("aria-pressed", x === b));
+          input.focus();
+        });
+        document.querySelectorAll("[data-idea]").forEach(b => b.onclick = () => push(b.dataset.idea, b.dataset.t));
+        draw();
+      },
+      focus: "favIn",
+    };
+  }
+
+  function locScreen(key, labelKey, kicker, ask) {
+    let timer = null;
+    return {
+      kickerFn: kicker,
+      html: () => `<h2 class="ask" tabindex="-1">${ask()}</h2>
+        <p class="help">A UK postcode or an area name. We look for places within a short walk.</p>
+        <div class="field"><input id="locIn" placeholder="e.g. WC1E 6BT or Shoreditch" value="${esc(S[key])}" autocomplete="postal-code" aria-label="Postcode or area">
+          <button class="add" id="locMe" type="button" title="Use my location">${icon("locate").replace('aria-hidden="true"', 'aria-hidden="true" style="width:18px;height:18px;vertical-align:-4px"')} Near me</button></div>
+        <div class="status" id="locStatus" aria-live="polite"></div>
+        <div class="ideas"><div class="label">Popular with students</div>
+          <div class="chipbtns">${AREAS.map(([label, v]) => `<button class="chipbtn" data-area="${esc(v)}" data-label="${esc(label)}" aria-pressed="${S[key] === v}">${esc(label)}</button>`).join("")}</div></div>`,
+      ready: () => !!S[key].trim(),
+      mount() {
+        const input = $("locIn"), status = $("locStatus");
+        const set = (v, label) => { S[key] = v; S[labelKey] = label || v; };
+        const check = async v => {
+          v = v.trim();
+          if (!v) { status.textContent = ""; status.className = "status"; return; }
+          status.className = "status"; status.textContent = "Looking it up…";
+          const where = await lookup(v);
+          if (input.value.trim() !== v) return;  // typed on since
+          status.className = where ? "status ok" : "status bad";
+          status.textContent = where ? `✓ Found: ${where}` : "We can't find that. Try a UK postcode, like WC1E 6BT.";
+        };
+        input.oninput = () => {
+          set(input.value.trim());
+          document.querySelectorAll("[data-area]").forEach(x => x.setAttribute("aria-pressed", "false"));
+          refresh();
+          clearTimeout(timer); timer = setTimeout(() => check(input.value), 450);
+        };
+        document.querySelectorAll("[data-area]").forEach(b => b.onclick = () => {
+          input.value = b.dataset.area; set(b.dataset.area, b.dataset.label);
+          document.querySelectorAll("[data-area]").forEach(x => x.setAttribute("aria-pressed", x === b));
+          refresh(); check(b.dataset.area);
+        });
+        $("locMe").onclick = () => {
+          if (!navigator.geolocation) { status.className = "status bad"; status.textContent = "Your browser can't share location. Type a postcode instead."; return; }
+          status.className = "status"; status.textContent = "Finding you…";
+          navigator.geolocation.getCurrentPosition(async pos => {
+            const pc = await reverse(pos.coords.latitude, pos.coords.longitude);
+            if (!pc) { status.className = "status bad"; status.textContent = "Couldn't turn your location into a UK postcode. Type one instead."; return; }
+            input.value = pc.postcode; set(pc.postcode, pc.postcode); refresh();
+            status.className = "status ok"; status.textContent = `✓ Found: ${pc.label}`;
+          }, () => { status.className = "status bad"; status.textContent = "Location was blocked. Type a postcode instead."; }, { timeout: 10000 });
+        };
+        if (S[key]) check(S[key]);
+      },
+      focus: "locIn",
+    };
+  }
+
+  // postcodes.io is free and CORS-enabled; the server geocodes again, this is only for instant feedback
+  async function lookup(v) {
+    try {
+      let r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(v)}`);
+      if (r.ok) { const p = (await r.json()).result; return [p.admin_ward, p.admin_district].filter(Boolean).join(", "); }
+      r = await fetch(`https://api.postcodes.io/places?q=${encodeURIComponent(v)}&limit=10`);
+      const res = r.ok ? (await r.json()).result : null;
+      if (!res?.length) return null;
+      const p = res.find(x => x.region === "London") || res[0];
+      return [p.name_1, p.county_unitary || p.region].filter(Boolean).join(", ");
+    } catch { return "checking skipped (offline)"; }
+  }
+  async function reverse(lat, lon) {
+    try {
+      const r = await fetch(`https://api.postcodes.io/postcodes?lon=${lon}&lat=${lat}&limit=1`);
+      const p = r.ok ? (await r.json()).result?.[0] : null;
+      return p ? { postcode: p.postcode, label: [p.postcode, p.admin_ward, p.admin_district].filter(Boolean).join(", ") } : null;
+    } catch { return null; }
+  }
+
+  // ---------- navigation ----------
+  // step 0 = welcome, 1..n = questions of the current flow, n+1 = results
+  function screenName(i) { return i === 0 ? "welcome" : flow()[i - 1]; }
+
+  function go(i, { back = false, push = true } = {}) {
+    if (busy) return;
+    const n = flow().length;
+    if (S.mode && i > n) return submit();
+    step = Math.max(0, i);
+    if (map) { map.remove(); map = null; }
+    const name = screenName(step), sc = SCREENS[name];
+    const isQ = step > 0;
+    $("progress").hidden = !isQ; $("restart").hidden = !isQ;
+    if (isQ) { $("fill").style.width = `${step / (n + 1) * 100}%`; $("count").textContent = `${step} of ${n}`; }
+    const kicker = sc.kickerFn ? sc.kickerFn() : sc.kicker;
+    const last = step === n;
+    $("app").innerHTML = `<section class="stage"><div class="q ${name === "welcome" ? "wide" : ""} enter ${back ? "back" : ""}">
+      ${isQ && kicker ? `<p class="kicker">${esc(kicker)}</p>` : ""}
+      ${sc.html()}
+      ${isQ ? `<div class="nav">
+        <button class="back" id="prev" type="button">Back</button>
+        <button class="go" id="next" type="button">${esc(sc.cta || (last ? (S.mode === "twin" ? "Find our spot" : "Show my week") : "Continue"))} ${icon("arrow")}</button>
+        ${sc.skip ? `<button class="skip" id="skip" type="button">${esc(sc.skip)}</button>` : ""}
+        <span class="kbd">press <kbd>Enter ↵</kbd></span></div>` : ""}
+    </div></section>`;
+    sc.mount?.();
+    if (isQ) {
+      $("prev").onclick = () => history.back();
+      $("next").onclick = () => sc.ready() && go(step + 1);
+      if (sc.skip) $("skip").onclick = () => { sc.onSkip?.(); go(step + 1); };
+      refresh();
+    }
+    if (push) history.pushState({ step, mode: S.mode }, "", isQ ? `#${name}` : location.pathname);
+    else if (!isQ) history.replaceState({ step: 0 }, "", location.pathname);
+    // Put the cursor where the answer goes; otherwise move focus to the question for screen readers
+    const target = sc.focus ? $(sc.focus) : document.querySelector(".ask, h1");
+    target?.focus({ preventScroll: true });
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  }
+
+  function refresh() {
+    const sc = SCREENS[screenName(step)], next = $("next");
+    if (next && sc.ready) next.disabled = !sc.ready();
+  }
+
+  window.addEventListener("popstate", e => {
+    const st = e.state;
+    // History from the other mode (after "Meet a Taste Twin" from results) can't be replayed: go home
+    if (!st || st.step === undefined || !S.mode || st.mode !== S.mode) return go(0, { back: true, push: false });
+    // Results aren't kept, and re-running them would spend a request: land on the last question instead
+    const target = Math.min(st.step, flow().length);
+    go(target, { back: target < step, push: false });
+  });
+
+  document.addEventListener("keydown", e => {
+    if (busy || step === 0 || e.isComposing || e.metaKey || e.ctrlKey || e.altKey) return;
+    const sc = SCREENS[screenName(step)];
+    if (!sc) return;
+    if (sc.keys && e.target.tagName !== "INPUT" && sc.keys(e)) return;
+    if (e.key === "Enter" && !(e.target.tagName === "BUTTON" && e.target.id !== "next")) {
+      if (sc.ready?.()) { e.preventDefault(); go(step + 1); }
+    }
+  });
+
+  $("home").onclick = $("restart").onclick = () => { if (!busy) { S = blank(); go(0); } };
+
+  // ---------- results ----------
+  const moodLabel = v => (MOODS.find(m => m[0] === v) || [])[1];
+  function answersHtml() {
+    const fl = flow();
+    const idx = name => fl.indexOf(name) + 1;
+    const items = S.mode === "twin" ? [
+      ["favs", "You: " + S.favs.map(f => f.name).join(", ")], ["loc", S.locLabel || S.loc],
+      ["friendFavs", "Friend: " + S.friendFavs.map(f => f.name).join(", ")], ["friendLoc", S.friendLocLabel || S.friendLoc],
+    ] : [
+      ["favs", S.favs.map(f => f.name + (f.now ? " (now)" : "")).join(", ")], ["loc", S.locLabel || S.loc],
+      ["food", S.foodLabel || "No food preference"], ["mood", moodLabel(S.mood)],
+      ...(S.extras.length || S.noteText ? [["extras", [...S.extras, S.noteText].filter(Boolean).join(", ")]] : []),
+    ];
+    return `<div class="answers"><span class="lbl">Your answers</span>${items.filter(([, t]) => t).map(([k, t]) =>
+      `<button class="answer" data-edit="${idx(k)}" title="Change">${esc(t)}<span class="pen">✎</span></button>`).join("")}</div>`;
+  }
+
   async function stream(url, body, onEvent) {
     const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!r.ok) {
       // Free hosting returns an HTML page while the server wakes up or restarts
       const detail = await r.json().then(d => d.detail).catch(() => null);
       throw new Error(typeof detail === "string" ? detail
-        : detail ? "Please check the form." : "The server is waking up (free hosting). Please try again in about 30 seconds.");
+        : detail ? "Something in your answers didn't work. Please check them." : "The server is waking up (free hosting). Please try again in about 30 seconds.");
     }
     const reader = r.body.getReader(), dec = new TextDecoder();
     let buf = "";
@@ -326,14 +693,6 @@
     }
   }
 
-  function resetOut() {
-    if (map) { map.remove(); map = null; }
-    $("out").innerHTML = "";
-  }
-
-  function stepsPanel() {
-    return `<details class="panel stepsbox" id="stepsBox" open><summary id="stepsTitle">What the agent is doing…</summary><ul class="steps" id="steps"></ul></details>`;
-  }
   function addStep(text, live = true) {
     const ul = $("steps"); if (!ul) return;
     ul.querySelectorAll("li.live").forEach(li => li.classList.remove("live"));
@@ -345,12 +704,9 @@
   // Stays open when done: the agent's tool calls are part of the answer, not a loading screen
   function finishSteps(done) {
     document.querySelectorAll("#steps li.live").forEach(li => li.classList.remove("live"));
-    if (done && $("stepsBox")) {
-      $("stepsTitle").textContent = `How the agent got here (${$("steps").children.length} steps)`;
-    }
+    if (done && $("stepsBox")) $("stepsTitle").firstChild.textContent = `How the agent got here (${$("steps").children.length} steps)`;
   }
 
-  // ---------- rendering ----------
   function card(c, i, pending) {
     const dist = c.distance_m != null ? `${(c.distance_m / 1000).toFixed(1)} km` : "";
     const meta = [c.category, dist, c.neighborhood].filter(Boolean).join(" · ");
@@ -360,7 +716,7 @@
     // Name + address finds the venue's own listing; coordinates alone only drop a pin
     const q = c.address ? `${c.name}, ${c.address}` : c.lat != null ? `${c.lat},${c.lon}` : "";
     const maps = q ? `<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}" target="_blank" rel="noopener">Open in Maps ↗</a>` : "";
-    return `<article class="card" data-i="${i}">
+    return `<article class="card" data-i="${i}" style="animation-delay:${i * 70}ms">
       <div class="img" style="${c.image ? `background-image:url('${esc(c.image)}')` : ""}"><span class="num ${esc(c.kind)}">${i + 1}</span></div>
       <div class="body">
         <span class="badge ${esc(c.kind)}">${label}</span>
@@ -371,7 +727,6 @@
         ${maps}
       </div></article>`;
   }
-
   function cardsHtml(cards, pending, empty) {
     return cards.length ? `<div class="cards">${cards.map((c, i) => card(c, i, pending)).join("")}</div>` : `<p class="empty">${empty}</p>`;
   }
@@ -395,20 +750,18 @@
     const T2S = { "倫": "伦", "陳": "陈", "華": "华", "張": "张", "劉": "刘", "楊": "杨", "黃": "黄", "鄧": "邓",
       "蘇": "苏", "東": "东", "國": "国", "學": "学", "樂": "乐", "島": "岛", "傳": "传", "龍": "龙", "愛": "爱",
       "風": "风", "雲": "云", "夢": "梦", "鳥": "鸟", "語": "语", "說": "说", "電": "电", "車": "车", "門": "门" };
-    const fold = s => s.toLowerCase().replace(/[\u4e00-\u9fff]/g, ch => T2S[ch] || ch);
+    const fold = s => s.toLowerCase().replace(/[一-鿿]/g, ch => T2S[ch] || ch);
     const close = (input, name) => keeps.some(re => {
       const a = fold(input).replace(re, ""), b = fold(name).replace(re, "");
       return a && b && same(a, b);
     });
     const odd = seeds.filter(s => s.input && !close(s.input, s.name));
-    return odd.length ? `<p class="meta">Matched ${odd.map(s => `"${esc(s.input)}" → <strong>${esc(s.name)}</strong>`).join(", ")}. Not right? Try a more specific name.</p>` : "";
+    return odd.length ? `<p class="meta">Matched ${odd.map(s => `"${esc(s.input)}" → <strong>${esc(s.name)}</strong>`).join(", ")}. Not right? Change your favourites and try a more specific name.</p>` : "";
   }
-
   function seedsHtml(seeds) {
     return `<div class="seeds">${seeds.map(s => `<span class="seed ${s.noisy ? "noisy" : ""}"
       title="consistency ${s.consistency ?? "-"}, weight ${s.weight ?? 1}">${esc(s.name)} · ${s.when === "now" ? "now" : "always"}</span>`).join("")}</div>`;
   }
-
   function howHtml(data, seedsBlock) {
     return `<details class="panel"><summary>How TasteBridge ranks places</summary>
       ${seedsBlock}
@@ -444,49 +797,68 @@
 
   function renderSolo(data, pending) {
     const missing = data.unresolved?.length ? `<p class="meta">Couldn't find: ${esc(data.unresolved.join(", "))}</p>` : "";
-    $("result").innerHTML = `
-      <div class="stack">
+    $("left").innerHTML = `
         <p class="intro">${esc(pending ? "Here's a first draft from your taste. The agent is refining it…" : data.intro)}</p>
         ${data.note ? `<p class="note">${esc(data.note)}</p>` : ""}${missing}${matchedHtml(data.seeds)}
-        ${cardsHtml(data.cards, pending, "We couldn't find places near you that match these favourites. Try a nearby area, another favourite, or move the slider.")}
-        ${pending ? "" : howHtml(data, seedsHtml(data.seeds))}
-      </div>
-      <div class="sticky">
-        <div id="map" role="img" aria-label="Map of the recommended places"></div>
-        <div class="legend"><span><span class="dot comfort"></span>Taste of home</span><span><span class="dot bridge"></span>Bridge</span><span><span class="pin home" style="height:16px;font-size:10px">You</span></span></div>
-        ${profileHtml(data.profile)}
-      </div>`;
+        ${cardsHtml(data.cards, pending, "We couldn't find places near you that match these favourites. Try a nearby area, another favourite, or a different mood.")}
+        ${pending ? "" : howHtml(data, seedsHtml(data.seeds))}`;
+    $("mapSlot").innerHTML = `<div id="map" role="img" aria-label="Map of the recommended places"></div>
+        <div class="legend" style="margin-top:10px"><span><span class="dot comfort"></span>Taste of home</span><span><span class="dot bridge"></span>Bridge</span><span><span class="pin home" style="height:16px;font-size:10px">You</span></span></div>`;
+    $("extraSlot").innerHTML = profileHtml(data.profile);
     drawMap("map", [{ ...data.location, label: "You" }], data.cards);
   }
 
   function renderTwin(data, pending) {
-    $("result").innerHTML = `
-      <div class="stack">
+    $("left").innerHTML = `
         <p class="intro">${esc(pending ? "Here are spots you'd both like. The agent is writing why…" : data.intro)}</p>
         ${matchedHtml([...data.my_seeds, ...data.friend_seeds])}
-        ${data.common?.length ? `<div><div class="label" style="margin-top:0">What your tastes have in common</div><div class="chips">${data.common.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div></div>` : ""}
+        ${data.common?.length ? `<div><div class="meta" style="margin-bottom:6px">What your tastes have in common</div><div class="chips">${data.common.map(c => `<span class="chip">${esc(c)}</span>`).join("")}</div></div>` : ""}
         ${cardsHtml(data.cards, pending, "No spot near your halfway point suits you both yet. Try adding another favourite for each of you, or areas closer together.")}
         ${!pending && data.starters?.length ? `<div class="panel"><h2>Conversation starters</h2><ul class="starters">${data.starters.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
-        ${pending ? "" : howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}`)}
-      </div>
-      <div class="sticky">
-        <div id="twinMap" role="img" aria-label="Map of meetup spots between you and your friend"></div>
-        <div class="legend"><span><span class="dot twin"></span>Spot for you both</span><span>Midpoint = halfway between you</span></div>
-      </div>`;
+        ${pending ? "" : howHtml(data, `<p>You:</p>${seedsHtml(data.my_seeds)}<p>Friend:</p>${seedsHtml(data.friend_seeds)}`)}`;
+    $("mapSlot").innerHTML = `<div id="twinMap" role="img" aria-label="Map of meetup spots between you and your friend"></div>
+        <div class="legend" style="margin-top:10px"><span><span class="dot twin"></span>Spot for you both</span><span>Midpoint = halfway between you</span></div>`;
     drawMap("twinMap", [{ ...data.my_point, label: "You" }, { ...data.friend_point, label: "Friend" }, { ...data.midpoint, label: "Midpoint", cls: "mid" }], data.cards);
   }
 
-  async function run(button, url, body, render) {
-    // The progress panel opens below the form, often off screen: bring it into view and keep a
-    // visible clock on the button, so a ~50 s cold start doesn't look like a dead button
-    const label = button.textContent, started = Date.now();
-    const tick = () => { button.textContent = `Working… ${Math.round((Date.now() - started) / 1000)}s`; };
-    const clock = setInterval(tick, 1000);
-    button.disabled = true; tick();
-    resetOut();
-    $("out").innerHTML = `${stepsPanel()}<div id="result" class="results" style="margin-top:16px"></div>`;
-    $("stepsBox").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  // Grey cards in the results column while the engine works, so the page has a shape from the first second
+  const skeletonHtml = () => `<div class="sk sk-line" style="width:72%"></div><div class="sk sk-line" style="width:48%"></div>
+    ${[0, 1, 2].map(i => `<div class="sk sk-card" style="animation-delay:${i * 120}ms"></div>`).join("")}`;
+
+  const asFavs = list => list.map(f => ({ name: f.name, type: f.type, when: f.now ? "now" : "always" }));
+
+  async function submit() {
+    if (busy) return;
+    const twin = S.mode === "twin";
+    step = flow().length + 1;
+    busy = true;
+    if (map) { map.remove(); map = null; }
+    $("progress").hidden = false; $("restart").hidden = false;
+    $("fill").style.width = "100%"; $("count").textContent = "Results";
+    history.pushState({ step, mode: S.mode }, "", "#results");
+    $("app").innerHTML = `<section class="q wide enter" style="max-width:none">
+      ${answersHtml()}
+      <div class="results">
+        <div class="stack" id="left">${skeletonHtml()}</div>
+        <div class="sticky">
+          <div id="mapSlot"></div>
+          <details class="panel stepsbox" id="stepsBox" open><summary id="stepsTitle">What the agent is doing… <span class="clock" id="clock">0s</span></summary><ul class="steps" id="steps"></ul></details>
+          <div id="extraSlot"></div>
+        </div>
+      </div>
+      <div class="again" id="again" hidden style="margin-top:20px">
+        <button class="back" type="button" data-edit="1">Change my answers</button>
+        <button class="go" type="button" id="other">${twin ? "Plan my own week" : "Meet a Taste Twin"} ${icon("arrow")}</button>
+      </div></section>`;
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    // A visible clock, so a ~50 s cold start doesn't look like a dead page
+    const started = Date.now();
+    const clock = setInterval(() => { const c = $("clock"); if (c) c.textContent = `${Math.round((Date.now() - started) / 1000)}s`; }, 1000);
     addStep("Reading your taste");
+    const note = [...S.extras, S.noteText.trim()].filter(Boolean).join("; ");
+    const [url, body, render] = twin
+      ? ["/api/twin/stream", { me: asFavs(S.favs), friend: asFavs(S.friendFavs), my_location: S.loc, friend_location: S.friendLoc }, renderTwin]
+      : ["/api/plan/stream", { favourites: asFavs(S.favs), location: S.loc, home_food: S.food, explore: S.mood ?? 0.6, note }, renderSolo];
     try {
       await stream(url, body, e => {
         if (e.type === "step") addStep(e.text);
@@ -496,27 +868,23 @@
       });
     } catch (err) {
       finishSteps();
-      $("result").innerHTML = `<p class="err">${esc(err.message)}</p>`;
+      $("left").innerHTML = `<p class="err">${esc(err.message)}</p>`;
     } finally {
       clearInterval(clock);
-      button.textContent = label;
-      button.disabled = false;
+      const c = $("clock"); if (c) c.remove();
+      busy = false;
+      $("again").hidden = false;
+      document.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => go(+b.dataset.edit || 1, { back: true }));
+      $("other").onclick = () => {
+        const keep = { favs: S.favs, loc: S.loc, locLabel: S.locLabel };
+        S = { ...blank(), ...keep, mode: twin ? "solo" : "twin" };
+        go(twin ? 2 : 3);  // skip the questions we already know the answers to
+      };
     }
   }
 
-  $("goSolo").onclick = () => needFavs("favs") && run($("goSolo"), "/api/plan/stream", {
-    favourites: readFavs("favs"), location: $("loc").value, home_food: $("food").value,
-    explore: parseFloat($("explore").value), note: $("note").value,
-  }, renderSolo);
-
-  // Enter in any text box submits that panel, as it would in a form
-  [["solo", "goSolo"], ["twin", "goTwin"]].forEach(([panel, go]) => $(panel).addEventListener("keydown", e => {
-    if (e.key === "Enter" && e.target.tagName === "INPUT" && !e.isComposing && !$(go).disabled) $(go).click();
-  }));
-
-  $("goTwin").onclick = () => needFavs("favsA", "favsB") && run($("goTwin"), "/api/twin/stream", {
-    me: readFavs("favsA"), friend: readFavs("favsB"), my_location: $("locA").value, friend_location: $("locB").value,
-  }, renderTwin);
+  history.replaceState({ step: 0 }, "", location.pathname);
+  go(0, { push: false });
 </script>
 </body>
 </html>
