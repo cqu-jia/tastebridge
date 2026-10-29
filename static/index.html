@@ -348,8 +348,8 @@
   };
 
   // ---------- state ----------
-  const blank = () => ({ mode: null, favs: [], loc: "", locLabel: "", food: "", foodLabel: "", mood: null, extras: [], noteText: "",
-    friendFavs: [], friendLoc: "", friendLocLabel: "" });
+  const blank = () => ({ mode: null, favs: [], loc: "", locLabel: "", locOk: null, food: "", foodLabel: "", mood: null, extras: [], noteText: "",
+    friendFavs: [], friendLoc: "", friendLocLabel: "", friendLocOk: null });
   let S = blank(), step = 0, map = null, busy = false;
 
   const FLOWS = {
@@ -519,6 +519,7 @@
 
   function locScreen(key, labelKey, kicker, ask) {
     let timer = null;
+    const okKey = key + "Ok";  // true found, false not found, null not checked yet
     return {
       kickerFn: kicker,
       html: () => `<h2 class="ask" tabindex="-1">${ask()}</h2>
@@ -528,18 +529,21 @@
         <div class="status" id="locStatus" aria-live="polite"></div>
         <div class="ideas"><div class="label">Popular with students</div>
           <div class="chipbtns">${AREAS.map(([label, v]) => `<button class="chipbtn" data-area="${esc(v)}" data-label="${esc(label)}" aria-pressed="${S[key] === v}">${esc(label)}</button>`).join("")}</div></div>`,
-      ready: () => !!S[key].trim(),
+      // From PR #2: don't let someone continue with an address we already know we can't find
+      ready: () => !!S[key].trim() && S[okKey] !== false,
       mount() {
         const input = $("locIn"), status = $("locStatus");
-        const set = (v, label) => { S[key] = v; S[labelKey] = label || v; };
+        const set = (v, label) => { S[key] = v; S[labelKey] = label || v; S[okKey] = null; };
         const check = async v => {
           v = v.trim();
           if (!v) { status.textContent = ""; status.className = "status"; return; }
           status.className = "status"; status.textContent = "Looking it up…";
           const where = await lookup(v);
           if (input.value.trim() !== v) return;  // typed on since
+          S[okKey] = !!where;
           status.className = where ? "status ok" : "status bad";
           status.textContent = where ? `✓ Found: ${where}` : "We can't find that. Try a UK postcode, like WC1E 6BT.";
+          refresh();
         };
         input.oninput = () => {
           set(input.value.trim());
@@ -558,7 +562,7 @@
           navigator.geolocation.getCurrentPosition(async pos => {
             const pc = await reverse(pos.coords.latitude, pos.coords.longitude);
             if (!pc) { status.className = "status bad"; status.textContent = "Couldn't turn your location into a UK postcode. Type one instead."; return; }
-            input.value = pc.postcode; set(pc.postcode, pc.postcode); refresh();
+            input.value = pc.postcode; set(pc.postcode, pc.postcode); S[okKey] = true; refresh();
             status.className = "status ok"; status.textContent = `✓ Found: ${pc.label}`;
           }, () => { status.className = "status bad"; status.textContent = "Location was blocked. Type a postcode instead."; }, { timeout: 10000 });
         };
